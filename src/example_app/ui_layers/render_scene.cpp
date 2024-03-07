@@ -33,7 +33,7 @@ export class SimpleRender : public Layer
             py::module add_module = py::module::import("scripts.add");
 
             auto add = add_module.attr("add");
-            std::cout << "Add result from Python script: " << add(2, 3, 5).cast<int>() << std::endl;
+            std::cout << "Add result from Python script: " << py::cast<int>(add(2, 3, 5)) << std::endl;
 
             pybind11::object fig = plt.attr("figure")();
             plt.attr("plot")(np.attr("random").attr("randn")(100));
