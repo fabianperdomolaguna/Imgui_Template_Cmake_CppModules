@@ -4,7 +4,7 @@
   <img src="https://img.shields.io/github/license/fabianperdomolaguna/Imgui_Template_Cmake_CppModules?style=for-the-badge" alt="alt text">
   <img src="https://img.shields.io/badge/OS-Linux%20%7C%20Windows-003366?style=for-the-badge&logo=Windows%20Terminal" alt="alt text">
   <img src="https://img.shields.io/badge/Solution-C++20-00559C?style=for-the-badge&logo=C%2B%2B" alt="alt text">
-  <img src="https://img.shields.io/badge/Python-3.9%20%7C%203.10-FFFF00?style=for-the-badge&logo=Python&logoColor=white" alt="alt text">
+  <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-FFFF00?style=for-the-badge&logo=Python&logoColor=white" alt="alt text">
 </p>
 
 ---
@@ -41,6 +41,7 @@ sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-16 100
 Once miniconda is installed, create a new environment and install the required Python packages:
 
 ```bash
+# Python environment version must be equal to miniconda python version (conda activate base --> python --version)
 conda create --name env_name python=3.10
 conda activate env_name
 
