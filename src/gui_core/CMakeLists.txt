@@ -1,5 +1,3 @@
-find_package(glfw3 REQUIRED CONFIG)
-
 add_library(gui_core STATIC)
 
 target_sources(gui_core

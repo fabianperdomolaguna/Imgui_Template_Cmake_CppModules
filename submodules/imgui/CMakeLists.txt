@@ -8,8 +8,6 @@ FetchContent_Declare(imgui
 
 FetchContent_GetProperties(imgui)
 
-find_package(glfw3 REQUIRED)
-
 if(NOT imgui_POPULATED)
    FetchContent_Populate(imgui)
 
