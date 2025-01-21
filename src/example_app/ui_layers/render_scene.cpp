@@ -42,11 +42,11 @@ export class SimpleRender : public Layer
             int width, height;
             pybind11::object canvas = agg.attr("FigureCanvasAgg")(fig);
             canvas.attr("draw")();
-            std::string data = py::cast<std::string>(canvas.attr("get_renderer")().attr("tostring_rgb")());
+            std::string data = py::cast<std::string>(canvas.attr("get_renderer")().attr("buffer_rgba")().attr("tobytes")());
             uint8_t* data_ptr = reinterpret_cast<uint8_t*>(const_cast<char*>(data.data()));
             std::tie(width, height) = py::cast<std::tuple<int, int>>(canvas.attr("get_width_height")());
 
-            mpl_texture = std::make_unique<Texture>(data_ptr, width, height, GL_RGB);
+            mpl_texture = std::make_unique<Texture>(data_ptr, width, height, GL_RGBA);
 
         } catch (py::error_already_set& err) {
             std::cout << err.what() << std::endl;
