@@ -13,11 +13,11 @@ import Layer;
 
 export class Application
 {
-    std::unique_ptr<ImguiContext> m_imgui_context;
-    std::vector<std::shared_ptr<Layer>> m_layer_stack;
-
+    
 public:
     std::unique_ptr<Window> m_window;
+	std::unique_ptr<ImguiContext> m_imgui_context;
+	std::vector<std::shared_ptr<Layer>> m_layer_stack;
     std::function<void()> m_menubar;
 
 	Application(std::string window_title)
@@ -35,14 +35,14 @@ public:
 			m_window->PreRender();
 			m_imgui_context->PreRender();
 
-		if (m_window->m_close_popup)
-			m_window->CloseAppPopup();
+			if (m_window->m_close_popup)
+				m_window->CloseAppPopup();
          
-		for (auto& layer_render : m_layer_stack)
-			layer_render->OnRender();
+			for (auto& layer_render : m_layer_stack)
+				layer_render->OnRender();
 
-		m_imgui_context->PostRender();
-		m_window->PostRender();
+			m_imgui_context->PostRender();
+			m_window->PostRender();
 		}
 	}
 

@@ -21,7 +21,7 @@ export class SimpleRender : public Layer
     std::unique_ptr<Texture> image_texture;
     std::unique_ptr<Texture> mpl_texture;
 
-    void OnAttach()
+    void OnAttach() override
     {
         auto image = ReadImage("cpp_python_logos.jpg");
         image_texture = std::make_unique<Texture>(image.data, image.width, image.height, image.format);
@@ -53,7 +53,7 @@ export class SimpleRender : public Layer
         }
     }
 
-    void OnRender()
+    void OnRender() override
     {
         static float clear_color[4] = { 0.45f, 0.55f, 0.60f, 1.00f };
         static float fraction = 0.0f;
@@ -84,5 +84,10 @@ export class SimpleRender : public Layer
         ImGui::Image(reinterpret_cast<void*>((uint64_t)mpl_texture->get_texture()), 
             { (float)mpl_texture->m_width, (float)mpl_texture->m_height});
         ImGui::End();
+    }
+
+    std::string GetName() const override 
+    {
+        return "Simple_Render";
     }
 };

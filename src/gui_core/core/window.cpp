@@ -86,7 +86,7 @@ public:
         ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
-        if (ImGui::BeginPopupModal("Close the application?", NULL, ImGuiWindowFlags_NoResize))
+        if (ImGui::BeginPopupModal("Close the application?", NULL))
         {
             ImGui::Text("Are you sure to close the application?\nActive edits will not be saved!\n\n");
             ImGui::Separator();

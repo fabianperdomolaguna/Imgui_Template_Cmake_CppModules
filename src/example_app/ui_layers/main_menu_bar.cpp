@@ -1,8 +1,8 @@
 module;
 
-#include <unordered_map>
+#include <iostream>
 #include <string>
-#include <algorithm>
+#include <vector>
 
 #include "imgui.h"
 
@@ -13,27 +13,47 @@ import ImguiContext;
 import Layer;
 import SettingsConfig;
 
-struct SettingsVariables
+void ShowStyleEditor(Application* app)
 {
-	std::unordered_map<std::string, bool> styles = { {"Dark", false}, {"Light", false} };
-};
+	ImGuiIO& io = ImGui::GetIO();
+
+	std::vector<std::string> themes = { "Dark", "Light" };
+	std::string style = GetConfigVariable<std::string>("GuiStyle");
+	if (ImGui::BeginCombo("Theme", style.c_str()))
+	{
+		for (auto theme : themes)
+		{
+			if (ImGui::Selectable(theme.c_str(), style == theme))
+			{
+				style = theme;
+				ChangeConfigVariable<std::string>("GuiStyle", style);
+				UpdateTheme();
+			}
+		}
+		ImGui::EndCombo();
+	}
+
+	static float size = io.FontDefault->FontSize;
+	if (ImGui::InputFloat("Font Size", &size, 1.0f, 0.0f, "%.0f")) {
+		app->m_imgui_context->change_font = true;
+		app->m_imgui_context->new_font_size = size;
+		ChangeConfigVariable<float>("FontSize", size);
+	}
+}
 
 export class MainMenuBar : public Layer
 {
-    Application* m_app;
-	SettingsVariables settings_variables;
+    bool show_style_editor = false;
+
+	Application* m_app;
 
 public:
 	MainMenuBar(Application* app) : m_app(app) {}
 
-	void OnAttach()
+	void OnRender() override
 	{
-		std::string current_style = GetConfigVariable("GuiStyle");
-		settings_variables.styles[current_style] = true;
-	}
+		ImGuiIO& io = ImGui::GetIO();
 
-	void OnRender()
-	{
 		if (ImGui::BeginMainMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
@@ -46,26 +66,24 @@ public:
 
 			if (ImGui::BeginMenu("Settings"))
 			{
-				if (ImGui::BeginMenu("Color Theme"))
-				{	
-					for (auto& color_style : settings_variables.styles)
-					{
-						if (ImGui::MenuItem(color_style.first.c_str(), "", color_style.second))
-						{
-							ChangeConfigVariable("GuiStyle", color_style.first);
-							UpdateTheme();
-							std::for_each(settings_variables.styles.begin(), settings_variables.styles.end(), 
-								[&](auto& pair){ pair.second = false; });
-							color_style.second = true;
-						}
-					}
-					ImGui::EndMenu();
-				}
+				ImGui::MenuItem("Style Editor", NULL, &show_style_editor);
 
 				ImGui::EndMenu();
 			}
 
 			ImGui::EndMainMenuBar();
 		}
+
+		if (show_style_editor)
+		{
+			ImGui::Begin("Style Editor", &show_style_editor);
+			ShowStyleEditor(m_app);
+			ImGui::End();
+		}
+	}
+
+	std::string GetName() const override
+	{
+		return "Menu_Bar";
 	}
 };

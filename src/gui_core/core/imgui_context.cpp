@@ -17,7 +17,31 @@ std::unordered_map <std::string, std::any> color_styles{ {"Dark", SetDarkTheme},
 
 export class ImguiContext
 {
+private:
+void LoadFonts(float font_size)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    io.Fonts->Clear();
+
+    ImFontConfig fontConfig;
+    fontConfig.FontDataOwnedByAtlas = false;
+    io.FontDefault = io.Fonts->AddFontFromFileTTF("fonts/Roboto_Regular.ttf", font_size, &fontConfig);
+
+    ImFontConfig fontConfigItalic;
+    fontConfigItalic.FontDataOwnedByAtlas = false;
+    ImFont* italic = io.Fonts->AddFontFromFileTTF("fonts/Roboto_Italic.ttf", font_size, &fontConfigItalic);
+
+    ImFontConfig fontConfigBold;
+    fontConfigBold.FontDataOwnedByAtlas = false;
+    ImFont* bold = io.Fonts->AddFontFromFileTTF("fonts/Roboto_Bold.ttf", font_size, &fontConfigBold);
+
+    io.Fonts->Build();
+}
+
 public:
+    bool change_font = false;
+    float new_font_size = 0.0f;
+
     ImguiContext(GLFWwindow* window)
     {
         IMGUI_CHECKVERSION();
@@ -26,12 +50,8 @@ public:
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-        // Load default font
-        ImFontConfig fontConfig;
-        fontConfig.FontDataOwnedByAtlas = false;
-        io.FontDefault = io.Fonts->AddFontFromFileTTF("fonts/Roboto_Regular.ttf", 18.0f, &fontConfig);
-        ImFont* italic = io.Fonts->AddFontFromFileTTF("fonts/Roboto_Italic.ttf", 18.0f, &fontConfig);
-        ImFont* bold = io.Fonts->AddFontFromFileTTF("fonts/Roboto_Bold.ttf", 18.0f, &fontConfig);
+        float font_size = GetConfigVariable<float>("FontSize");
+        LoadFonts(font_size);
 
         ImGuiStyle& style = ImGui::GetStyle();
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -42,7 +62,7 @@ public:
             style.Colors[ImGuiCol_WindowBg].w = 1.0f;
         }
 
-        std::string current_style = GetConfigVariable("GuiStyle");
+        std::string current_style = GetConfigVariable<std::string>("GuiStyle");
         std::any_cast <void (*) ()> (color_styles[current_style]) ();
 
         ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -58,6 +78,14 @@ public:
 
     void PreRender()
     {
+        if (change_font)
+        {
+            LoadFonts(new_font_size);
+            ImGui_ImplOpenGL3_DestroyFontsTexture();
+            ImGui_ImplOpenGL3_CreateFontsTexture();
+            change_font = false;
+        }
+        
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -97,6 +125,6 @@ public:
 
 export void UpdateTheme()
 {
-    std::string current_style = GetConfigVariable("GuiStyle");
+    std::string current_style = GetConfigVariable<std::string>("GuiStyle");
     std::any_cast <void (*) ()> (color_styles[current_style]) ();
 }
