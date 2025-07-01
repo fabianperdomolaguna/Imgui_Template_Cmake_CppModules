@@ -16,6 +16,7 @@ This project is a simple template to make desktop GUI apps with ImGui to be used
 - [1. Requirements](#1-requirements)
 - [2. Getting started](#2-getting-started)
 - [3. Build](#3-build)
+- [4. Use Wayland for window creation](#4-use-wayland-for-window-creation-linux)
 
 ## 1. Requirements
                       
@@ -85,6 +86,25 @@ In Linux if you get a similar error to `libGL error: MESA-LOADER: failed to open
 # Go to Python environment folder
 cd lib
 rm libstdc++.so*
+```
+## 4. Use Wayland for window creation (Linux)
+
+On Linux, you can create windows using either X11 or Wayland with GLFW (X11 is the default). To use Wayland, you need to have an active Wayland session, and you must apply the following commands and modifications to your CMake files.
+
+```bash
+# In the submodules/glfw/CMakeLists.txt file
+# add the following lines just before FetchContent_MakeAvailable(glfw)
+set(GLFW_BUILD_X11 OFF CACHE BOOL "" FORCE)
+set(GLFW_USE_WAYLAND ON CACHE BOOL "" FORCE)
+set(GLFW_BUILD_WAYLAND ON CACHE BOOL "" FORCE)
+
+# Install the following dependencies
+sudo apt install extra-cmake-modules
+sudo apt install libwayland-dev libxkbcommon-dev xorg-dev
+sudo apt install wayland-protocols
+
+# Verify you have a Wayland active session (should appear Wayland)
+echo $XDG_SESSION_TYPE
 ```
 
 <h1 align="center">
