@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "pybind11/embed.h"
 
 import Application;
@@ -8,14 +6,9 @@ import RenderScene;
 
 namespace py = pybind11;
 
-int main()
+int Main(int argc, char** argv)
 {	
-    std::cout << "[C++] Program started" << std::endl;
-
     py::scoped_interpreter guard{};
-    py::exec(R"(
-        print("[Python] Intrepreter says hello!")
-    )");
 
     Application* app = new Application("ImGui - OpenGL Context");
 
@@ -25,4 +18,20 @@ int main()
     app->Run();
 
     delete app;
+
+    return 0;
 }
+
+#if defined(_WIN32) && !defined(_DEBUG)
+    #include <Windows.h>
+
+    int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow)
+    {
+        return Main(__argc, __argv);
+    }
+#else
+    int main(int argc, char** argv)
+    {
+        return Main(argc, argv);
+    }
+#endif

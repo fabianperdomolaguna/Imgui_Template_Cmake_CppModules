@@ -22,6 +22,13 @@ target_link_libraries(example
   pybind11::embed
 )
 
+if (WIN32)
+  target_link_options(example PRIVATE
+    "$<$<CONFIG:Release>:/SUBSYSTEM:WINDOWS>"
+    "$<$<NOT:$<CONFIG:Release>>:/SUBSYSTEM:CONSOLE>"
+  )
+endif()
+
 file(COPY imgui.ini DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 file(COPY cpp_python_logos.jpg DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 file(COPY scripts DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
