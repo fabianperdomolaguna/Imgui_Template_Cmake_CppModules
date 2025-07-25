@@ -20,17 +20,27 @@ export class SimpleRender : public Layer
 {
     std::unique_ptr<Texture> image_texture;
     std::unique_ptr<Texture> mpl_texture;
+    std::string m_executable_path;
+    
+public:
+    SimpleRender(std::string executable_path)
+    {
+        m_executable_path = executable_path;
+    }
 
     void OnAttach() override
     {
-        auto image = ReadImage("cpp_python_logos.jpg");
+        auto image = ReadImage(m_executable_path + "/cpp_python_logos.jpg");
         image_texture = std::make_unique<Texture>(image.data, image.width, image.height, image.format);
 
         try {
             py::module np = py::module::import("numpy");
             py::module plt = py::module::import("matplotlib.pyplot");
             py::module agg = py::module::import("matplotlib.backends.backend_agg");
-            py::module add_module = py::module::import("scripts.add");
+
+            py::module sys = py::module::import("sys");
+            sys.attr("path").attr("insert")(0, m_executable_path + "/scripts");
+            py::module add_module = py::module::import("add");
 
             auto add = add_module.attr("add");
             std::cout << "Add result from Python script: " << py::cast<int>(add(2, 3, 5)) << std::endl;

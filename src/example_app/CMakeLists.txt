@@ -15,6 +15,7 @@ target_sources(example
 
 target_include_directories(example PRIVATE
   ${OPENGL_INCLUDE_DIR}
+  icon
 )
 
 target_link_libraries(example
@@ -27,8 +28,11 @@ if (WIN32)
     "$<$<CONFIG:Release>:/SUBSYSTEM:WINDOWS>"
     "$<$<NOT:$<CONFIG:Release>>:/SUBSYSTEM:CONSOLE>"
   )
+
+  target_sources(example PRIVATE icon/app_icon.rc)
 endif()
 
+file(COPY app_logo.svg DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 file(COPY imgui.ini DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 file(COPY cpp_python_logos.jpg DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 file(COPY scripts DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

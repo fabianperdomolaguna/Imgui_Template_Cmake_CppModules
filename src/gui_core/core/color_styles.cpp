@@ -31,7 +31,7 @@ export void SetDarkTheme()
     const ImVec4 check_color = ColorFromBytes(255, 153, 0);
 
 
-    colors[ImGuiCol_WindowBg] = ImVec4{ 0.1f, 0.1f, 0.1f, 1.0f };
+    colors[ImGuiCol_WindowBg] = ImVec4{ 0.18f, 0.18f, 0.18f, 1.0f };
     colors[ImGuiCol_ChildBg] = bg_color;
     colors[ImGuiCol_PopupBg] = bg_color;
 

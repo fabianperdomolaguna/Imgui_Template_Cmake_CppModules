@@ -19,7 +19,7 @@ This project is a simple template to make desktop GUI apps with ImGui to be used
 - [4. Use Wayland for window creation](#4-use-wayland-for-window-creation-linux)
 
 ## 1. Requirements
-                      
+
 - [CMake](https://cmake.org/) (minimum version 3.28)
 - [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
 - Visual Studio 2022 or LLVM/Clang 17 (or newer)
@@ -36,7 +36,7 @@ sudo ./llvm.sh <version number> all
 
 # Set Clang version as the default compiler
 sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-16 100
-sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-16 100                     
+sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-16 100
 ```
 
 Once miniconda is installed, create a new environment and install the required Python packages:
@@ -49,16 +49,16 @@ conda activate env_name
 # Install required packages
 pip install numpy
 pip install matplotlib
-            
+
 # You can also use a requirements.txt file to install specific packages version
 pip install -r requirements.txt
-    
-# For build stage is required enter the path to the python environment. 
+
+# For build stage is required enter the path to the python environment.
 # Verify Miniconda installation folder and the python environment will as a folder in the folder envs. Here and example:
 /home/computer/miniconda3/envs/env_name/
 
 # You can verify environment folder with the following command
-conda env list                        
+conda env list
 ```
 
 ## 3. Build
@@ -72,12 +72,12 @@ cd Imgui_Template_Cmake_CppModules
 CXX=clang++ CC=clang cmake -GNinja -B build -DPYTHON_PATH=/path/to/python_environment
 cmake --build build
 
-# In Windows systems configure project with the following command. 
+# In Windows systems configure project with the following command.
 cmake -B build -DPYTHON_PATH=/path/to/python_environment
-                     
+
 # Run the app
 cd build/bin
-./example            
+./example
 ```
 
 In Linux if you get a similar error to `libGL error: MESA-LOADER: failed to open crocus`, this is a Conda issue related to the pyinstaller and old libstdc++ library. To solve this remove libstdc++ from python environment folder:
@@ -87,6 +87,7 @@ In Linux if you get a similar error to `libGL error: MESA-LOADER: failed to open
 cd lib
 rm libstdc++.so*
 ```
+
 ## 4. Use Wayland for window creation (Linux)
 
 On Linux, you can create windows using either X11 or Wayland with GLFW (X11 is the default). To use Wayland, you need to have an active Wayland session, and you must apply the following commands and modifications to your CMake files.
@@ -106,6 +107,42 @@ sudo apt install wayland-protocols
 # Verify you have a Wayland active session (should appear Wayland)
 echo $XDG_SESSION_TYPE
 ```
+
+## 5. Additional characteristics
+
+Added a method to set a custom window icon in the Application class. This uses glfwSetWindowIcon to apply a custom icon to the application window.
+
+```cpp
+# Use in app settings in main function
+app->SetWindowIcon("icon_image_path")
+```
+
+An .ico file is embedded in the executable via a .rc file, which ensures the .exe displays the custom icon in File Explorer and the icon appears in the Windows Taskbar.
+
+```cpp
+# .rc file content
+IDI_ICON1 ICON "app.ico"
+
+# .rc file project inclusion using CMake
+if (WIN32)
+  target_sources(example PRIVATE rc_file_path)
+endif()
+```
+
+The .ico was created using GIMP with the following steps:
+
+- Scale your image to 16x16, 32x32, 64x64, 128x128 and 256x256 pixels, using the tool Image Menu > Scale Image
+- Export each image to .png (e.g. icon_16.png) in File Menu > Export As
+- Load all images using Open as Layers option in the File Menu
+- Export your project layers in File Menu > Export As using the extension Microsoft Windows icon (.ico)
+
+Additionally, the creation of a Linux application launcher with an assigned icon and taskbar integration is described below:
+
+- Install MenuLibre in your system using the App Center or with the following command `sudo apt install menulibre`
+- Add the path to the `/bin` directory to your `.profile` file to make the launcher accessible system-wide. The .profile file is located in home folder and the path is added with the following line `export PATH="/path/folder/bin:$PATH"`
+- Open MenuLibre -> Add a New Launcher -> Replace the name with your application's name -> Insert the executable name in the Command section -> Select the file to use as the logo associated with the launcher
+- If the application icon doesn't appear correctly in the taskbar when launched, you need to add `StartupWMClass=WM_Class` to the .desktop file located in `/home/.local/share/applications/menulibre-launchername.desktop`.
+- To get the WM Class of an application, first open the app, then run the command `xprop | grep WM_CLASS` in a terminal. When prompted, click inside the application's window. The terminal will output something like WM_CLASS(STRING) = "example-class", "example-class", which you can use as the value for StartupWMClass in the `.desktop` file.
 
 <h1 align="center">
   <img src="assets/app_template.png" />

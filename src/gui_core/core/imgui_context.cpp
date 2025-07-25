@@ -18,22 +18,22 @@ std::unordered_map <std::string, std::any> color_styles{ {"Dark", SetDarkTheme},
 export class ImguiContext
 {
 private:
-void LoadFonts(float font_size)
+void LoadFonts(std::string executable_path, float font_size)
 {
     ImGuiIO& io = ImGui::GetIO();
     io.Fonts->Clear();
 
     ImFontConfig fontConfig;
     fontConfig.FontDataOwnedByAtlas = false;
-    io.FontDefault = io.Fonts->AddFontFromFileTTF("fonts/Roboto_Regular.ttf", font_size, &fontConfig);
+    io.FontDefault = io.Fonts->AddFontFromFileTTF((executable_path + "/fonts/Roboto_Regular.ttf").c_str(), font_size, &fontConfig);
 
     ImFontConfig fontConfigItalic;
     fontConfigItalic.FontDataOwnedByAtlas = false;
-    ImFont* italic = io.Fonts->AddFontFromFileTTF("fonts/Roboto_Italic.ttf", font_size, &fontConfigItalic);
+    ImFont* italic = io.Fonts->AddFontFromFileTTF((executable_path + "/fonts/Roboto_Italic.ttf").c_str(), font_size, &fontConfigItalic);
 
     ImFontConfig fontConfigBold;
     fontConfigBold.FontDataOwnedByAtlas = false;
-    ImFont* bold = io.Fonts->AddFontFromFileTTF("fonts/Roboto_Bold.ttf", font_size, &fontConfigBold);
+    ImFont* bold = io.Fonts->AddFontFromFileTTF((executable_path + "/fonts/Roboto_Bold.ttf").c_str(), font_size, &fontConfigBold);
 
     io.Fonts->Build();
 }
@@ -41,17 +41,23 @@ void LoadFonts(float font_size)
 public:
     bool change_font = false;
     float new_font_size = 0.0f;
+    std::string m_executable_path;
+    std::string m_ini_file_path;
 
-    ImguiContext(GLFWwindow* window)
+    ImguiContext(GLFWwindow* window, std::string executable_path)
     {
+        m_executable_path = executable_path;
+        m_ini_file_path = executable_path + "/imgui.ini";
+
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
+        io.IniFilename = m_ini_file_path.c_str();
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-        float font_size = GetConfigVariable<float>("FontSize");
-        LoadFonts(font_size);
+        float font_size = GetConfigVariable<float>(m_executable_path, "FontSize");
+        LoadFonts(m_executable_path, font_size);
 
         ImGuiStyle& style = ImGui::GetStyle();
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -62,7 +68,7 @@ public:
             style.Colors[ImGuiCol_WindowBg].w = 1.0f;
         }
 
-        std::string current_style = GetConfigVariable<std::string>("GuiStyle");
+        std::string current_style = GetConfigVariable<std::string>(m_executable_path, "GuiStyle");
         std::any_cast <void (*) ()> (color_styles[current_style]) ();
 
         ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -80,7 +86,7 @@ public:
     {
         if (change_font)
         {
-            LoadFonts(new_font_size);
+            LoadFonts(m_executable_path, new_font_size);
             ImGui_ImplOpenGL3_DestroyFontsTexture();
             ImGui_ImplOpenGL3_CreateFontsTexture();
             change_font = false;
@@ -123,8 +129,8 @@ public:
     }
 };
 
-export void UpdateTheme()
+export void UpdateTheme(std::string executable_path)
 {
-    std::string current_style = GetConfigVariable<std::string>("GuiStyle");
+    std::string current_style = GetConfigVariable<std::string>(executable_path, "GuiStyle");
     std::any_cast <void (*) ()> (color_styles[current_style]) ();
 }

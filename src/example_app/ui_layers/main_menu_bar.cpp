@@ -13,12 +13,11 @@ import ImguiContext;
 import Layer;
 import SettingsConfig;
 
-void ShowStyleEditor(Application* app)
+void ShowStyleEditor(Application* app, std::string& style, float& size)
 {
 	ImGuiIO& io = ImGui::GetIO();
 
-	std::vector<std::string> themes = { "Dark", "Light" };
-	std::string style = GetConfigVariable<std::string>("GuiStyle");
+	static std::vector<std::string> themes = { "Dark", "Light" };
 	if (ImGui::BeginCombo("Theme", style.c_str()))
 	{
 		for (auto theme : themes)
@@ -26,29 +25,34 @@ void ShowStyleEditor(Application* app)
 			if (ImGui::Selectable(theme.c_str(), style == theme))
 			{
 				style = theme;
-				ChangeConfigVariable<std::string>("GuiStyle", style);
-				UpdateTheme();
+				ChangeConfigVariable<std::string>(app->m_executable_path, "GuiStyle", style);
+				UpdateTheme(app->m_executable_path);
 			}
 		}
 		ImGui::EndCombo();
 	}
 
-	static float size = io.FontDefault->FontSize;
 	if (ImGui::InputFloat("Font Size", &size, 1.0f, 0.0f, "%.0f")) {
 		app->m_imgui_context->change_font = true;
 		app->m_imgui_context->new_font_size = size;
-		ChangeConfigVariable<float>("FontSize", size);
+		ChangeConfigVariable<float>(app->m_executable_path, "FontSize", size);
 	}
 }
 
 export class MainMenuBar : public Layer
 {
     bool show_style_editor = false;
+	std::string m_gui_style;
+	float m_font_size;
 
 	Application* m_app;
 
 public:
-	MainMenuBar(Application* app) : m_app(app) {}
+	MainMenuBar(Application* app) : m_app(app) 
+	{
+		m_gui_style = GetConfigVariable<std::string>(app->m_executable_path, "GuiStyle");
+		m_font_size = GetConfigVariable<float>(app->m_executable_path, "FontSize");
+	}
 
 	void OnRender() override
 	{
@@ -77,7 +81,7 @@ public:
 		if (show_style_editor)
 		{
 			ImGui::Begin("Style Editor", &show_style_editor);
-			ShowStyleEditor(m_app);
+			ShowStyleEditor(m_app, m_gui_style, m_font_size);
 			ImGui::End();
 		}
 	}
