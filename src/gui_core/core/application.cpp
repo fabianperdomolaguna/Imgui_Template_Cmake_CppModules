@@ -23,9 +23,6 @@ struct AppSpecfication
 	std::string name;
 	int32_t width;
 	int32_t height;
-
-	bool customTitleBar = false;
-	bool centerWindow = false;
 };
 
 export class Application
@@ -87,19 +84,25 @@ public:
 	
 	void SetWindowIcon(std::string icon_path)
 	{
-    	auto image = ReadImage(icon_path);
-
-    	if (!image.success) {
-        	std::cout << "Error: the icon could not be set. Image not loaded." << std::endl;
-        	return;
-    	}
+		ImageTexture image = ImageTexture(icon_path, GL_RGBA);
     
     	GLFWimage icon;
-    	icon.width = image.width;
-    	icon.height = image.height;
-    	icon.pixels = image.data;
+		icon.width = image.m_width;
+		icon.height = image.m_height;
+		icon.pixels = image.m_data;
 
-    	glfwSetWindowIcon(m_window->m_window, 1, &icon);
-    	stbi_image_free(image.data);
+		glfwSetWindowIcon(m_window->m_window, 1, &icon);
+	}
+
+	void SetWindowIcon(uint8_t* image_data, uint32_t image_size)
+	{
+		ImageTexture image = ImageTexture(image_data, image_size, GL_RGBA);
+
+		GLFWimage icon;
+		icon.width = image.m_width;
+		icon.height = image.m_height;
+		icon.pixels = image.m_data;
+
+		glfwSetWindowIcon(m_window->m_window, 1, &icon);
 	}
 };

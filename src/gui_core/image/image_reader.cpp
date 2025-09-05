@@ -10,31 +10,76 @@ module;
 
 export module Image;
 
-struct ImageData
+export class ImageTexture
 {
-    uint8_t* data = nullptr;
-    int width;
-    int height;
-    int channels;
-    uint32_t format;
-    bool success;
-};
+    uint32_t m_render_texture = 0;
 
-export ImageData ReadImage(std::string file_path)
-{
-    ImageData image_data;
+public:
+    
+	uint8_t* m_data = nullptr;
+	int m_width = 0;
+	int m_height = 0;
+	int m_channels = 0;
+	uint32_t m_format;
 
-    image_data.data = stbi_load(file_path.c_str(), 
-        &image_data.width, &image_data.height, &image_data.channels, 4);
-    image_data.format = GL_RGBA;
+    ImageTexture(std::string file_path, uint32_t image_format, bool texture = false)
+    {
+		m_data = stbi_load(file_path.c_str(), &m_width, &m_height, &m_channels, 4);
+		m_format = image_format;
 
-    if (!image_data.data) {
-        std::cout << "Failed to load image: " << file_path << std::endl;
-        image_data.success = false;
-        return ImageData{};
+        if (!m_data) 
+        {
+            std::cout << "Failed to load image: " << file_path << std::endl;
+            return;
+		}
+
+        if (texture)
+			create_texture();
     }
 
-    image_data.success = true;
+    ImageTexture(const uint8_t* image_data, uint32_t image_size, uint32_t image_format, bool texture = false)
+    {
+        m_data = stbi_load_from_memory(image_data, image_size, &m_width, &m_height, &m_channels, 4);
+        m_format = image_format;
 
-    return image_data;
-}
+        if (!m_data)
+        {
+            std::cout << "Failed to load image from memory" << std::endl;
+            return;
+        }
+
+        if (texture)
+            create_texture();
+	}
+
+    void create_texture()
+    {
+        glGenTextures(1, &m_render_texture);
+        glBindTexture(GL_TEXTURE_2D, m_render_texture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, m_format, m_width, m_height, 0, m_format, GL_UNSIGNED_BYTE, m_data);
+
+        stbi_image_free(m_data);
+        m_data = nullptr;
+	}
+
+    ~ImageTexture()
+    {
+        if (m_render_texture) 
+        {
+            glDeleteTextures(1, &m_render_texture);
+        }
+        else 
+        {
+            stbi_image_free(m_data);
+        }
+    }
+
+    bool is_valid() const { return m_render_texture != 0; }
+
+    uint32_t get_texture()
+    {
+        return m_render_texture;
+    }
+};

@@ -1,5 +1,6 @@
-#include "GLFW/glfw3.h"
 #include "pybind11/embed.h"
+
+#include "icon_app.h"
 
 import Application;
 import MainMenuBar;
@@ -7,6 +8,7 @@ import RenderScene;
 
 namespace py = pybind11;
 
+/* Assign Icons with IDI Icon Resource*/
 #if defined(_WIN32)
   #include "GLFW/glfw3.h"
   #define GLFW_EXPOSE_NATIVE_WIN32
@@ -29,6 +31,7 @@ int Main(int argc, char** argv)
     py::scoped_interpreter guard{};
 
     Application* app = new Application("ImGui - OpenGL Context", 1600, 800);
+    app->SetWindowIcon(g_icon_app, g_icon_app_len);
 
     app->PushLayerApp<MainMenuBar>();
     app->PushLayer<SimpleRender>(app->m_executable_path);

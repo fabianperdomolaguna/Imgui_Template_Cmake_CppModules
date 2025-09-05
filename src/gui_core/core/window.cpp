@@ -34,6 +34,7 @@ public:
 
         m_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), nullptr, nullptr);
         glfwMakeContextCurrent(m_window);
+        glfwSwapInterval(0);
 
         if (!m_window)
         {

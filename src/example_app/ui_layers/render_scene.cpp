@@ -18,7 +18,7 @@ namespace py = pybind11;
 
 export class SimpleRender : public Layer
 {
-    std::unique_ptr<Texture> image_texture;
+    std::unique_ptr<ImageTexture> image_texture;
     std::unique_ptr<Texture> mpl_texture;
     std::string m_executable_path;
     
@@ -30,10 +30,10 @@ public:
 
     void OnAttach() override
     {
-        auto image = ReadImage(m_executable_path + "/cpp_python_logos.jpg");
-        image_texture = std::make_unique<Texture>(image.data, image.width, image.height, image.format);
+        image_texture = std::make_unique<ImageTexture>(m_executable_path + "/cpp_python_logos.jpg", GL_RGBA, true);
 
         try {
+            py::module::import("matplotlib").attr("use")("Agg");
             py::module np = py::module::import("numpy");
             py::module plt = py::module::import("matplotlib.pyplot");
             py::module agg = py::module::import("matplotlib.backends.backend_agg");

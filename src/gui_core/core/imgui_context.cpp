@@ -18,25 +18,25 @@ std::unordered_map <std::string, std::any> color_styles{ {"Dark", SetDarkTheme},
 export class ImguiContext
 {
 private:
-void LoadFonts(std::string executable_path, float font_size)
-{
-    ImGuiIO& io = ImGui::GetIO();
-    io.Fonts->Clear();
+    void LoadFonts(std::string executable_path, float font_size)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        io.Fonts->Clear();
 
-    ImFontConfig fontConfig;
-    fontConfig.FontDataOwnedByAtlas = false;
-    io.FontDefault = io.Fonts->AddFontFromFileTTF((executable_path + "/fonts/Roboto_Regular.ttf").c_str(), font_size, &fontConfig);
+        ImFontConfig fontConfig;
+        fontConfig.FontDataOwnedByAtlas = false;
+        io.FontDefault = io.Fonts->AddFontFromFileTTF((executable_path + "/fonts/Roboto_Regular.ttf").c_str(), font_size, &fontConfig);
 
-    ImFontConfig fontConfigItalic;
-    fontConfigItalic.FontDataOwnedByAtlas = false;
-    ImFont* italic = io.Fonts->AddFontFromFileTTF((executable_path + "/fonts/Roboto_Italic.ttf").c_str(), font_size, &fontConfigItalic);
+        ImFontConfig fontConfigItalic;
+        fontConfigItalic.FontDataOwnedByAtlas = false;
+        ImFont* italic = io.Fonts->AddFontFromFileTTF((executable_path + "/fonts/Roboto_Italic.ttf").c_str(), font_size, &fontConfigItalic);
 
-    ImFontConfig fontConfigBold;
-    fontConfigBold.FontDataOwnedByAtlas = false;
-    ImFont* bold = io.Fonts->AddFontFromFileTTF((executable_path + "/fonts/Roboto_Bold.ttf").c_str(), font_size, &fontConfigBold);
+        ImFontConfig fontConfigBold;
+        fontConfigBold.FontDataOwnedByAtlas = false;
+        ImFont* bold = io.Fonts->AddFontFromFileTTF((executable_path + "/fonts/Roboto_Bold.ttf").c_str(), font_size, &fontConfigBold);
 
-    io.Fonts->Build();
-}
+        io.Fonts->Build();
+    }
 
 public:
     bool change_font = false;
@@ -106,9 +106,13 @@ public:
         ImGui::SetNextWindowSize(viewport->Size);
         ImGui::SetNextWindowViewport(viewport->ID);
 
-        ImGui::Begin("InvisibleWindow", nullptr, window_flags);
-        ImGuiID dockSpaceId = ImGui::GetID("InvisibleWindowDockSpace");
-        ImGui::DockSpace(dockSpaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        ImGui::Begin("DockspaceWindow", nullptr, window_flags);
+        ImGui::PopStyleVar(3);
+        ImGuiID dockspace_id = ImGui::GetID("WindowDockSpace");
+        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
         ImGui::End();
     }
 

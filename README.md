@@ -17,6 +17,8 @@ This project is a simple template to make desktop GUI apps with ImGui to be used
 - [2. Getting started](#2-getting-started)
 - [3. Build](#3-build)
 - [4. Use Wayland for window creation](#4-use-wayland-for-window-creation-linux)
+- [5. Additional characteristics](#5-additional-characteristics)
+- [6. Utils](#6-utils)
 
 ## 1. Requirements
 
@@ -114,7 +116,11 @@ Added a method to set a custom window icon in the Application class. This uses g
 
 ```cpp
 # Use in app settings in main function
+# To load from file
 app->SetWindowIcon("icon_image_path")
+
+# To load from memory using a header
+app->SetWindowIcon(g_icon_app, g_icon_app_len);
 ```
 
 An .ico file is embedded in the executable via a .rc file, which ensures the .exe displays the custom icon in File Explorer and the icon appears in the Windows Taskbar.
@@ -131,18 +137,22 @@ endif()
 
 The .ico was created using GIMP with the following steps:
 
-- Scale your image to 16x16, 32x32, 64x64, 128x128 and 256x256 pixels, using the tool Image Menu > Scale Image
-- Export each image to .png (e.g. icon_16.png) in File Menu > Export As
-- Load all images using Open as Layers option in the File Menu
-- Export your project layers in File Menu > Export As using the extension Microsoft Windows icon (.ico)
+\- Scale your image to 16x16, 32x32, 64x64, 128x128 and 256x256 pixels, using the tool Image Menu > Scale Image
+\- Export each image to .png (e.g. icon_16.png) in File Menu > Export As
+\- Load all images using Open as Layers option in the File Menu
+\- Export your project layers in File Menu > Export As using the extension Microsoft Windows icon (.ico)
 
 Additionally, the creation of a Linux application launcher with an assigned icon and taskbar integration is described below:
 
-- Install MenuLibre in your system using the App Center or with the following command `sudo apt install menulibre`
-- Add the path to the `/bin` directory to your `.profile` file to make the launcher accessible system-wide. The .profile file is located in home folder and the path is added with the following line `export PATH="/path/folder/bin:$PATH"`
-- Open MenuLibre -> Add a New Launcher -> Replace the name with your application's name -> Insert the executable name in the Command section -> Select the file to use as the logo associated with the launcher
-- If the application icon doesn't appear correctly in the taskbar when launched, you need to add `StartupWMClass=WM_Class` to the .desktop file located in `/home/.local/share/applications/menulibre-launchername.desktop`.
-- To get the WM Class of an application, first open the app, then run the command `xprop | grep WM_CLASS` in a terminal. When prompted, click inside the application's window. The terminal will output something like WM_CLASS(STRING) = "example-class", "example-class", which you can use as the value for StartupWMClass in the `.desktop` file.
+\- Install MenuLibre in your system using the App Center or with the following command `sudo apt install menulibre`
+\- Add the path to the `/bin` directory to your `.profile` file to make the launcher accessible system-wide. The .profile file is located in home folder and the path is added with the following line `export PATH="/path/folder/bin:$PATH"`
+\- Open MenuLibre -> Add a New Launcher -> Replace the name with your application's name -> Insert the executable name in the Command section -> Select the file to use as the logo associated with the launcher
+\- If the application icon doesn't appear correctly in the taskbar when launched, you need to add `StartupWMClass=WM_Class` to the .desktop file located in `/home/.local/share/applications/menulibre-launchername.desktop`.
+\- To get the WM Class of an application, first open the app, then run the command `xprop | grep WM_CLASS` in a terminal. When prompted, click inside the application's window. The terminal will output something like WM_CLASS(STRING) = "example-class", "example-class", which you can use as the value for StartupWMClass in the `.desktop` file.
+
+## 6. Utils
+
+\- Python script for embedding images into memory headers (.h) and restoring them.
 
 <h1 align="center">
   <img src="assets/app_template.png" />
