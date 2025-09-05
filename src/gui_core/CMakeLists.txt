@@ -50,7 +50,6 @@ target_sources(gui_core
 )
 
 target_include_directories(gui_core PUBLIC
-  "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/submodules/stb_image>"
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/path/include>"
 )
 
@@ -59,6 +58,7 @@ target_link_libraries(gui_core
   glad
   imgui
   nlohmann_json::nlohmann_json
+  stb
 )
 
 file(COPY ConfigFile.json DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
