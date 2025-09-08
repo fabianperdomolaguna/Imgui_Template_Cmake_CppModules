@@ -2,7 +2,7 @@ include(FetchContent)
 
 FetchContent_Declare(stb
    GIT_REPOSITORY https://github.com/nothings/stb.git
-   GIT_TAG        f58f558
+   GIT_TAG        master
    GIT_SHALLOW    TRUE
 )
   
