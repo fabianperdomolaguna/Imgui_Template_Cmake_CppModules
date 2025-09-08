@@ -2,6 +2,7 @@ module;
 
 #include <iostream>
 #include <string>
+#include <array>
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -14,13 +15,14 @@ export class Window
     std::string m_title;
     uint16_t m_width;
     uint16_t m_height;
+    std::array<float, 4> clear_color;
 
 public:
     GLFWwindow* m_window;
     bool m_running = true;
     bool m_close_popup = false;
 
-    Window(std::string title, int32_t width, int32_t height)
+    Window(std::string title, int32_t width, int32_t height, bool custom_title_bar)
     {
         m_title = title;
         m_width = width;
@@ -30,6 +32,14 @@ public:
         {
             std::cout << "Could not intialize GLFW!\n";
             m_running = false;
+        }
+
+        if (custom_title_bar){
+            glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+            glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
+            clear_color = { 0.0f, 0.0f, 0.0f, 0.0f };
+        } else {
+            clear_color = { 0.2f, 0.2f, 0.2f, 1.0f };
         }
 
         m_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), nullptr, nullptr);
@@ -70,8 +80,8 @@ public:
     void PreRender()
     {
         glViewport(0, 0, m_width, m_height);
-        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearBufferfv(GL_COLOR, 0, clear_color.data());
+        glClear(GL_DEPTH_BUFFER_BIT);
     }
 
     void PostRender()

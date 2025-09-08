@@ -44,6 +44,8 @@ public:
     std::string m_executable_path;
     std::string m_ini_file_path;
 
+    float header_area_height = 0.0f;
+
     ImguiContext(GLFWwindow* window, std::string executable_path)
     {
         m_executable_path = executable_path;
@@ -82,7 +84,7 @@ public:
         ImGui::DestroyContext();
     }
 
-    void PreRender()
+    void PreRender(bool custom_title_bar)
     {
         if (change_font)
         {
@@ -99,21 +101,26 @@ public:
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
             ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
             ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
-            ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_MenuBar;
+            ImGuiWindowFlags_NoBackground;
+
+        if (!custom_title_bar)
+        {
+            window_flags |= ImGuiWindowFlags_MenuBar;
+        }
 
         ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(viewport->Pos);
-        ImGui::SetNextWindowSize(viewport->Size);
+        ImGui::SetNextWindowPos(ImVec2(viewport->Pos.x, viewport->Pos.y + header_area_height));
+        ImGui::SetNextWindowSize(ImVec2(viewport->Size.x, viewport->Size.y - header_area_height));
         ImGui::SetNextWindowViewport(viewport->ID);
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
         ImGui::Begin("DockspaceWindow", nullptr, window_flags);
-        ImGui::PopStyleVar(3);
         ImGuiID dockspace_id = ImGui::GetID("WindowDockSpace");
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
         ImGui::End();
+        ImGui::PopStyleVar(3);
     }
 
     void PostRender()

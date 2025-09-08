@@ -18,32 +18,35 @@ import ImguiContext;
 import Layer;
 import Image;
 
-struct AppSpecfication
+struct AppSpecification
 {
-	std::string name;
+	std::string title;
 	int32_t width;
 	int32_t height;
+	bool custom_title_bar;
 };
 
 export class Application
 {
     
 public:
-	AppSpecfication m_app_specification;
+	AppSpecification m_app_specification;
     std::unique_ptr<Window> m_window;
 	std::unique_ptr<ImguiContext> m_imgui_context;
 	std::vector<std::shared_ptr<Layer>> m_layer_stack;
     
 	std::string m_executable_path;
 
-	Application(std::string window_title, int32_t width, int32_t height)
+	Application(const AppSpecification& spec) : m_app_specification(spec)
 	{
-		m_app_specification.name = window_title;
-		m_app_specification.width = width;
-		m_app_specification.height = height;
 		m_executable_path = GetExecutablePath().string();
 
-		m_window = std::make_unique<Window>(window_title, width, height);
+		m_window = std::make_unique<Window>(
+			m_app_specification.title,
+			m_app_specification.width,
+			m_app_specification.height,
+			m_app_specification.custom_title_bar
+		);
 		m_imgui_context = std::make_unique<ImguiContext>(m_window->m_window, m_executable_path);
 	}
 
@@ -54,7 +57,7 @@ public:
 		while (m_window->m_running)
 		{
 			m_window->PreRender();
-			m_imgui_context->PreRender();
+			m_imgui_context->PreRender(m_app_specification.custom_title_bar);
 
 			if (m_window->m_close_popup)
 				m_window->CloseAppPopup();
