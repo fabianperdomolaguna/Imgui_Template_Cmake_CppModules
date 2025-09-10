@@ -34,12 +34,11 @@ void ShowStyleEditor(Application* app, std::string& style, float& size)
 		ImGui::EndCombo();
 	}
 
-	if (ImGui::InputFloat("Font Size", &size, 1.0f, 0.0f, "%.0f")) 
+	if (ImGui::InputFloat("Font Size", &size, 1.0f, 0.0f, "%.0f", ImGuiInputTextFlags_EnterReturnsTrue))
 	{
 		app->m_imgui_context->new_font_size = size;
 		app->m_imgui_context->change_font = true;
 		ChangeConfigVariable<float>(app->m_executable_path, "FontSize", size);
-		app->m_imgui_context->header_height[1] = ImGui::GetFrameHeight();
 	}
 }
 
@@ -50,7 +49,6 @@ export class MenuBar : public Layer
 	float m_font_size;
 
 	Application* m_app;
-	uint8_t previous_layers;
 	bool first_render = true;
 
 public:
@@ -63,6 +61,13 @@ public:
 	void OnRender() override
 	{
 		static auto _ = (m_app->m_imgui_context->header_height.push_back(ImGui::GetFrameHeight()), 0);
+
+		static float last_frame_height = ImGui::GetFrameHeight();
+		if (ImGui::GetFrameHeight() != last_frame_height)
+		{
+			m_app->m_imgui_context->header_height[1] = ImGui::GetFrameHeight();
+			last_frame_height = ImGui::GetFrameHeight();
+		}
 
 		if (BeginViewportFixedBar("##MainMenuBarCustom", ImGui::GetMainViewport(),
 			0.0f, m_app->m_imgui_context->header_height[0], 
