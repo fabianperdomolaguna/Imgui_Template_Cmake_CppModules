@@ -6,6 +6,7 @@ set(MODULE_Core
   core/imgui_context.cpp
   core/layer.cpp
   core/color_styles.cpp
+  core/custom_widgets.cpp
 )
 
 set(MODULE_Config

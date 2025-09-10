@@ -6,7 +6,7 @@ set(MODULE_UI_Layers
   ui_layers/main_menu_bar.cpp
   ui_layers/render_scene.cpp
   ui_layers/title_bar.cpp
-  ui_layers/menu_bar.cpp
+  ui_layers/custom_main_menu_bar.cpp
 )
 
 set(ALL_MODULE_FILES

@@ -14,23 +14,17 @@ import Application;
 export class TitleBar : public Layer
 {
     Application* m_app;
-	float previous_area_height;
 	float title_bar_height = 42.0f;
 
 public:
     TitleBar(Application* app) : m_app(app) 
     {
-		previous_area_height = m_app->m_imgui_context->header_area_height;
-    }
-
-    void OnAttach() override
-    {
-		m_app->m_imgui_context->header_area_height += title_bar_height;
+        m_app->m_imgui_context->header_height.push_back(title_bar_height);
     }
 
     void OnRender() override
     {
-        ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Pos.x, ImGui::GetMainViewport()->Pos.y + previous_area_height));
+        ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
         ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
         ImGui::Begin("OverlayWindow", nullptr,
             ImGuiWindowFlags_NoDecoration |

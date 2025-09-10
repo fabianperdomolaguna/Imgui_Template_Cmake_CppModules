@@ -2,6 +2,8 @@ module;
 
 #include <unordered_map>
 #include <string>
+#include <vector>
+#include <numeric>
 #include <any>
 
 #include "GLFW/glfw3.h"
@@ -44,7 +46,7 @@ public:
     std::string m_executable_path;
     std::string m_ini_file_path;
 
-    float header_area_height = 0.0f;
+    std::vector<float> header_height;
 
     ImguiContext(GLFWwindow* window, std::string executable_path)
     {
@@ -109,8 +111,8 @@ public:
         }
 
         ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(ImVec2(viewport->Pos.x, viewport->Pos.y + header_area_height));
-        ImGui::SetNextWindowSize(ImVec2(viewport->Size.x, viewport->Size.y - header_area_height));
+        ImGui::SetNextWindowPos(ImVec2(viewport->Pos.x, viewport->Pos.y + std::reduce(header_height.begin(), header_height.end())));
+        ImGui::SetNextWindowSize(ImVec2(viewport->Size.x, viewport->Size.y - std::reduce(header_height.begin(), header_height.end())));
         ImGui::SetNextWindowViewport(viewport->ID);
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);

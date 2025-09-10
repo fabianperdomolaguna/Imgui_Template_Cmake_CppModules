@@ -4,8 +4,8 @@
 
 import Application;
 import TitleBar;
-import MenuBar;
 import MainMenuBar;
+import CustomMainMenuBar;
 import RenderScene;
 
 namespace py = pybind11;
