@@ -4,7 +4,7 @@ module;
 #include <string>
 #include <array>
 
-#include "glad/glad.h"
+#include "glad/gl.h"
 #include "GLFW/glfw3.h"
 #include "imgui.h"
 
@@ -67,7 +67,12 @@ public:
             window_app.m_height = height;
         });
 
-        gladLoadGL();
+        if (!gladLoadGL((GLADloadfunc)glfwGetProcAddress)) {
+            fprintf(stderr, "Failed to initialize GLAD\n");
+            m_running = false;
+            return; 
+        }
+
         glEnable(GL_DEPTH_TEST);
     }
 

@@ -4,7 +4,7 @@ module;
 #include <cstdint>
 #include <string>
 
-#include "glad/glad.h"
+#include "glad/gl.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 

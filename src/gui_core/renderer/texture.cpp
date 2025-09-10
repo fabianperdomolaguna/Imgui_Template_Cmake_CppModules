@@ -2,7 +2,7 @@ module;
 
 #include <cstdint>
 
-#include "glad/glad.h"
+#include "glad/gl.h"
 
 export module Texture;
 
