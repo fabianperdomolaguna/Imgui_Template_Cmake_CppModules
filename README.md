@@ -23,6 +23,7 @@ This project is a simple template to make desktop GUI apps with ImGui to be used
 ## 1. Requirements
 
 - [CMake](https://cmake.org/) (minimum version 3.28)
+- Python interpreter (3.10+)
 - [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
 - Visual Studio 2022 or LLVM/Clang 17 (or newer)
 - The template uses the [Roboto](https://fonts.google.com/specimen/Roboto) font ([Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0))
@@ -64,6 +65,14 @@ conda env list
 ```
 
 ## 3. Build
+> [!IMPORTANT]
+> This template now uses GLAD2. Key changes:
+> - GLAD sources are automatically generated during the CMake build
+> - Python 3.10+ with Jinja2 is required at configure/build time
+> - A new CMake variable PYTHON_PATH can be defined to specify the Python environment path
+>   - If not provided, CMake will try to auto-detect one
+>   - If the environment does not have jinja2 installed, CMake will show a warning message and indicate the steps to fix it
+>   - If a conda environment is active, CMake will automatically use its Python interpreter during configuration
 
 Clone the repository, configure the project and build the app:
 
@@ -158,4 +167,5 @@ Additionally, the creation of a Linux application launcher with an assigned icon
   <img src="assets/app_template.png" />
 </h1>
 <center>Basic application in the template</center>
+
 
