@@ -1,6 +1,6 @@
 #include "pybind11/embed.h"
 
-#include "icon_app.h"
+#include "icon_app.embed"
 
 import Application;
 import TitleBar;
