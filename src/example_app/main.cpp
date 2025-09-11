@@ -38,13 +38,13 @@ int Main(int argc, char** argv)
         .height = 800,
         .custom_title_bar = true
     });
-    app->SetWindowIcon(g_icon_app, g_icon_app_len);
 
     app->PushLayerApp<TitleBar>();
     app->PushLayerApp<MenuBar>();
 
     /*BeginMainMenuBar cannot be used with a Custom Titlebar, 
     because it is always anchored to the main viewport at (0,0)*/
+    //app->SetWindowIcon(g_icon_app, g_icon_app_len);
     //app->PushLayerApp<MainMenuBar>();
 
     app->PushLayer<SimpleRender>(app->m_executable_path);

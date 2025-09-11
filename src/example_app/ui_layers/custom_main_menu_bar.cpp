@@ -34,7 +34,8 @@ void ShowStyleEditor(Application* app, std::string& style, float& size)
 		ImGui::EndCombo();
 	}
 
-	if (ImGui::InputFloat("Font Size", &size, 1.0f, 0.0f, "%.0f", ImGuiInputTextFlags_EnterReturnsTrue))
+	ImGui::InputFloat("Font Size", &size, 1.0f, 0.0f, "%.0f");
+	if (ImGui::IsItemDeactivatedAfterEdit())
 	{
 		app->m_imgui_context->new_font_size = size;
 		app->m_imgui_context->change_font = true;

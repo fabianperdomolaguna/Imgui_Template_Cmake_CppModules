@@ -36,8 +36,6 @@ private:
         ImFontConfig fontConfigBold;
         fontConfigBold.FontDataOwnedByAtlas = false;
         ImFont* bold = io.Fonts->AddFontFromFileTTF((executable_path + "/fonts/Roboto_Bold.ttf").c_str(), font_size, &fontConfigBold);
-
-        io.Fonts->Build();
     }
 
 public:
@@ -90,9 +88,7 @@ public:
     {
         if (change_font)
         {
-            LoadFonts(m_executable_path, new_font_size);
-            ImGui_ImplOpenGL3_DestroyFontsTexture();
-            ImGui_ImplOpenGL3_CreateFontsTexture();
+            ImGui::GetStyle()._NextFrameFontSizeBase = new_font_size;
             change_font = false;
         }
         
