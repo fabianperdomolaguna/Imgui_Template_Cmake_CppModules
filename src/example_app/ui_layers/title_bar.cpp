@@ -135,7 +135,7 @@ public:
             top_left,
             bottom_right,
             titlebar_background_color,
-            round_corner_radius,
+            IsMaximized(m_app->m_window->m_window) ? 0.0f : round_corner_radius,
             ImDrawFlags_RoundCornersTop
         );
 
