@@ -43,7 +43,7 @@ void ShowStyleEditor(Application* app, std::string& style, float& size)
 	}
 }
 
-export class MenuBar : public Layer
+export class CustomMenuBar : public Layer
 {
 	bool show_style_editor = false;
 	std::string m_gui_style;
@@ -53,7 +53,7 @@ export class MenuBar : public Layer
 	bool first_render = true;
 
 public:
-	MenuBar(Application* app) : m_app(app)
+	CustomMenuBar(Application* app) : m_app(app)
 	{
 		m_gui_style = GetConfigVariable<std::string>(app->m_executable_path, "GuiStyle");
 		m_font_size = GetConfigVariable<float>(app->m_executable_path, "FontSize");

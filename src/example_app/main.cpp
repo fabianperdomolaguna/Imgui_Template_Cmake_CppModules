@@ -40,10 +40,11 @@ int Main(int argc, char** argv)
     });
 
     app->PushLayerApp<TitleBar>();
-    app->PushLayerApp<MenuBar>();
+    app->PushLayerApp<CustomMenuBar>();
 
     /*BeginMainMenuBar cannot be used with a Custom Titlebar, 
     because it is always anchored to the main viewport at (0,0)*/
+    //If dont use the custom titlebar you can activate the SetWindowIcon
     //app->SetWindowIcon(g_icon_app, g_icon_app_len);
     //app->PushLayerApp<MainMenuBar>();
 
