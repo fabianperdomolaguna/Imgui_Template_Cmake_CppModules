@@ -128,6 +128,9 @@ public:
 
         ImVec2 top_left = ImGui::GetMainViewport()->Pos;
         ImVec2 bottom_right = ImVec2(top_left.x + ImGui::GetMainViewport()->Size.x, top_left.y + 42.0f);
+        ImRect titlebar_rect(top_left, bottom_right);
+        DrawCenteredText(m_app->m_app_specification.title, titlebar_rect);
+
         ImGui::GetBackgroundDrawList()->AddRectFilled(
             top_left,
             bottom_right,
@@ -222,6 +225,25 @@ public:
         load_or_reload(maximize_button, "maximize");
         load_or_reload(close_button, "close");
         load_or_reload(restore_button, "restore");
+    }
+
+    void DrawCenteredText(std::string text, const ImRect& rect)
+    {
+        const char* text_cstr = text.c_str();
+        ImVec2 text_size = ImGui::CalcTextSize(text_cstr);
+
+        ImVec2 center = rect.GetCenter();
+        ImVec2 text_pos(
+            floor(center.x - text_size.x * 0.5f),
+            floor(center.y - text_size.y * 0.5f)
+        );
+        ImU32 text_color = ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text));
+
+        ImGuiIO& io = ImGui::GetIO();
+        auto boldFont = io.Fonts->Fonts[2];
+        ImGui::PushFont(boldFont);
+		ImGui::GetWindowDrawList()->AddText(text_pos, text_color, text_cstr);
+        ImGui::PopFont();
     }
 
     std::string GetName() const override
