@@ -6,6 +6,7 @@ set(MODULE_Core
   core/imgui_context.cpp
   core/layer.cpp
   core/color_styles.cpp
+  core/custom_widgets.cpp
 )
 
 set(MODULE_Config
@@ -55,7 +56,7 @@ target_include_directories(gui_core PUBLIC
 
 target_link_libraries(gui_core
   glfw
-  glad
+  glad_gl
   imgui
   nlohmann_json::nlohmann_json
   stb

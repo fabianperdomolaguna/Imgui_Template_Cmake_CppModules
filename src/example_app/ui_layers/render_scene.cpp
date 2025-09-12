@@ -4,7 +4,7 @@ module;
 #include <string>
 #include <memory>
 
-#include "glad/glad.h"
+#include "glad/gl.h"
 #include "imgui.h"
 #include "pybind11/embed.h"
 

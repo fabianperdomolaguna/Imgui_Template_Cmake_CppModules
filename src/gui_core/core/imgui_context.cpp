@@ -2,6 +2,8 @@ module;
 
 #include <unordered_map>
 #include <string>
+#include <vector>
+#include <numeric>
 #include <any>
 
 #include "GLFW/glfw3.h"
@@ -34,15 +36,16 @@ private:
         ImFontConfig fontConfigBold;
         fontConfigBold.FontDataOwnedByAtlas = false;
         ImFont* bold = io.Fonts->AddFontFromFileTTF((executable_path + "/fonts/Roboto_Bold.ttf").c_str(), font_size, &fontConfigBold);
-
-        io.Fonts->Build();
     }
 
 public:
+	std::string color_style = "";
     bool change_font = false;
     float new_font_size = 0.0f;
     std::string m_executable_path;
     std::string m_ini_file_path;
+
+    std::vector<float> header_height;
 
     ImguiContext(GLFWwindow* window, std::string executable_path)
     {
@@ -70,6 +73,7 @@ public:
 
         std::string current_style = GetConfigVariable<std::string>(m_executable_path, "GuiStyle");
         std::any_cast <void (*) ()> (color_styles[current_style]) ();
+		color_style = current_style;
 
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init("#version 400 core");
@@ -82,13 +86,11 @@ public:
         ImGui::DestroyContext();
     }
 
-    void PreRender()
+    void PreRender(bool custom_title_bar)
     {
         if (change_font)
         {
-            LoadFonts(m_executable_path, new_font_size);
-            ImGui_ImplOpenGL3_DestroyFontsTexture();
-            ImGui_ImplOpenGL3_CreateFontsTexture();
+            ImGui::GetStyle()._NextFrameFontSizeBase = new_font_size;
             change_font = false;
         }
         
@@ -99,21 +101,26 @@ public:
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
             ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
             ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
-            ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_MenuBar;
+            ImGuiWindowFlags_NoBackground;
+
+        if (!custom_title_bar)
+        {
+            window_flags |= ImGuiWindowFlags_MenuBar;
+        }
 
         ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(viewport->Pos);
-        ImGui::SetNextWindowSize(viewport->Size);
+        ImGui::SetNextWindowPos(ImVec2(viewport->Pos.x, viewport->Pos.y + std::reduce(header_height.begin(), header_height.end())));
+        ImGui::SetNextWindowSize(ImVec2(viewport->Size.x, viewport->Size.y - std::reduce(header_height.begin(), header_height.end())));
         ImGui::SetNextWindowViewport(viewport->ID);
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
         ImGui::Begin("DockspaceWindow", nullptr, window_flags);
-        ImGui::PopStyleVar(3);
         ImGuiID dockspace_id = ImGui::GetID("WindowDockSpace");
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
         ImGui::End();
+        ImGui::PopStyleVar(3);
     }
 
     void PostRender()
@@ -133,8 +140,9 @@ public:
     }
 };
 
-export void UpdateTheme(std::string executable_path)
+export void UpdateTheme(std::string executable_path, std::string& color_style)
 {
     std::string current_style = GetConfigVariable<std::string>(executable_path, "GuiStyle");
     std::any_cast <void (*) ()> (color_styles[current_style]) ();
+	color_style = current_style;
 }

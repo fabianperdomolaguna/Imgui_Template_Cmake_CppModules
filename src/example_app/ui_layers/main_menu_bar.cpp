@@ -26,7 +26,7 @@ void ShowStyleEditor(Application* app, std::string& style, float& size)
 			{
 				style = theme;
 				ChangeConfigVariable<std::string>(app->m_executable_path, "GuiStyle", style);
-				UpdateTheme(app->m_executable_path);
+				UpdateTheme(app->m_executable_path, app->m_imgui_context->color_style);
 			}
 		}
 		ImGui::EndCombo();

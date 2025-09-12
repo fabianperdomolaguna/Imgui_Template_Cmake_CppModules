@@ -1,9 +1,11 @@
 #include "pybind11/embed.h"
 
-#include "icon_app.h"
+#include "icon_app.embed"
 
 import Application;
+import TitleBar;
 import MainMenuBar;
+import CustomMainMenuBar;
 import RenderScene;
 
 namespace py = pybind11;
@@ -30,10 +32,22 @@ int Main(int argc, char** argv)
 {	
     py::scoped_interpreter guard{};
 
-    Application* app = new Application("ImGui - OpenGL Context", 1600, 800);
-    app->SetWindowIcon(g_icon_app, g_icon_app_len);
+    Application* app = new Application({
+        .title = "ImGui - OpenGL Context",
+        .width = 1600,
+        .height = 800,
+        .custom_title_bar = true
+    });
 
-    app->PushLayerApp<MainMenuBar>();
+    app->PushLayerApp<TitleBar>();
+    app->PushLayerApp<CustomMenuBar>();
+
+    /*BeginMainMenuBar cannot be used with a Custom Titlebar, 
+    because it is always anchored to the main viewport at (0,0)*/
+    //If dont use the custom titlebar you can activate the SetWindowIcon
+    //app->SetWindowIcon(g_icon_app, g_icon_app_len);
+    //app->PushLayerApp<MainMenuBar>();
+
     app->PushLayer<SimpleRender>(app->m_executable_path);
 
     app->Run();
