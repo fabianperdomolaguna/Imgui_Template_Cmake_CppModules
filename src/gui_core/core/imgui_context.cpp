@@ -39,6 +39,7 @@ private:
     }
 
 public:
+	std::string color_style = "";
     bool change_font = false;
     float new_font_size = 0.0f;
     std::string m_executable_path;
@@ -72,6 +73,7 @@ public:
 
         std::string current_style = GetConfigVariable<std::string>(m_executable_path, "GuiStyle");
         std::any_cast <void (*) ()> (color_styles[current_style]) ();
+		color_style = current_style;
 
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init("#version 400 core");
@@ -138,8 +140,9 @@ public:
     }
 };
 
-export void UpdateTheme(std::string executable_path)
+export void UpdateTheme(std::string executable_path, std::string& color_style)
 {
     std::string current_style = GetConfigVariable<std::string>(executable_path, "GuiStyle");
     std::any_cast <void (*) ()> (color_styles[current_style]) ();
+	color_style = current_style;
 }

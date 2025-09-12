@@ -3,6 +3,7 @@ module;
 #include <string>
 #include <memory>
 #include <functional>
+#include <map>
 
 #include "GLFW/glfw3.h"
 #include "imgui.h"
@@ -21,11 +22,12 @@ void DrawWindowButtons(
     ImVec2& button_start, 
     ImVec2& button_end, 
     ImTextureID icon_texture,
-	float button_size,
-	float icon_size,
+	const float& button_size,
+	const float& icon_size,
     ImU32 button_color,
     const std::function<void()>& on_click = nullptr,
-    bool round_top_right = false)
+    bool round_top_right = false,
+    const float& round_corner_radius = 0.0f)
 {
     ImRect button_rect(button_start, button_end);
     bool button_hovered = button_rect.Contains(ImGui::GetMousePos());
@@ -35,7 +37,7 @@ void DrawWindowButtons(
         {
             ImGui::GetBackgroundDrawList()->AddRectFilled(
                 button_start, button_end, button_color,
-                12.0f, ImDrawFlags_RoundCornersTopRight);
+                round_corner_radius, ImDrawFlags_RoundCornersTopRight);
         }
         else 
         {
@@ -58,6 +60,11 @@ void DrawWindowButtons(
     button_end = ImVec2(button_end.x + button_size, button_end.y);
 }
 
+struct IconData {
+    const unsigned char* data;
+    unsigned int len;
+};
+
 bool IsMaximized(GLFWwindow* window)
 {
     return (bool)glfwGetWindowAttrib(window, GLFW_MAXIMIZED);
@@ -66,7 +73,12 @@ bool IsMaximized(GLFWwindow* window)
 export class TitleBar : public Layer
 {
     Application* m_app;
+    std::string color_style;
+	ImU32 titlebar_background_color;
 	float title_bar_height = 42.0f;
+	float round_corner_radius = 12.0f;
+    float button_size = 35.0f;
+    float icon_size = 14.0f;
 
     std::unique_ptr<ImageTexture> icon_titlebar;
     std::unique_ptr<ImageTexture> minimize_button;
@@ -74,16 +86,26 @@ export class TitleBar : public Layer
     std::unique_ptr<ImageTexture> close_button;
 	std::unique_ptr<ImageTexture> restore_button;
 
+    std::map<std::string, IconData> button_map = {
+        {"minimize_Light",{ g_minimize_button_light,  g_minimize_button_light_len }},
+        {"minimize_Dark", { g_minimize_button_dark,   g_minimize_button_dark_len }},
+        {"maximize_Light",{ g_maximize_button_light,  g_maximize_button_light_len }},
+        {"maximize_Dark", { g_maximize_button_dark,   g_maximize_button_dark_len }},
+        {"close_Light",   { g_close_button_light,     g_close_button_light_len }},
+        {"close_Dark",    { g_close_button_dark,      g_close_button_dark_len }},
+        {"restore_Light", { g_restore_button_light,   g_restore_button_light_len }},
+        {"restore_Dark",  { g_restore_button_dark,    g_restore_button_dark_len }},
+    };
+
 public:
     TitleBar(Application* app) : m_app(app) 
     {
         m_app->m_imgui_context->header_height.push_back(title_bar_height);
+		color_style = m_app->m_imgui_context->color_style;
+        UpdateTitleBarColor();
 
         icon_titlebar = std::make_unique<ImageTexture>(g_icon_titlebar, g_icon_titlebar_len, GL_RGBA, true);
-        minimize_button = std::make_unique<ImageTexture>(g_minimize_button, g_minimize_button_len, GL_RGBA, true);
-        maximize_button = std::make_unique<ImageTexture>(g_maximize_button, g_maximize_button_len, GL_RGBA, true);
-        close_button = std::make_unique<ImageTexture>(g_close_button, g_close_button_len, GL_RGBA, true);
-		restore_button = std::make_unique<ImageTexture>(g_restore_button, g_restore_button_len, GL_RGBA, true);
+        LoadButtonTextures(color_style, false);
     }
 
     void OnRender() override
@@ -97,20 +119,20 @@ public:
 
         ImGui::GetWindowDrawList()->PushClipRectFullScreen();
 
-        ImGui::GetBackgroundDrawList()->AddRectFilled(
-            ImVec2(ImGui::GetMainViewport()->Pos.x, ImGui::GetMainViewport()->Pos.y + 42.0f),
-            ImVec2(ImGui::GetMainViewport()->Pos.x + ImGui::GetMainViewport()->Size.x,
-                ImGui::GetMainViewport()->Pos.y + ImGui::GetMainViewport()->Size.y),
-            IM_COL32(51, 51, 51, 255)
-        );
+        if (color_style != m_app->m_imgui_context->color_style)
+        {
+            color_style = m_app->m_imgui_context->color_style;
+            UpdateTitleBarColor();
+            LoadButtonTextures(color_style, true);
+		}
 
         ImVec2 top_left = ImGui::GetMainViewport()->Pos;
         ImVec2 bottom_right = ImVec2(top_left.x + ImGui::GetMainViewport()->Size.x, top_left.y + 42.0f);
         ImGui::GetBackgroundDrawList()->AddRectFilled(
             top_left,
             bottom_right,
-            IM_COL32(222, 220, 215, 255),
-            12.0f,
+            titlebar_background_color,
+            round_corner_radius,
             ImDrawFlags_RoundCornersTop
         );
 
@@ -131,9 +153,6 @@ public:
             ImVec2(top_left.x + logo_offset.x, top_left.y + logo_offset.y),
             ImVec2(top_left.x + logo_offset.x + logo_size, top_left.y + logo_offset.y + logo_size)
 		);
-
-        float button_size = 35.0f;
-        float icon_size = 14.0f;
 
         ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImVec2 button_start = ImVec2(viewport->Pos.x + viewport->Size.x - button_size * 3, viewport->Pos.y);
@@ -174,8 +193,35 @@ public:
             icon_size,
             IM_COL32(255, 0, 0, 128),
             [&]() { m_app->m_window->m_close_popup = true; },
-            !IsMaximized(m_app->m_window->m_window)
+            !IsMaximized(m_app->m_window->m_window),
+            round_corner_radius
         );
+    }
+
+    void UpdateTitleBarColor()
+    {
+        titlebar_background_color =
+            (m_app->m_imgui_context->color_style == "Light")
+            ? IM_COL32(222, 220, 215, 255)
+            : IM_COL32(40, 40, 40, 255);
+    }
+
+    void LoadButtonTextures(const std::string& style, bool reload = false)
+    {
+        auto suffix = "_" + style;
+
+        auto load_or_reload = [&](std::unique_ptr<ImageTexture>& texture, const std::string& key) {
+            const auto& icon = button_map[key + suffix];
+            if (reload)
+                texture->reload(icon.data, icon.len);
+            else
+                texture = std::make_unique<ImageTexture>(icon.data, icon.len, GL_RGBA, true);
+        };
+
+        load_or_reload(minimize_button, "minimize");
+        load_or_reload(maximize_button, "maximize");
+        load_or_reload(close_button, "close");
+        load_or_reload(restore_button, "restore");
     }
 
     std::string GetName() const override
