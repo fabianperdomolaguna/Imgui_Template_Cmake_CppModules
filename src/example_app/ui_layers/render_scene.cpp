@@ -13,14 +13,39 @@ export module RenderScene;
 import Layer;
 import Texture;
 import Image;
+import Framebuffer;
+import Vertex;
 
 namespace py = pybind11;
+
+const std::string vertex_shader_src = R"(
+#version 330 core
+layout (location = 0) in vec3 aPos;
+
+void main()
+{
+    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+}
+)";
+
+const std::string fragment_shader_src = R"(
+#version 330 core
+out vec4 FragColor;
+
+void main()
+{
+    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+}
+)";
 
 export class SimpleRender : public Layer
 {
     std::unique_ptr<ImageTexture> image_texture;
     std::unique_ptr<Texture> mpl_texture;
     std::string m_executable_path;
+
+    std::unique_ptr<GlVertex> m_vertex;
+    std::unique_ptr<GlFramebuffer> m_framebuffer;
     
 public:
     SimpleRender(std::string executable_path)
@@ -61,6 +86,10 @@ public:
         } catch (py::error_already_set& err) {
             std::cout << err.what() << std::endl;
         }
+
+        m_vertex = std::make_unique<GlVertex>(vertex_shader_src, fragment_shader_src);
+        m_framebuffer = std::make_unique<GlFramebuffer>(1600, 800);
+        m_vertex->CreateBuffers();
     }
 
     void OnRender() override
@@ -93,6 +122,15 @@ public:
         ImGui::Begin("Matplotlib Texture");
         ImGui::Image(reinterpret_cast<void*>((uint64_t)mpl_texture->get_texture()), 
             { (float)mpl_texture->m_width, (float)mpl_texture->m_height});
+        ImGui::End();
+
+        m_framebuffer->Bind();
+        m_vertex->Draw();
+        m_framebuffer->Unbind();
+
+        ImGui::Begin("Scene Shader");
+        uint64_t textureID = m_framebuffer->get_texture();
+        ImGui::Image(reinterpret_cast<void*>(textureID), ImGui::GetContentRegionAvail(), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
         ImGui::End();
     }
 

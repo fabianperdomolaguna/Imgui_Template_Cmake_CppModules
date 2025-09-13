@@ -15,10 +15,16 @@ set(MODULE_Config
 
 set(MODULE_Renderer
   renderer/texture.cpp
+  renderer/framebuffer.cpp
+  renderer/vertex.cpp
 )
 
 set(MODULE_Image
   image/image_reader.cpp
+)
+
+set(MODULE_Shaders
+  shaders/shaders.cpp
 )
 
 set(MODULE_Path
@@ -30,8 +36,8 @@ set(ALL_MODULE_FILES
   ${MODULE_Core}
   ${MODULE_Renderer}
   ${MODULE_Image}
+  ${MODULE_Shaders}
   ${MODULE_Config}
-  ${MODULE_Modules}
 )
 
 foreach(FILE IN LISTS ALL_MODULE_FILES MODULE_Path)

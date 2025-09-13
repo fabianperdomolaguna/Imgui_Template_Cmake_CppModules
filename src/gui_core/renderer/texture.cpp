@@ -32,6 +32,11 @@ public:
         glDeleteTextures(1, &m_render_texture);
     }
 
+    void DeleteTexture()
+    {
+        glDeleteTextures(1, &m_render_texture);
+	}
+
     uint32_t get_texture()
     {
         return m_render_texture;
