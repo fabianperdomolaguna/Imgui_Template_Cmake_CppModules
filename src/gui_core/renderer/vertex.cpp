@@ -2,7 +2,6 @@ module;
 
 #include <cstdint>
 #include <string>
-#include <memory>
 
 #include "glad/gl.h"
 
@@ -22,16 +21,17 @@ export class GlVertex
 	uint32_t VBO = 0;
 
 public:
-	std::unique_ptr<Shader> m_shader;
+	Shader* m_shader = nullptr;
 
 	GlVertex(std::string vertex_shader, std::string fragment_shader)
 	{
-		m_shader = std::make_unique<Shader>();
+		m_shader = new Shader();
 		m_shader->Create(vertex_shader, fragment_shader);
 	}
 
 	~GlVertex()
 	{
+		delete m_shader;
 		glDisableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glDeleteVertexArrays(1, &VAO);
