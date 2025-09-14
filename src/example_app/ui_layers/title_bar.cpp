@@ -119,6 +119,13 @@ public:
 
         ImGui::GetWindowDrawList()->PushClipRectFullScreen();
 
+        ImGui::GetBackgroundDrawList()->AddRectFilled(
+            ImVec2(ImGui::GetMainViewport()->Pos.x, ImGui::GetMainViewport()->Pos.y + 42.0f),
+            ImVec2(ImGui::GetMainViewport()->Pos.x + ImGui::GetMainViewport()->Size.x,
+                ImGui::GetMainViewport()->Pos.y + ImGui::GetMainViewport()->Size.y),
+            IM_COL32(51, 51, 51, 255)
+        );
+
         if (color_style != m_app->m_imgui_context->color_style)
         {
             color_style = m_app->m_imgui_context->color_style;
@@ -216,7 +223,7 @@ public:
         auto load_or_reload = [&](std::unique_ptr<ImageTexture>& texture, const std::string& key) {
             const auto& icon = button_map[key + suffix];
             if (reload)
-                texture->reload(icon.data, icon.len);
+                texture->Reload(icon.data, icon.len);
             else
                 texture = std::make_unique<ImageTexture>(icon.data, icon.len, GL_RGBA, true);
         };

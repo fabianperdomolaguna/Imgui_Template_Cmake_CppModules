@@ -36,7 +36,7 @@ public:
 		}
 
         if (texture)
-			create_texture();
+			CreateTexture();
     }
 
     ImageTexture(const uint8_t* image_data, uint32_t image_size, uint32_t image_format, bool texture = false)
@@ -52,10 +52,10 @@ public:
         }
 
         if (texture)
-            create_texture();
+            CreateTexture();
 	}
 
-    void create_texture()
+    void CreateTexture()
     {
         glGenTextures(1, &m_render_texture);
         glBindTexture(GL_TEXTURE_2D, m_render_texture);
@@ -67,7 +67,7 @@ public:
         m_data = nullptr;
 	}
 
-    void reload(const std::string& file_path)
+    void Reload(const std::string& file_path)
     {
         if (m_render_texture)
         {
@@ -90,10 +90,10 @@ public:
         }
 
         if (m_texture)
-            create_texture();
+            CreateTexture();
     }
 
-    void reload(const uint8_t* image_data, uint32_t image_size)
+    void Reload(const uint8_t* image_data, uint32_t image_size)
     {
         if (m_render_texture)
         {
@@ -116,7 +116,7 @@ public:
         }
 
         if (m_texture)
-            create_texture();
+            CreateTexture();
     }
 
     ~ImageTexture()
@@ -131,7 +131,7 @@ public:
         }
     }
 
-    bool is_valid() const { return m_render_texture != 0; }
+    bool IsValid() const { return m_render_texture != 0; }
 
     uint32_t get_texture()
     {
