@@ -3,13 +3,13 @@
 <p align="center">
   <img src="https://img.shields.io/github/license/fabianperdomolaguna/Imgui_Template_Cmake_CppModules?style=for-the-badge" alt="alt text">
   <img src="https://img.shields.io/badge/OS-Linux%20%7C%20Windows-003366?style=for-the-badge&logo=Windows%20Terminal" alt="alt text">
-  <img src="https://img.shields.io/badge/Solution-C++20-00559C?style=for-the-badge&logo=C%2B%2B" alt="alt text">
+  <img src="https://img.shields.io/badge/Solution-C++17%20%7C%20C++20-00559C?style=for-the-badge&logo=C%2B%2B" alt="alt text">
   <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-FFFF00?style=for-the-badge&logo=Python&logoColor=white" alt="alt text">
 </p>
 
 ---
 
-This project is a simple template to make desktop GUI apps with ImGui to be used with OpenGL, adding interoperability with Python using the pybind library. The template employs CMake as the build system, C++ modules, and supports Windows and Linux systems.
+This project is a simple template to create desktop GUI applications with ImGui and OpenGL, with interoperability with Python through the pybind library. The template uses CMake as the build system, is based on traditional C++ header files (instead of C++20 modules), and supports both Windows and Linux systems.
 
 ---
 
@@ -30,7 +30,7 @@ This project is a simple template to make desktop GUI apps with ImGui to be used
 
 ## 2. Getting started
 
-Install LLVM/Clang in Linux Systems
+Install LLVM/Clang in Linux Systems. If you want to use the C++17 standard, in the main `CMakeLists.txt`, you must change the CXX standard (project is set to C++20). Also, you can use the `gcc` compiler for the project for the C++17 standard.
 
 ```bash
 wget https://apt.llvm.org/llvm.sh
@@ -80,12 +80,13 @@ Clone the repository, configure the project and build the app:
 
 ```bash
 # Compile the app (Linux systems)
-git clone https://github.com/fabianperdomolaguna/Imgui_Template_Cmake_CppModules.git
+git clone --branch header_based https://github.com/fabianperdomolaguna/Imgui_Template_Cmake_CppModules.git
 cd Imgui_Template_Cmake_CppModules
+# You can omit -GNinja to use the make build. Also, you can omit clang instructions to use another compiler.
 CXX=clang++ CC=clang cmake -GNinja -B build -DPYTHON_PATH=/path/to/python_environment
 cmake --build build
 
-# In Windows systems configure project with the following command.
+# In Windows systems, configure the project with the following command.
 cmake -B build -DPYTHON_PATH=/path/to/python_environment
 
 # Run the app
@@ -93,7 +94,7 @@ cd build/bin
 ./example
 ```
 
-In Linux if you get a similar error to `libGL error: MESA-LOADER: failed to open crocus`, this is a Conda issue related to the pyinstaller and old libstdc++ library. To solve this remove libstdc++ from python environment folder:
+In Linux, if you get a similar error to `libGL error: MESA-LOADER: failed to open crocus`, this is a Conda issue related to the pyinstaller and old libstdc++ library. To solve this remove libstdc++ from python environment folder:
 
 ```bash
 # Go to Python environment folder
