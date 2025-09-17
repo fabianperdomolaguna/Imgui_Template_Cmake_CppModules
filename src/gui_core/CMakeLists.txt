@@ -1,4 +1,6 @@
-add_library(gui_core STATIC 
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
+add_library(gui_core SHARED
   core/window.cpp
   core/application.cpp
   core/imgui_context.cpp

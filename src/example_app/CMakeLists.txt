@@ -20,6 +20,10 @@ target_link_libraries(example
   pybind11::embed
 )
 
+if(COMMAND set_python_rpath)
+  set_python_rpath(example)
+endif()
+
 if (WIN32)
   target_link_options(example PRIVATE
     "$<$<CONFIG:Release>:/SUBSYSTEM:WINDOWS>"
