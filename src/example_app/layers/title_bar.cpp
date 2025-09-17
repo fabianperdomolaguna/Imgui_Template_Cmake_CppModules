@@ -278,6 +278,10 @@ public:
 
     void DrawCenteredText(std::string text, const ImRect& rect)
     {
+        ImGuiIO& io = ImGui::GetIO();
+        auto boldFont = io.Fonts->Fonts[2];
+        ImGui::PushFont(boldFont);
+
         const char* text_cstr = text.c_str();
         ImVec2 text_size = ImGui::CalcTextSize(text_cstr);
 
@@ -287,11 +291,8 @@ public:
             floor(center.y - text_size.y * 0.5f)
         );
         ImU32 text_color = ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Text));
-
-        ImGuiIO& io = ImGui::GetIO();
-        auto boldFont = io.Fonts->Fonts[2];
-        ImGui::PushFont(boldFont);
 		ImGui::GetWindowDrawList()->AddText(text_pos, text_color, text_cstr);
+        
         ImGui::PopFont();
     }
 
