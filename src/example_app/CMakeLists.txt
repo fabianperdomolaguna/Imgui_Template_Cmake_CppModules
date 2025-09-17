@@ -1,10 +1,16 @@
 find_package(OpenGL REQUIRED)
 
+file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
+  ${CMAKE_CURRENT_SOURCE_DIR}/ui_layers/*.cpp
+)
+
+file(GLOB_RECURSE HDR_FILES CONFIGURE_DEPENDS
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/ui_layers/*.h
+)
+
 add_executable(example
-  ui_layers/main_menu_bar.cpp
-  ui_layers/render_scene.cpp
-  ui_layers/title_bar.cpp
-  ui_layers/custom_main_menu_bar.cpp
+  ${SRC_FILES}
+  ${HDR_FILES}
   main.cpp
 )
 
@@ -32,6 +38,8 @@ if (WIN32)
 
   target_sources(example PRIVATE icon/app_icon.rc)
 endif()
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRC_FILES} ${HDR_FILES})
 
 file(COPY app_logo.svg DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 file(COPY imgui.ini DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
