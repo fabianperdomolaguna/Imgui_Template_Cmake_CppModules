@@ -67,6 +67,45 @@ TitleBar::TitleBar(Application* app) : m_app(app)
     LoadButtonTextures(color_style, false);
 }
 
+void TitleBar::MenuBar()
+{
+    float menu_bar_size = 0.0f;
+
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(0, 0, 0, 0));
+    ImGui::PushStyleColor(ImGuiCol_MenuBarBg, IM_COL32(0, 0, 0, 0));
+    if (BeginViewportFixedBar("##TitleBarMenuBar", ImGui::GetMainViewport(),
+		title_bar_height + 15.0f, title_bar_height * 0.5f - ImGui::GetFrameHeight() * 0.5f, 
+		menu_bar_size, ImGui::GetFrameHeight(),
+		ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_MenuBar))
+    {
+        ImVec2 menu_start = ImGui::GetCursorScreenPos();
+
+        ImGui::BeginMenuBar();
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Exit"))
+				m_app->m_window->m_close_popup = true;
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Edit"))
+		{
+			ImGui::MenuItem("Copy", "Ctrl + C");
+
+			ImGui::EndMenu();
+		}
+
+        ImVec2 menu_end = ImGui::GetCursorScreenPos();
+        menu_bar_size = menu_end.x - menu_start.x;
+
+		ImGui::EndMenuBar();
+
+		ImGui::End();
+    }
+    ImGui::PopStyleColor(2);
+}
+
 void TitleBar::OnRender()
 {
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
@@ -91,6 +130,8 @@ void TitleBar::OnRender()
         UpdateTitleBarColor();
         LoadButtonTextures(color_style, true);
 	}
+
+    MenuBar();
 
     ImVec2 top_left = ImGui::GetMainViewport()->Pos;
     ImVec2 bottom_right = ImVec2(top_left.x + ImGui::GetMainViewport()->Size.x, top_left.y + 42.0f);

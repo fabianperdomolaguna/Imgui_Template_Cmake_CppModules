@@ -1,11 +1,11 @@
 find_package(OpenGL REQUIRED)
 
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
-  ${CMAKE_CURRENT_SOURCE_DIR}/ui_layers/*.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/layers/*.cpp
 )
 
 file(GLOB_RECURSE HDR_FILES CONFIGURE_DEPENDS
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/ui_layers/*.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/layers/*.h
 )
 
 add_executable(App
@@ -15,7 +15,7 @@ add_executable(App
 )
 
 target_include_directories(App PRIVATE
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/ui_layers>"
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/layers>"
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/icon>"
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/embed>"
   ${OPENGL_INCLUDE_DIR}

@@ -10,6 +10,7 @@
 
 #include "core/layer.h"
 #include "core/application.h"
+#include "core/custom_widgets.h"
 #include "image/image_reader.h"
 #include "window_buttons.embed"
 
@@ -61,6 +62,7 @@ class TitleBar : public Layer
 public:
     TitleBar(Application* app);
 
+    void MenuBar();
     void OnRender() override;
     void UpdateTitleBarColor();
     void LoadButtonTextures(const std::string& style, bool reload = false);
