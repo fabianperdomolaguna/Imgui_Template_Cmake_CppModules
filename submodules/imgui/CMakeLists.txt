@@ -12,7 +12,7 @@ FetchContent_MakeAvailable(imgui)
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
-add_library(imgui SHARED
+add_library(ImGui SHARED
   ${imgui_SOURCE_DIR}/imgui.cpp
   ${imgui_SOURCE_DIR}/imgui_draw.cpp
   ${imgui_SOURCE_DIR}/imgui_tables.cpp
@@ -22,11 +22,11 @@ add_library(imgui SHARED
   ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
 )
 
-target_include_directories(imgui PUBLIC
+target_include_directories(ImGui PUBLIC
   $<BUILD_INTERFACE:${imgui_SOURCE_DIR}>
   $<BUILD_INTERFACE:${imgui_SOURCE_DIR}/backends>
 )
 
-target_link_libraries(imgui
+target_link_libraries(ImGui
   glfw
 )

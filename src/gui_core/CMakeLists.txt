@@ -13,19 +13,19 @@ file(GLOB_RECURSE HDR_FILES CONFIGURE_DEPENDS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/**/*.h
 )
 
-add_library(gui_core SHARED 
+add_library(Core SHARED 
   ${SRC_FILES}
   ${HDR_FILES}
 )
 
-target_include_directories(gui_core PUBLIC
+target_include_directories(Core PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
 )
 
-target_link_libraries(gui_core
+target_link_libraries(Core
   glfw
   glad_gl
-  imgui
+  ImGui
   nlohmann_json::nlohmann_json
   stb
 )
