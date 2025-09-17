@@ -8,7 +8,10 @@ file(GLOB_RECURSE CPP_MODULES CONFIGURE_DEPENDS
   ${CMAKE_CURRENT_SOURCE_DIR}/renderer/*.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/image/*.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/shaders/*.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/path/*.cpp
+)
+
+set(MODULE_Path
+  path/path_utilities.cpp
 )
 
 file(GLOB_RECURSE HDR_FILES CONFIGURE_DEPENDS
@@ -19,6 +22,8 @@ target_sources(Core
   PUBLIC
     FILE_SET CXX_MODULES FILES ${CPP_MODULES}
     FILE_SET HEADERS     FILES ${HDR_FILES}
+  PRIVATE
+    ${MODULE_Path}
 )
 
 target_include_directories(Core PUBLIC
@@ -33,7 +38,7 @@ target_link_libraries(Core
   stb
 )
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${CPP_MODULES} ${HEADER_FILES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${CPP_MODULES} ${MODULE_Path} ${HEADER_FILES})
 
 file(COPY ConfigFile.json DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 file(COPY fonts DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

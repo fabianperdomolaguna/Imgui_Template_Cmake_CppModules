@@ -27,7 +27,7 @@ target_link_libraries(App
 )
 
 if(COMMAND set_python_rpath)
-    set_python_rpath(example)
+    set_python_rpath(App)
 endif()
 
 if (WIN32)
