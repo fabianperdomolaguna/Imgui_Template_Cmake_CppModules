@@ -17,7 +17,7 @@ if (GLAD_PYTHON_EXE)
   if(WIN32)
     set(_python_exec "${GLAD_PYTHON_EXE}/python.exe")
   else()
-   set(_python_exec "${GLAD_PYTHON_EXE}/bin/python3")
+    set(_python_exec "${GLAD_PYTHON_EXE}/bin/python3")
   endif()
 else()
   find_package(Python3 COMPONENTS Interpreter REQUIRED)
@@ -45,7 +45,6 @@ else()
   )
 endif()
 
-
 add_subdirectory("${glad_SOURCE_DIR}/cmake" glad_cmake)
 
-glad_add_library(glad_gl STATIC API gl:core=4.0)
+glad_add_library(glad_gl SHARED API gl:core=4.0)
