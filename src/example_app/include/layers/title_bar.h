@@ -41,6 +41,7 @@ class TitleBar : public Layer
 	float round_corner_radius = 12.0f;
     float button_size = 35.0f;
     float icon_size = 14.0f;
+    int border_size = 8;
 
     std::unique_ptr<ImageTexture> icon_titlebar;
     std::unique_ptr<ImageTexture> minimize_button;
@@ -63,6 +64,7 @@ public:
     TitleBar(Application* app);
 
     void MenuBar();
+    void HandleBorderResize();
     void OnRender() override;
     void UpdateTitleBarColor();
     void LoadButtonTextures(const std::string& style, bool reload = false);

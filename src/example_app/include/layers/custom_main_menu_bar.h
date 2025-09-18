@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "core/layer.h"
 #include "core/application.h"
 
 void ShowStyleEditor(Application* app, std::string& style, float& size);
