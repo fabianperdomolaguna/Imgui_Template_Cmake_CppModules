@@ -75,6 +75,7 @@ void ImguiContext::PreRender(bool custom_title_bar)
 {
     if (change_font)
     {
+        LoadFonts(m_executable_path, new_font_size);
         ImGui::GetStyle()._NextFrameFontSizeBase = new_font_size;
         change_font = false;
     }
