@@ -12,5 +12,10 @@ set(GLFW_INSTALL OFF CACHE BOOL "Generate installation target")
 
 set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries")
 set(GLFW_BUILD_SHARED_LIBS ON CACHE BOOL "Build shared GLFW library")
+
+if (NOT WIN32)
+  set(GLFW_BUILD_X11 ON CACHE BOOL "" FORCE)
+  set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
+endif()
   
 FetchContent_MakeAvailable(glfw)
