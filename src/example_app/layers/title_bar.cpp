@@ -80,6 +80,7 @@ export class TitleBar : public Layer
 	float round_corner_radius = 12.0f;
     float button_size = 35.0f;
     float icon_size = 14.0f;
+    int border_size = 8;
 
     std::unique_ptr<ImageTexture> icon_titlebar;
     std::unique_ptr<ImageTexture> minimize_button;
@@ -148,6 +149,63 @@ public:
         ImGui::PopStyleColor(2);
     }
 
+    void HandleBorderResize()
+    {
+        //Get cursor position and window size
+        double mouse_x, mouse_y;
+        glfwGetCursorPos(m_app->m_window->m_window, &mouse_x, &mouse_y);
+
+        int window_width, window_height;
+        glfwGetWindowSize(m_app->m_window->m_window, &window_width, &window_height);
+
+        //Border conditions
+        bool left   = (mouse_x < border_size) && (mouse_y > title_bar_height);
+        bool right  = (mouse_x > window_width - border_size) && (mouse_y > title_bar_height);
+        bool top    = false;
+        bool bottom = mouse_y > window_height - border_size;
+
+        //Change cursor symbol
+        ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
+        if (imgui_cursor == ImGuiMouseCursor_Arrow) 
+        {
+            if (right && bottom) {
+                ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
+            } else if (left && bottom) {
+                ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNESW);
+            } else if (left) {
+                ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+            } else if (right) {
+                ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+            } else if (bottom) {
+                ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
+            }
+        }
+
+        //Resize with mouse
+        if (glfwGetMouseButton(m_app->m_window->m_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) 
+        {
+            int window_x, window_y;
+            glfwGetWindowPos(m_app->m_window->m_window, &window_x, &window_y);
+
+            if (right) 
+            {
+                glfwSetWindowSize(m_app->m_window->m_window, (int)mouse_x, window_height);
+            }
+            if (bottom) 
+            {
+                glfwSetWindowSize(m_app->m_window->m_window, window_width, (int)mouse_y);
+            }
+            if (left) 
+            {
+                int new_width = window_width - (int)mouse_x;
+                int new_x = window_x + (int)mouse_x;
+                glfwSetWindowPos(m_app->m_window->m_window, new_x, window_y);
+                glfwSetWindowSize(m_app->m_window->m_window, new_width, window_height);
+            }
+        }
+    }
+
+
     void OnRender() override
     {
         ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
@@ -172,6 +230,8 @@ public:
             UpdateTitleBarColor();
             LoadButtonTextures(color_style, true);
 		}
+
+        HandleBorderResize();
 
         MenuBar();
 

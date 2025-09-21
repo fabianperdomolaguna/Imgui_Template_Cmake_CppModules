@@ -1,7 +1,7 @@
 include(FetchContent)
 
 FetchContent_Declare(glfw
-  URL https://github.com/glfw/glfw/archive/refs/tags/3.3.8.tar.gz
+  URL https://github.com/glfw/glfw/archive/refs/tags/3.4.tar.gz
   DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 
@@ -12,5 +12,10 @@ set(GLFW_INSTALL OFF CACHE BOOL "Generate installation target")
 
 set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries")
 set(GLFW_BUILD_SHARED_LIBS ON CACHE BOOL "Build shared GLFW library")
+
+if (NOT WIN32)
+  set(GLFW_BUILD_X11 ON CACHE BOOL "" FORCE)
+  set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
+endif()
   
 FetchContent_MakeAvailable(glfw)
