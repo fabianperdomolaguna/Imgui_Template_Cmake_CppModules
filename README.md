@@ -110,7 +110,6 @@ On Linux, you can create windows using either X11 or Wayland with GLFW (X11 is t
 # In the submodules/glfw/CMakeLists.txt file
 # add the following lines just before FetchContent_MakeAvailable(glfw)
 set(GLFW_BUILD_X11 OFF CACHE BOOL "" FORCE)
-set(GLFW_USE_WAYLAND ON CACHE BOOL "" FORCE)
 set(GLFW_BUILD_WAYLAND ON CACHE BOOL "" FORCE)
 
 # Install the following dependencies
