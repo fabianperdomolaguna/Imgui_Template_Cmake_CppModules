@@ -122,13 +122,9 @@ public:
     ~ImageTexture()
     {
         if (m_render_texture) 
-        {
             glDeleteTextures(1, &m_render_texture);
-        }
         else 
-        {
             stbi_image_free(m_data);
-        }
     }
 
     bool IsValid() const { return m_render_texture != 0; }

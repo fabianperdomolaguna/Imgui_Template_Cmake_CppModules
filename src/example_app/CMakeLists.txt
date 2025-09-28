@@ -7,6 +7,7 @@ add_executable(App
 )
 
 file(GLOB_RECURSE CPP_MODULES CONFIGURE_DEPENDS
+  ${CMAKE_CURRENT_SOURCE_DIR}/widgets/*.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/layers/*.cpp
 )
 

@@ -17,7 +17,7 @@ export module TitleBar;
 import Layer;
 import Application;
 import Image;
-import CustomWidgets;
+import ViewportBar;
 
 void DrawWindowButtons(
     ImVec2& button_start, 
@@ -116,7 +116,7 @@ public:
 
         ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(0, 0, 0, 0));
         ImGui::PushStyleColor(ImGuiCol_MenuBarBg, IM_COL32(0, 0, 0, 0));
-        if (BeginViewportFixedBar("##TitleBarMenuBar", ImGui::GetMainViewport(),
+        if (BeginViewportBar("##TitleBarMenuBar", ImGui::GetMainViewport(),
 			title_bar_height + 15.0f, title_bar_height * 0.5f - ImGui::GetFrameHeight() * 0.5f, 
 			menu_bar_size, ImGui::GetFrameHeight(),
 			ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_MenuBar))
@@ -153,10 +153,10 @@ public:
     {
         //Get cursor position and window size
         double mouse_x, mouse_y;
-        glfwGetCursorPos(m_app->m_window->m_window, &mouse_x, &mouse_y);
+        glfwGetCursorPos(m_app->m_window->m_glfw_window, &mouse_x, &mouse_y);
 
         int window_width, window_height;
-        glfwGetWindowSize(m_app->m_window->m_window, &window_width, &window_height);
+        glfwGetWindowSize(m_app->m_window->m_glfw_window, &window_width, &window_height);
 
         //Border conditions
         bool left   = (mouse_x < border_size) && (mouse_y > title_bar_height);
@@ -182,25 +182,25 @@ public:
         }
 
         //Resize with mouse
-        if (glfwGetMouseButton(m_app->m_window->m_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) 
+        if (glfwGetMouseButton(m_app->m_window->m_glfw_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) 
         {
             int window_x, window_y;
-            glfwGetWindowPos(m_app->m_window->m_window, &window_x, &window_y);
+            glfwGetWindowPos(m_app->m_window->m_glfw_window, &window_x, &window_y);
 
             if (right) 
             {
-                glfwSetWindowSize(m_app->m_window->m_window, (int)mouse_x, window_height);
+                glfwSetWindowSize(m_app->m_window->m_glfw_window, (int)mouse_x, window_height);
             }
             if (bottom) 
             {
-                glfwSetWindowSize(m_app->m_window->m_window, window_width, (int)mouse_y);
+                glfwSetWindowSize(m_app->m_window->m_glfw_window, window_width, (int)mouse_y);
             }
             if (left) 
             {
                 int new_width = window_width - (int)mouse_x;
                 int new_x = window_x + (int)mouse_x;
-                glfwSetWindowPos(m_app->m_window->m_window, new_x, window_y);
-                glfwSetWindowSize(m_app->m_window->m_window, new_width, window_height);
+                glfwSetWindowPos(m_app->m_window->m_glfw_window, new_x, window_y);
+                glfwSetWindowSize(m_app->m_window->m_glfw_window, new_width, window_height);
             }
         }
     }
@@ -238,13 +238,13 @@ public:
         ImVec2 top_left = ImGui::GetMainViewport()->Pos;
         ImVec2 bottom_right = ImVec2(top_left.x + ImGui::GetMainViewport()->Size.x, top_left.y + 42.0f);
         ImRect titlebar_rect(top_left, bottom_right);
-        DrawCenteredText(m_app->m_app_specification.title, titlebar_rect);
+        DrawCenteredText(m_app->m_window->m_window_specification.title, titlebar_rect);
 
         ImGui::GetBackgroundDrawList()->AddRectFilled(
             top_left,
             bottom_right,
             titlebar_background_color,
-            IsMaximized(m_app->m_window->m_window) ? 0.0f : round_corner_radius,
+            IsMaximized(m_app->m_window->m_glfw_window) ? 0.0f : round_corner_radius,
             ImDrawFlags_RoundCornersTop
         );
 
@@ -252,9 +252,9 @@ public:
         if (ImGui::IsMouseHoveringRect(top_left, bottom_right) && ImGui::IsMouseDragging(0))
         {
             int wx, wy;
-            glfwGetWindowPos(m_app->m_window->m_window, &wx, &wy);
+            glfwGetWindowPos(m_app->m_window->m_glfw_window, &wx, &wy);
             ImVec2 delta = ImGui::GetIO().MouseDelta;
-            glfwSetWindowPos(m_app->m_window->m_window, wx + (int)delta.x, wy + (int)delta.y);
+            glfwSetWindowPos(m_app->m_window->m_glfw_window, wx + (int)delta.x, wy + (int)delta.y);
         }
         ImGui::End();
 
@@ -277,23 +277,23 @@ public:
             button_size,
             icon_size,
             IM_COL32(154, 140, 152, 128),
-            [&]() { glfwIconifyWindow(m_app->m_window->m_window); }
+            [&]() { glfwIconifyWindow(m_app->m_window->m_glfw_window); }
         );
 
         DrawWindowButtons(
             button_start,
             button_end,
             (ImTextureID)(intptr_t)(
-                IsMaximized(m_app->m_window->m_window) ? restore_button->get_texture()
+                IsMaximized(m_app->m_window->m_glfw_window) ? restore_button->get_texture()
                 : maximize_button->get_texture()),
             button_size,
             icon_size,
             IM_COL32(154, 140, 152, 128),
             [&]() {
-                if (IsMaximized(m_app->m_window->m_window))
-                    glfwRestoreWindow(m_app->m_window->m_window);
+                if (IsMaximized(m_app->m_window->m_glfw_window))
+                    glfwRestoreWindow(m_app->m_window->m_glfw_window);
                 else
-                    glfwMaximizeWindow(m_app->m_window->m_window);
+                    glfwMaximizeWindow(m_app->m_window->m_glfw_window);
             }
         );
 
@@ -305,7 +305,7 @@ public:
             icon_size,
             IM_COL32(255, 0, 0, 128),
             [&]() { m_app->m_window->m_close_popup = true; },
-            !IsMaximized(m_app->m_window->m_window),
+            !IsMaximized(m_app->m_window->m_glfw_window),
             round_corner_radius
         );
     }

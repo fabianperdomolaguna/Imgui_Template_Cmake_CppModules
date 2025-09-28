@@ -12,7 +12,7 @@ export module CustomMainMenuBar;
 import Application;
 import ImguiContext;
 import Layer;
-import CustomWidgets;
+import ViewportBar;
 import SettingsConfig;
 
 void ShowStyleEditor(Application* app, std::string& style, float& size)
@@ -70,28 +70,29 @@ public:
 			last_frame_height = ImGui::GetFrameHeight();
 		}
 
-		if (BeginViewportFixedBar("##MainMenuBarCustom", ImGui::GetMainViewport(),
+		if (BeginViewportBar("##MainMenuBarCustom", ImGui::GetMainViewport(),
 			0.0f, m_app->m_imgui_context->header_height[0], 
 			ImGui::GetMainViewport()->Size.x, ImGui::GetFrameHeight(),
 			ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_MenuBar))
 		{
 			ImGui::BeginMenuBar();
-				if (ImGui::BeginMenu("File"))
-				{
-					if (ImGui::MenuItem("Exit"))
-						m_app->m_window->m_close_popup = true;
 
-					ImGui::EndMenu();
-				}
+			if (ImGui::BeginMenu("File"))
+			{
+				if (ImGui::MenuItem("Exit"))
+					m_app->m_window->m_close_popup = true;
 
-				if (ImGui::BeginMenu("Settings"))
-				{
-					ImGui::MenuItem("Style Editor", NULL, &show_style_editor);
+				ImGui::EndMenu();
+			}
 
-					ImGui::EndMenu();
-				}
+			if (ImGui::BeginMenu("Settings"))
+			{
+				ImGui::MenuItem("Style Editor", NULL, &show_style_editor);
 
-				ImGui::EndMenuBar();
+				ImGui::EndMenu();
+			}
+
+			ImGui::EndMenuBar();
 
 			ImGui::End();
 		}

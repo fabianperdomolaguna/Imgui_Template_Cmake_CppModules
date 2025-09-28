@@ -6,13 +6,13 @@ module;
 
 export module ColorStyles;
 
+constexpr auto ColorFromBytes = [](uint8_t red, uint8_t green, uint8_t blue)
+{
+    return ImVec4((float)red / 255.0f, (float)green / 255.0f, (float)blue / 255.0f, 1.0f);
+};
+
 export void SetDarkTheme()
 {
-    constexpr auto ColorFromBytes = [](uint8_t red, uint8_t green, uint8_t blue)
-    {
-        return ImVec4((float)red/255.0f, (float)green/255.0f, (float)blue/255.0f, 1.0f);
-    };
-
     auto& style = ImGui::GetStyle();
     ImVec4* colors = style.Colors;
 
@@ -29,7 +29,6 @@ export void SetDarkTheme()
     const ImVec4 border_color = ColorFromBytes(78, 78, 78);
 
     const ImVec4 check_color = ColorFromBytes(255, 153, 0);
-
 
     colors[ImGuiCol_WindowBg] = ImVec4{ 0.18f, 0.18f, 0.18f, 1.0f };
     colors[ImGuiCol_ChildBg] = bg_color;
@@ -99,11 +98,6 @@ export void SetDarkTheme()
 
 export void SetLightTheme()
 {
-    constexpr auto ColorFromBytes = [](uint8_t red, uint8_t green, uint8_t blue)
-    {
-        return ImVec4((float)red/255.0f, (float)green/255.0f, (float)blue/255.0f, 1.0f);
-    };
-
     ImGui::StyleColorsLight();
 
     auto& style = ImGui::GetStyle();
@@ -131,7 +125,6 @@ export void SetLightTheme()
     const ImVec4 menu_bg_color = ColorFromBytes(189, 189, 240);
 
     const ImVec4 check_color = ColorFromBytes(111, 65, 65);;
-
 
     colors[ImGuiCol_WindowBg] = ImVec4{ 0.95f, 0.94f, 0.92f, 1.0f };
     colors[ImGuiCol_ChildBg] = bg_color;

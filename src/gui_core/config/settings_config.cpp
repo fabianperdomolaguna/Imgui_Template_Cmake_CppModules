@@ -10,9 +10,8 @@ export module SettingsConfig;
 nlohmann::json ReadConfigFile(std::string executable_path)
 {
     std::ifstream json_config_file(executable_path + "/ConfigFile.json");
-    if (!json_config_file.is_open()) {
+    if (!json_config_file.is_open())
         throw std::runtime_error("Config file not found or could not be opened.");
-    }
 
     try {
         return nlohmann::json::parse(json_config_file);
@@ -24,9 +23,8 @@ nlohmann::json ReadConfigFile(std::string executable_path)
 void WriteConfigFile(std::string executable_path, nlohmann::json& json_data)
 {
     std::ofstream json_config_file(executable_path + "/ConfigFile.json");
-    if (!json_config_file.is_open()) {
+    if (!json_config_file.is_open())
         throw std::runtime_error("Could not open config file for writing.");
-    }
 
     json_config_file << json_data.dump(4);
 }

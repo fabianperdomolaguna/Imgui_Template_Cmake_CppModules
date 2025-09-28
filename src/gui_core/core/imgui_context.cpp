@@ -105,9 +105,7 @@ public:
             ImGuiWindowFlags_NoBackground;
 
         if (!custom_title_bar)
-        {
             window_flags |= ImGuiWindowFlags_MenuBar;
-        }
 
         ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(ImVec2(viewport->Pos.x, viewport->Pos.y + std::reduce(header_height.begin(), header_height.end())));

@@ -3,9 +3,9 @@ module;
 #include "imgui.h"
 #include "imgui_internal.h"
 
-export module CustomWidgets;
+export module ViewportBar;
 
-export bool BeginViewportFixedBar(const char* name, ImGuiViewport* viewport_p, float pos_x_offset, float pos_y_offset,
+export bool BeginViewportBar(const char* name, ImGuiViewport* viewport_p, float pos_x_offset, float pos_y_offset,
 	float size_x, float size_y, ImGuiWindowFlags window_flags)
 {
 	ImGuiWindow* bar_window = ImGui::FindWindowByName(name);

@@ -10,31 +10,33 @@ module;
 
 export module Window;
 
+export struct WindowSpecification
+{
+    std::string title;
+    int32_t width;
+    int32_t height;
+    bool custom_title_bar;
+};
+
 export class Window
 {
-    std::string m_title;
-    uint16_t m_width;
-    uint16_t m_height;
     std::array<float, 4> clear_color;
 
 public:
-    GLFWwindow* m_window;
+    WindowSpecification m_window_specification;
+    GLFWwindow* m_glfw_window;
     bool m_running = true;
     bool m_close_popup = false;
 
-    Window(std::string title, int32_t width, int32_t height, bool custom_title_bar)
+    Window(const WindowSpecification& spec) : m_window_specification(spec)
     {
-        m_title = title;
-        m_width = width;
-        m_height = height;
-
         if (!glfwInit())
         {
             std::cout << "Could not intialize GLFW!\n";
             m_running = false;
         }
 
-        if (custom_title_bar){
+        if (m_window_specification.custom_title_bar){
             glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
             glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
             clear_color = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -42,29 +44,30 @@ public:
             clear_color = { 0.2f, 0.2f, 0.2f, 1.0f };
         }
 
-        m_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), nullptr, nullptr);
-        glfwMakeContextCurrent(m_window);
+        m_glfw_window = glfwCreateWindow(m_window_specification.width, m_window_specification.height, 
+            m_window_specification.title.c_str(), nullptr, nullptr);
+        glfwMakeContextCurrent(m_glfw_window);
         glfwSwapInterval(0);
 
-        if (!m_window)
+        if (!m_glfw_window)
         {
             std::cout << "Could not intialize a window!\n";
             m_running = false;
         }
 
-        glfwSetWindowUserPointer(m_window, this);
+        glfwSetWindowUserPointer(m_glfw_window, this);
 
-        glfwSetWindowCloseCallback(m_window, [](GLFWwindow* window)
+        glfwSetWindowCloseCallback(m_glfw_window, [](GLFWwindow* window)
         {
             Window& window_app = *(Window*)glfwGetWindowUserPointer(window);
             window_app.m_close_popup = true;
         });
 
-        glfwSetFramebufferSizeCallback(m_window, [](GLFWwindow* window, int width, int height)
+        glfwSetFramebufferSizeCallback(m_glfw_window, [](GLFWwindow* window, int width, int height)
         {
             Window& window_app = *(Window*)glfwGetWindowUserPointer(window);
-            window_app.m_width = width;
-            window_app.m_height = height;
+            window_app.m_window_specification.width = width;
+            window_app.m_window_specification.height = height;
         });
 
         if (!gladLoadGL((GLADloadfunc)glfwGetProcAddress)) {
@@ -78,13 +81,13 @@ public:
 
     ~Window()
     {
-        glfwDestroyWindow(m_window);
+        glfwDestroyWindow(m_glfw_window);
         glfwTerminate();
     }
 
     void PreRender()
     {
-        glViewport(0, 0, m_width, m_height);
+        glViewport(0, 0, m_window_specification.width, m_window_specification.height);
 		glClearBufferfv(GL_COLOR, 0, clear_color.data());
         glClear(GL_DEPTH_BUFFER_BIT);
     }
@@ -92,7 +95,7 @@ public:
     void PostRender()
     {
         glfwPollEvents();
-        glfwSwapBuffers(m_window);
+        glfwSwapBuffers(m_glfw_window);
     }
 
     void CloseAppPopup()
@@ -109,7 +112,9 @@ public:
 
             if (ImGui::Button("Ok", ImVec2(120, 0)))
                 m_running = false;
-                ImGui::SameLine();
+
+            ImGui::SameLine();
+
             if (ImGui::Button("Cancel", ImVec2(120, 0)))
             {
                 ImGui::CloseCurrentPopup();
