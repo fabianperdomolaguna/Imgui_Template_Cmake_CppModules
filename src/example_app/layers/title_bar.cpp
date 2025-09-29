@@ -168,17 +168,16 @@ public:
         ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
         if (imgui_cursor == ImGuiMouseCursor_Arrow) 
         {
-            if (right && bottom) {
+            if (right && bottom)
                 ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
-            } else if (left && bottom) {
+            else if (left && bottom)
                 ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNESW);
-            } else if (left) {
+            else if (left)
                 ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-            } else if (right) {
+            else if (right)
                 ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-            } else if (bottom) {
+            else if (bottom)
                 ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
-            }
         }
 
         //Resize with mouse
@@ -188,13 +187,9 @@ public:
             glfwGetWindowPos(m_app->m_window->m_glfw_window, &window_x, &window_y);
 
             if (right) 
-            {
                 glfwSetWindowSize(m_app->m_window->m_glfw_window, (int)mouse_x, window_height);
-            }
             if (bottom) 
-            {
                 glfwSetWindowSize(m_app->m_window->m_glfw_window, window_width, (int)mouse_y);
-            }
             if (left) 
             {
                 int new_width = window_width - (int)mouse_x;
