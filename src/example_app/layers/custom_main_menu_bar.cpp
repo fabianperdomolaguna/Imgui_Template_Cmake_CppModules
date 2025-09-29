@@ -6,10 +6,10 @@
 #include "imgui.h"
 
 #include "custom_main_menu_bar.h"
+#include "viewport_bar.h"
 #include "core/layer.h"
 #include "core/application.h"
 #include "core/imgui_context.h"
-#include "core/custom_widgets.h"
 #include "config/settings_config.h"
 
 void ShowStyleEditorCustom(Application* app, std::string& style, float& size)
@@ -57,28 +57,29 @@ void CustomMenuBar::OnRender()
 		last_frame_height = ImGui::GetFrameHeight();
 	}
 
-	if (BeginViewportFixedBar("##MainMenuBarCustom", ImGui::GetMainViewport(),
+	if (BeginViewportBar("##MainMenuBarCustom", ImGui::GetMainViewport(),
 		0.0f, m_app->m_imgui_context->header_height[0], 
 		ImGui::GetMainViewport()->Size.x, ImGui::GetFrameHeight(),
 		ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_MenuBar))
 	{
 		ImGui::BeginMenuBar();
-			if (ImGui::BeginMenu("File"))
-			{
-				if (ImGui::MenuItem("Exit"))
-					m_app->m_window->m_close_popup = true;
 
-				ImGui::EndMenu();
-			}
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Exit"))
+				m_app->m_window->m_close_popup = true;
 
-			if (ImGui::BeginMenu("Settings"))
-			{
-				ImGui::MenuItem("Style Editor", NULL, &show_style_editor);
+			ImGui::EndMenu();
+		}
 
-				ImGui::EndMenu();
-			}
+		if (ImGui::BeginMenu("Settings"))
+		{
+			ImGui::MenuItem("Style Editor", NULL, &show_style_editor);
 
-			ImGui::EndMenuBar();
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMenuBar();
 
 		ImGui::End();
 	}

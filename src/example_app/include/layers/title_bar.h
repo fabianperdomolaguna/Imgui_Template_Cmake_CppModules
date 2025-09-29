@@ -10,7 +10,6 @@
 
 #include "core/layer.h"
 #include "core/application.h"
-#include "core/custom_widgets.h"
 #include "image/image_reader.h"
 #include "window_buttons.embed"
 

@@ -1,10 +1,12 @@
 find_package(OpenGL REQUIRED)
 
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
+  ${CMAKE_CURRENT_SOURCE_DIR}/widgets/*.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/layers/*.cpp
 )
 
 file(GLOB_RECURSE HDR_FILES CONFIGURE_DEPENDS
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/widgets/*.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/layers/*.h
 )
 
@@ -15,6 +17,7 @@ add_executable(App
 )
 
 target_include_directories(App PRIVATE
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/widgets>"
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/layers>"
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/icon>"
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/embed>"

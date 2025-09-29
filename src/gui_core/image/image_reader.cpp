@@ -107,13 +107,9 @@ void ImageTexture::Reload(const uint8_t* image_data, uint32_t image_size)
 ImageTexture::~ImageTexture()
 {
     if (m_render_texture) 
-    {
         glDeleteTextures(1, &m_render_texture);
-    }
     else 
-    {
         stbi_image_free(m_data);
-    }
 }
 
 bool ImageTexture::IsValid() const { return m_render_texture != 0; }

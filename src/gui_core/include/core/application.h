@@ -9,25 +9,16 @@
 #include "core/imgui_context.h"
 #include "core/layer.h"
 
-struct AppSpecification
-{
-	std::string title;
-	int32_t width;
-	int32_t height;
-	bool custom_title_bar;
-};
-
 class Application
 {
 public:
-	AppSpecification m_app_specification;
     std::unique_ptr<Window> m_window;
 	std::unique_ptr<ImguiContext> m_imgui_context;
 	std::vector<std::shared_ptr<Layer>> m_layer_stack;
     
 	std::string m_executable_path;
 
-    Application(const AppSpecification& spec);
+    Application(const WindowSpecification& spec);
     ~Application();
 
     void Run();

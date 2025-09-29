@@ -46,25 +46,24 @@ void MainMenuBar::OnRender()
 {
 	ImGuiIO& io = ImGui::GetIO();
 
-	if (ImGui::BeginMainMenuBar())
+	ImGui::BeginMainMenuBar();
+	
+	if (ImGui::BeginMenu("File"))
 	{
-		if (ImGui::BeginMenu("File"))
-		{
-			if (ImGui::MenuItem("Exit"))
-				m_app->m_window->m_close_popup = true;
+		if (ImGui::MenuItem("Exit"))
+			m_app->m_window->m_close_popup = true;
 
-			ImGui::EndMenu();
-		}
-
-		if (ImGui::BeginMenu("Settings"))
-		{
-			ImGui::MenuItem("Style Editor", NULL, &show_style_editor);
-
-			ImGui::EndMenu();
-		}
-
-		ImGui::EndMainMenuBar();
+		ImGui::EndMenu();
 	}
+
+	if (ImGui::BeginMenu("Settings"))
+	{
+		ImGui::MenuItem("Style Editor", NULL, &show_style_editor);
+
+		ImGui::EndMenu();
+	}
+
+	ImGui::EndMainMenuBar();
 
 	if (show_style_editor)
 	{

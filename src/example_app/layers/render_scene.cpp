@@ -48,7 +48,6 @@ void SimpleRender::OnAttach()
         std::tie(width, height) = py::cast<std::tuple<int, int>>(canvas.attr("get_width_height")());
 
         mpl_texture = std::make_unique<Texture>(data_ptr, width, height, GL_RGBA);
-
     } catch (py::error_already_set& err) {
         std::cout << err.what() << std::endl;
     }
