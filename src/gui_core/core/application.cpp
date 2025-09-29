@@ -17,14 +17,6 @@ import ImguiContext;
 import Layer;
 import Image;
 
-struct AppSpecification
-{
-	std::string title;
-	int32_t width;
-	int32_t height;
-	bool custom_title_bar;
-};
-
 export class Application
 {
 public:

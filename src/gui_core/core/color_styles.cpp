@@ -6,9 +6,9 @@ module;
 
 export module ColorStyles;
 
-constexpr auto ColorFromBytes = [](uint8_t red, uint8_t green, uint8_t blue)
+constexpr auto ColorFromBytes = [](uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255)
 {
-    return ImVec4((float)red / 255.0f, (float)green / 255.0f, (float)blue / 255.0f, 1.0f);
+    return ImVec4((float)red / 255.0f, (float)green / 255.0f, (float)blue / 255.0f, (float)alpha / 255.0f);
 };
 
 export void SetDarkTheme()
@@ -27,6 +27,8 @@ export void SetDarkTheme()
     const ImVec4 text_color = ColorFromBytes(255, 255, 255);
     const ImVec4 text_disabled_color = ColorFromBytes(151, 151, 151);
     const ImVec4 border_color = ColorFromBytes(78, 78, 78);
+
+    const ImVec4 modal_dimmed_background = ColorFromBytes(204, 204, 204, 89);
 
     const ImVec4 check_color = ColorFromBytes(255, 153, 0);
 
@@ -90,6 +92,8 @@ export void SetDarkTheme()
 
     colors[ImGuiCol_DragDropTarget] = bg_color;
     colors[ImGuiCol_NavHighlight] = bg_color;
+
+    colors[ImGuiCol_ModalWindowDimBg] = modal_dimmed_background;
     
     colors[ImGuiCol_DockingPreview] = panel_active_color;
 
@@ -124,7 +128,9 @@ export void SetLightTheme()
 
     const ImVec4 menu_bg_color = ColorFromBytes(189, 189, 240);
 
-    const ImVec4 check_color = ColorFromBytes(111, 65, 65);;
+    const ImVec4 check_color = ColorFromBytes(111, 65, 65);
+
+    const ImVec4 modal_dimmed_background = ColorFromBytes(204, 204, 204, 89);
 
     colors[ImGuiCol_WindowBg] = ImVec4{ 0.95f, 0.94f, 0.92f, 1.0f };
     colors[ImGuiCol_ChildBg] = bg_color;
@@ -174,6 +180,8 @@ export void SetLightTheme()
     colors[ImGuiCol_Separator] = border_color;
     colors[ImGuiCol_SeparatorHovered] = border_color;
     colors[ImGuiCol_SeparatorActive] = border_color;
+
+	colors[ImGuiCol_ModalWindowDimBg] = modal_dimmed_background;
 
     colors[ImGuiCol_DockingPreview] = ImVec4(0.0f, 0.47f, 0.78f, 1.0f);
 
