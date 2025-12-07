@@ -4,10 +4,14 @@ if(NOT PYTHON_PATH)
 endif()
 
 if(WIN32)
+  set(Python_ROOT_DIR "${PYTHON_PATH}")
   set(PYTHON_EXECUTABLE "${PYTHON_PATH}/python.exe")
 else()
-  set(PYTHON_EXECUTABLE "${PYTHON_PATH}/bin/python3")
+  set(Python_ROOT_DIR "${PYTHON_PATH}")
+  set(Python_EXECUTABLE "${PYTHON_PATH}/bin/python3")
 endif()
+
+set(PYBIND11_FINDPYTHON ON CACHE BOOL "" FORCE)
 
 include(FetchContent)
 

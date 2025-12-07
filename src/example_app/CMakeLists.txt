@@ -9,6 +9,7 @@ add_executable(App
 file(GLOB_RECURSE CPP_MODULES CONFIGURE_DEPENDS
   ${CMAKE_CURRENT_SOURCE_DIR}/widgets/*.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/layers/*.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/python_interpreter/*.cpp
 )
 
 target_sources(App
@@ -29,6 +30,23 @@ target_link_libraries(App
 
 if(COMMAND set_python_rpath)
     set_python_rpath(App)
+endif()
+
+if(PYTHON_PATH AND WIN32)
+  set_target_properties(App PROPERTIES
+  VS_DEBUGGER_ENVIRONMENT
+    "PATH=${PYTHON_PATH};${PYTHON_PATH}/Library/bin;%PATH%"
+  )
+
+  file(TO_CMAKE_PATH "${PYTHON_PATH}" PYTHON_PATH_NORM)
+  get_filename_component(CONDA_ENV "${PYTHON_PATH_NORM}" NAME)
+  get_filename_component(CONDA_ROOT "${PYTHON_PATH_NORM}/../.." REALPATH)
+
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/App_Launcher.bat.in"
+    "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/App_Launcher.bat"
+    @ONLY
+  )
 endif()
 
 if (WIN32)

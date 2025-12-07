@@ -7,6 +7,7 @@ import TitleBar;
 import MainMenuBar;
 import CustomMainMenuBar;
 import RenderScene;
+import PythonManager;
 
 namespace py = pybind11;
 
@@ -30,7 +31,7 @@ namespace py = pybind11;
 
 int Main(int argc, char** argv)
 {	
-    py::scoped_interpreter guard{};
+	PythonManager::Instance().Initialize();
 
     Application* app = new Application({
         .title = "ImGui - OpenGL Context",
