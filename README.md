@@ -4,7 +4,7 @@
   <img src="https://img.shields.io/github/license/fabianperdomolaguna/Imgui_Template_Cmake_CppModules?style=for-the-badge" alt="alt text">
   <img src="https://img.shields.io/badge/OS-Linux%20%7C%20Windows-003366?style=for-the-badge&logo=Windows%20Terminal" alt="alt text">
   <img src="https://img.shields.io/badge/Solution-C++17%20%7C%20C++20-00559C?style=for-the-badge&logo=C%2B%2B" alt="alt text">
-  <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-FFFF00?style=for-the-badge&logo=Python&logoColor=white" alt="alt text">
+  <img src="https://img.shields.io/badge/Python->_3.10-FFFF00?style=for-the-badge&logo=Python&logoColor=white" alt="alt text">
 </p>
 
 ---
@@ -17,15 +17,16 @@ This project is a simple template to create desktop GUI applications with ImGui 
 - [2. Getting started](#2-getting-started)
 - [3. Build](#3-build)
 - [4. Use Wayland for window creation](#4-use-wayland-for-window-creation-linux)
-- [5. Additional characteristics](#5-additional-characteristics)
-- [6. Utils](#6-utils)
+- [5. Python integration — PythonManager](#5-python-integration--pythonmanager)
+- [6. Additional characteristics](#6-additional-characteristics)
+- [7. Utils](#7-utils)
 
 ## 1. Requirements
 
 - [CMake](https://cmake.org/) (minimum version 3.28)
 - Python interpreter (3.10+)
 - [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
-- Visual Studio 2022 or LLVM/Clang 17 (or newer)
+- Visual Studio 2022/2026 or LLVM/Clang 17 (or newer)
 - The template uses the [Roboto](https://fonts.google.com/specimen/Roboto) font ([Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0))
 
 ## 2. Getting started
@@ -38,8 +39,8 @@ chmod +x llvm.sh
 sudo ./llvm.sh <version number> all
 
 # Set Clang version as the default compiler
-sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-16 100
-sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-16 100
+sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-17 100
+sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-17 100
 ```
 
 Once miniconda is installed, create a new environment and install the required Python packages:
@@ -71,23 +72,32 @@ conda env list
 >
 > - GLAD sources are automatically generated during the CMake build
 > - Python 3.10+ with Jinja2 is required at configure/build time
-> - A new CMake variable PYTHON_PATH can be defined to specify the Python environment path
->   - If not provided, CMake will try to auto-detect one
+> - A new CMake variable PYTHON_GLAD can be defined to specify the Python environment path (-DPYTHON_GLAD=/python/environment/path)
+>   - If not provided, CMake will try to auto-detect one (on Windows, use the Python installation that is added to the user's PATH environment variable)
 >   - If the environment does not have jinja2 installed, CMake will show a warning message and indicate the steps to fix it
->   - If a conda environment is active, CMake will automatically use its Python interpreter during configuration
+>   - If a conda environment is active, CMake will automatically use its Python interpreter during configuration for Glad
+
+> [!IMPORTANT]
+> To avoid runtime errors related to python libraries load:
+>
+> - In Windows, the project configure a .bat file from a template. This file script activates the Conda environment using during build process and then launch the `App.exe` (use the .bat to run the application).
+> - For debugging the project sets a property to guarantees the debugger in Visual Studio runs with the appropiate Python environmente.
+> - On Linux, these steps are unnecessary because the build process defines an RPATH, ensuring that the executable is linked to and loads the correct environment libraries automatically.
+> - We avoid adding the Conda environment directly to the user’s variables PATH, because this can conflict with Conda or Python installations causing runtime errors. Relying on the generated .bat file avoids these issues. You can create a shortcut to this .bat in the output directory and assign it a custom .ico icon if needed.
 
 Clone the repository, configure the project and build the app:
 
 ```bash
-# Compile the app (Linux systems)
+# Compile the app (Linux systems) -DPYTHON_GLAD(Optional)
 git clone --branch header_based https://github.com/fabianperdomolaguna/Imgui_Template_Cmake_CppModules.git
 cd Imgui_Template_Cmake_CppModules
 # You can omit -GNinja to use the make build. Also, you can omit clang instructions to use another compiler.
-CXX=clang++ CC=clang cmake -GNinja -B build -DPYTHON_PATH=/path/to/python_environment
+CXX=clang++ CC=clang cmake -GNinja -B build -DPYTHON_PATH=/path/to/python_environment -DPYTHON_GLAD=/path/glad/build/env
 cmake --build build
 
 # In Windows systems, configure the project with the following command.
-cmake -B build -DPYTHON_PATH=/path/to/python_environment
+# -DPYTHON_GLAD(Optional)
+cmake -B build -DPYTHON_PATH=/path/to/python_environment -DPYTHON_GLAD=/path/glad/build/env
 
 # Run the app
 cd build/bin
@@ -121,7 +131,18 @@ sudo apt install wayland-protocols
 echo $XDG_SESSION_TYPE
 ```
 
-## 5. Additional characteristics
+## 5. Python integration — PythonManager
+
+This project centralizes the embedded Python interpreter with a `PythonManager` class located at the `src/example_app/python_interpreter/python_manager.cpp`. The class encapsulates the `py::scoped_interpreter` lifetime and exposes a simple methods for scripts integration.
+
+- Call `PythonManager::Instance().Initialize(path);` before any Python code runs. The `path` parameter is optional and will be added to `sys.path`.
+- `AddSystemPath` method inserts the path at the front of `sys.path` to import local scripts.
+- `ImportModule` load a module (from the environment or a local script). Returns an empty module on failure.
+- `SafeCall` returns an empty `py::object` on failure and logs the error so Python script faults do not crash the app, allowing callers to handle fallbacks or retry later.
+
+To remove Python support from the app not instantiate `PythonManager` class, remove the `pybind11::embed` target from `CMakeLists.txt`, and remove any Python-specific imports from your modules.
+
+## 6. Additional characteristics
 
 ## Custom Title Bar Layer
 
@@ -177,7 +198,7 @@ Additionally, the creation of a Linux application launcher with an assigned icon
 \- If the application icon doesn't appear correctly in the taskbar when launched, you need to add `StartupWMClass=WM_Class` to the .desktop file located in `/home/.local/share/applications/menulibre-launchername.desktop`  
 \- To get the WM Class of an application, first open the app, then run the command `xprop | grep WM_CLASS` in a terminal. When prompted, click inside the application's window. The terminal will output something like WM_CLASS(STRING) = "example-class", "example-class", which you can use as the value for StartupWMClass in the `.desktop` file.
 
-## 6. Utils
+## 7. Utils
 
 \- Python script for embedding images into memory headers (.h) and restoring them.
 

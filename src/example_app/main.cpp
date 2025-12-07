@@ -2,6 +2,7 @@
 
 #include "icon_app.embed"
 #include "core/application.h"
+#include "python_manager.h"
 #include "title_bar.h"
 #include "custom_main_menu_bar.h"
 #include "main_menu_bar.h"
@@ -28,7 +29,7 @@ namespace py = pybind11;
 
 int Main(int argc, char** argv)
 {
-    py::scoped_interpreter guard{};
+    PythonManager::Instance().Initialize();
 
     Application* app = new Application({
         .title = "ImGui - OpenGL Context",

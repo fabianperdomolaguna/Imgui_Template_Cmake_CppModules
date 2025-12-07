@@ -1,0 +1,6 @@
+@echo off
+set "CONDA_ROOT=@CONDA_ROOT@"
+call "%CONDA_ROOT%\Scripts\activate.bat"
+call conda activate @CONDA_ENV@
+start "" "%~dp0App.exe"
+exit

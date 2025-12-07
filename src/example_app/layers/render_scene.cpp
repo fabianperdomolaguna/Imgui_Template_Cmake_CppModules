@@ -7,12 +7,14 @@
 #include "pybind11/embed.h"
 
 #include "render_scene.h"
+#include "python_manager.h"
 #include "core/layer.h"
 #include "image/image_reader.h"
 #include "renderer/texture.h"
 #include "renderer/framebuffer.h"
 
 namespace py = pybind11;
+auto& PyMgr = PythonManager::PyMgr();
 
 SimpleRender::SimpleRender(std::string executable_path)
 {
@@ -25,16 +27,15 @@ void SimpleRender::OnAttach()
 
     try {
         py::module::import("matplotlib").attr("use")("Agg");
-        py::module np = py::module::import("numpy");
-        py::module plt = py::module::import("matplotlib.pyplot");
-        py::module agg = py::module::import("matplotlib.backends.backend_agg");
+        auto np = PyMgr.ImportModule("numpy");
+        auto plt = PyMgr.ImportModule("matplotlib.pyplot");
+        auto agg = PyMgr.ImportModule("matplotlib.backends.backend_agg");
 
-        py::module sys = py::module::import("sys");
-        sys.attr("path").attr("insert")(0, m_executable_path + "/scripts");
-        py::module add_module = py::module::import("add");
+        PyMgr.AddSystemPath(m_executable_path + "/scripts");
+        auto add_module = PyMgr.ImportModule("add");
 
         auto add = add_module.attr("add");
-        std::cout << "Add result from Python script: " << py::cast<int>(add(2, 3, 5)) << std::endl;
+        std::cout << "Add result from Python script: " << py::cast<int>(PyMgr.SafeCall(add, 2, 3, 5)) << std::endl;
 
         pybind11::object fig = plt.attr("figure")();
         plt.attr("plot")(np.attr("random").attr("randn")(100));
@@ -49,7 +50,9 @@ void SimpleRender::OnAttach()
 
         mpl_texture = std::make_unique<Texture>(data_ptr, width, height, GL_RGBA);
     } catch (py::error_already_set& err) {
+        std::cout << "Failed to create matplotlib texture." << std::endl;
         std::cout << err.what() << std::endl;
+        mpl_texture.reset();
     }
 
     m_vertex = std::make_unique<GlVertex>(vertex_shader_src, fragment_shader_src);
@@ -85,8 +88,13 @@ void SimpleRender::OnRender()
     ImGui::End();
 
     ImGui::Begin("Matplotlib Texture");
-    ImGui::Image(reinterpret_cast<void*>((uint64_t)mpl_texture->get_texture()), 
-        { (float)mpl_texture->m_width, (float)mpl_texture->m_height});
+    if (mpl_texture && mpl_texture->get_texture() != 0) {
+        ImGui::Image(reinterpret_cast<void*>((uint64_t)mpl_texture->get_texture()),
+            { (float)mpl_texture->m_width, (float)mpl_texture->m_height });
+    }
+    else {
+        ImGui::Text("Matplotlib texture not available. Ensure required Python packages are installed and the texture was created successfully.");
+    }
     ImGui::End();
 
     m_framebuffer->Bind();
