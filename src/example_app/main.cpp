@@ -11,24 +11,6 @@ import PythonManager;
 
 namespace py = pybind11;
 
-/* Assign Icons with IDI Icon Resource*/
-#if defined(_WIN32)
-  #include "GLFW/glfw3.h"
-  #define GLFW_EXPOSE_NATIVE_WIN32
-  #include <GLFW/glfw3native.h>
-  #include "icon_resource.h"
-  
-  void SetWin32WindowIcons(GLFWwindow* window) {
-    HWND hwnd = glfwGetWin32Window(window);
-    HICON hIcon = LoadIconA(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_ICON_APP));
-
-    SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
-    SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
-    SetClassLongPtr(hwnd, GCLP_HICON, (LONG_PTR)hIcon);
-    SetClassLongPtr(hwnd, GCLP_HICONSM, (LONG_PTR)hIcon);
-  }
-#endif
-
 int Main(int argc, char** argv)
 {	
 	PythonManager::Instance().Initialize();
