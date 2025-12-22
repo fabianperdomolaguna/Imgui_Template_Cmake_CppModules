@@ -5,6 +5,7 @@ add_library(Core SHARED)
 file(GLOB_RECURSE CPP_MODULES CONFIGURE_DEPENDS
   ${CMAKE_CURRENT_SOURCE_DIR}/core/*.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/config/*.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/logging/*.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/renderer/*.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/image/*.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/shaders/*.cpp
@@ -16,6 +17,7 @@ set(MODULE_Path
 
 file(GLOB_RECURSE HDR_FILES CONFIGURE_DEPENDS
   ${CMAKE_CURRENT_SOURCE_DIR}/path/include/*.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/logging/include/*.h
 )
 
 target_sources(Core
@@ -28,12 +30,14 @@ target_sources(Core
 
 target_include_directories(Core PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/path/include>"
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/logging/include>"
 )
 
 target_link_libraries(Core
   glfw
   glad_gl
   ImGui
+  spdlog::spdlog
   nlohmann_json::nlohmann_json
   stb
 )

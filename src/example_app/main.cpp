@@ -1,5 +1,8 @@
+#include <format>
+
 #include "pybind11/embed.h"
 
+#include "logger_macros.h"
 #include "icon_app.embed"
 
 import Application;
@@ -8,11 +11,14 @@ import MainMenuBar;
 import CustomMainMenuBar;
 import RenderScene;
 import PythonManager;
+import Logger;
 
 namespace py = pybind11;
 
 int Main(int argc, char** argv)
 {	
+    Logger::Init();
+
 	PythonManager::Instance().Initialize();
 
     Application* app = new Application({
@@ -32,6 +38,8 @@ int Main(int argc, char** argv)
     //app->PushLayerApp<MainMenuBar>();
 
     app->PushLayer<SimpleRender>(app->m_executable_path);
+
+    LOG_INFO("App started");
 
     app->Run();
 

@@ -1,10 +1,12 @@
 module;
 
+#include <format>
 #include <string>
 #include <memory>
-#include <iostream>
 
 #include "pybind11/embed.h"
+
+#include "logger_macros.h"
 
 export module PythonManager;
 
@@ -37,10 +39,11 @@ public:
             m_python_interpreter = std::make_unique<py::scoped_interpreter>(py::scoped_interpreter{});
             if (!path.empty())
                 AddSystemPath(path);
+            LOG_INFO("[PythonManager] Python interpreter initialized");
             return true;
         }
         catch (const py::error_already_set& e) {
-            std::cout << "[PythonManager] initialization failed: " << e.what() << std::endl;
+            LOG_ERROR(std::format("[PythonManager] initialization failed: {}", e.what()));
             m_python_interpreter.reset();
             return false;
         }
@@ -51,7 +54,7 @@ public:
     void AddSystemPath(const std::string& path)
     {
         if (!IsInitialized()) {
-            std::cerr << "[PythonManager] AddSystemPath failed: interpreter not initialized" << std::endl;
+            LOG_ERROR("[PythonManager] AddSystemPath failed: interpreter not initialized");
             return;
         }
 
@@ -60,7 +63,7 @@ public:
             sys.attr("path").attr("insert")(0, path);
         }
         catch (const py::error_already_set& e) {
-            std::cerr << "[PythonManager] could not complete AddSystemPath('" << path << "'): " << e.what() << std::endl;
+            LOG_ERROR(std::format("[PythonManager] could not complete AddSystemPath('{}'): {}", path, e.what()));
             return;
         }
     }
@@ -68,7 +71,7 @@ public:
     py::module ImportModule(const std::string& name)
     {
         if (!IsInitialized()) {
-            std::cerr << "[PythonManager] ImportModule failed: interpreter not initialized" << std::endl;
+            LOG_ERROR("[PythonManager] ImportModule failed: interpreter not initialized");
             return py::module();
         }
 
@@ -76,7 +79,7 @@ public:
             return py::module::import(name.c_str());
         }
         catch (const py::error_already_set& e) {
-            std::cerr << "[PythonManager] could not complete ImportModule('" << name << "'): " << e.what() << std::endl;
+            LOG_ERROR(std::format("[PythonManager] could not complete ImportModule('{}'): {}", name, e.what()));
             return py::module();
         }
     }
@@ -85,7 +88,7 @@ public:
     py::object SafeCall(py::object callable, Args&&... args)
     {
         if (!IsInitialized()) {
-            std::cerr << "[PythonManager] SafeCall failed: interpreter not initialized" << std::endl;
+            LOG_ERROR("[PythonManager] SafeCall failed: interpreter not initialized");
             return py::object();
         }
 
@@ -93,7 +96,7 @@ public:
             return callable(std::forward<Args>(args)...);
         }
         catch (const py::error_already_set& e) {
-            std::cerr << "[PythonManager] Interpreter could not complete SafeCall: " << e.what() << std::endl;
+            LOG_ERROR(std::format("[PythonManager] Interpreter could not complete SafeCall: {}", e.what()));
             return py::object();
         }
     }

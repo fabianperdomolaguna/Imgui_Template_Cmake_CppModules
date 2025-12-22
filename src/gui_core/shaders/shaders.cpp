@@ -1,9 +1,7 @@
 module;
 
-#include <iostream>
 #include <cstdint>
 #include <string>
-#include <vector>
 
 #include "glad/gl.h"
 

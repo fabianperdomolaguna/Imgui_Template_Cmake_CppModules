@@ -1,31 +1,37 @@
 module;
 
+#include <format>
 #include <fstream>
 #include <string>
 
 #include "nlohmann/json.hpp"
+
+#include "logger_macros.h"
 
 export module SettingsConfig;
 
 nlohmann::json ReadConfigFile(std::string executable_path)
 {
     std::ifstream json_config_file(executable_path + "/ConfigFile.json");
-    if (!json_config_file.is_open())
-        throw std::runtime_error("Config file not found or could not be opened.");
+    if (!json_config_file.is_open()) {
+        LOG_ERROR("Config file not found or could not be opened");
+        return nlohmann::json::object();
+    }
 
     try {
         return nlohmann::json::parse(json_config_file);
     } catch (const nlohmann::json::parse_error& e) {
-        throw std::runtime_error("Error parsing JSON config file: " + std::string(e.what()));
+        LOG_ERROR(std::format("Error parsing JSON config file: {}", e.what()));
+        return nlohmann::json::object();
     }
 }
 
 void WriteConfigFile(std::string executable_path, nlohmann::json& json_data)
 {
     std::ofstream json_config_file(executable_path + "/ConfigFile.json");
-    if (!json_config_file.is_open())
-        throw std::runtime_error("Could not open config file for writing.");
-
+    if (!json_config_file.is_open()) {
+        LOG_ERROR("Could not open config file for writing");
+    }
     json_config_file << json_data.dump(4);
 }
 

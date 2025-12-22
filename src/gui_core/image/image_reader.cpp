@@ -1,12 +1,14 @@
 module;
 
-#include <iostream>
+#include <format>
 #include <cstdint>
 #include <string>
 
 #include "glad/gl.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+#include "logger_macros.h"
 
 export module Image;
 
@@ -31,7 +33,7 @@ public:
 
         if (!m_data) 
         {
-            std::cout << "Failed to load image: " << file_path << std::endl;
+            LOG_ERROR(std::format("Failed to load image: {}", file_path));
             return;
 		}
 
@@ -47,7 +49,7 @@ public:
 
         if (!m_data)
         {
-            std::cout << "Failed to load image from memory" << std::endl;
+            LOG_ERROR("Failed to load image from memory");
             return;
         }
 
@@ -85,7 +87,7 @@ public:
 
         if (!m_data)
         {
-            std::cout << "Failed to reload image from file: " << file_path << std::endl;
+            LOG_ERROR(std::format("Failed to reload image from file: {}", file_path));
             return;
         }
 
@@ -111,7 +113,7 @@ public:
 
         if (!m_data)
         {
-            std::cout << "Failed to reload image from memory: " << std::endl;
+            LOG_ERROR("Failed to reload image from memory");
             return;
         }
 

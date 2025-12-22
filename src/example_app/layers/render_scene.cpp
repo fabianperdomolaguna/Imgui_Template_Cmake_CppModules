@@ -1,12 +1,14 @@
 module;
 
-#include <iostream>
+#include <format>
 #include <string>
 #include <memory>
 
 #include "glad/gl.h"
 #include "imgui.h"
 #include "pybind11/embed.h"
+
+#include "logger_macros.h"
 
 export module RenderScene;
 
@@ -69,7 +71,6 @@ public:
             auto add_module = PyMgr.ImportModule("add");
 
             auto add = add_module.attr("add");
-            std::cout << "Add result from Python script: " << py::cast<int>(PyMgr.SafeCall(add, 2, 3, 5)) << std::endl;
 
             pybind11::object fig = plt.attr("figure")();
             plt.attr("plot")(np.attr("random").attr("randn")(100));
@@ -83,9 +84,8 @@ public:
             std::tie(width, height) = py::cast<std::tuple<int, int>>(canvas.attr("get_width_height")());
 
             mpl_texture = std::make_unique<Texture>(data_ptr, width, height, GL_RGBA);
-        } catch (py::error_already_set& err) {
-            std::cout << "Failed to create matplotlib texture." << std::endl;
-            std::cout << err.what() << std::endl;
+        } catch (py::error_already_set& e) {
+            LOG_ERROR(std::format("Failed to create matplotlib texture: {}", e.what()));
             mpl_texture.reset();
         }
 
