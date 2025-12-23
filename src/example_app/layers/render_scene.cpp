@@ -1,4 +1,4 @@
-#include <iostream>
+#include <format>
 #include <string>
 #include <memory>
 
@@ -9,6 +9,7 @@
 #include "render_scene.h"
 #include "python_manager.h"
 #include "core/layer.h"
+#include "logging/logger.h"
 #include "image/image_reader.h"
 #include "renderer/texture.h"
 #include "renderer/framebuffer.h"
@@ -35,7 +36,6 @@ void SimpleRender::OnAttach()
         auto add_module = PyMgr.ImportModule("add");
 
         auto add = add_module.attr("add");
-        std::cout << "Add result from Python script: " << py::cast<int>(PyMgr.SafeCall(add, 2, 3, 5)) << std::endl;
 
         pybind11::object fig = plt.attr("figure")();
         plt.attr("plot")(np.attr("random").attr("randn")(100));
@@ -49,9 +49,9 @@ void SimpleRender::OnAttach()
         std::tie(width, height) = py::cast<std::tuple<int, int>>(canvas.attr("get_width_height")());
 
         mpl_texture = std::make_unique<Texture>(data_ptr, width, height, GL_RGBA);
-    } catch (py::error_already_set& err) {
-        std::cout << "Failed to create matplotlib texture." << std::endl;
-        std::cout << err.what() << std::endl;
+    } catch (py::error_already_set& e) {
+        m_python_error = e.what();
+        LOG_ERROR(std::format("Failed to create matplotlib texture: {}", e.what()));
         mpl_texture.reset();
     }
 
@@ -93,7 +93,7 @@ void SimpleRender::OnRender()
             { (float)mpl_texture->m_width, (float)mpl_texture->m_height });
     }
     else {
-        ImGui::Text("Matplotlib texture not available. Ensure required Python packages are installed and the texture was created successfully.");
+        ImGui::Text("Matplotlib texture not available. Error: %s", m_python_error.c_str());
     }
     ImGui::End();
 

@@ -42,8 +42,8 @@ void ShowStyleEditorCustom(Application* app, std::string& style, float& size)
 
 CustomMenuBar::CustomMenuBar(Application* app) : m_app(app)
 {
-	m_gui_style = GetConfigVariable<std::string>(app->m_executable_path, "GuiStyle");
-	m_font_size = GetConfigVariable<float>(app->m_executable_path, "FontSize");
+	m_gui_style = m_app->m_imgui_context->color_style;
+	m_font_size = m_app->m_imgui_context->font_size;
 }
 
 void CustomMenuBar::OnRender()

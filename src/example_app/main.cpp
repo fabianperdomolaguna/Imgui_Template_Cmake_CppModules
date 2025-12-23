@@ -2,6 +2,7 @@
 
 #include "icon_app.embed"
 #include "core/application.h"
+#include "logging/logger.h"
 #include "python_manager.h"
 #include "title_bar.h"
 #include "custom_main_menu_bar.h"
@@ -12,6 +13,8 @@ namespace py = pybind11;
 
 int Main(int argc, char** argv)
 {
+    Logger::Init();
+
     PythonManager::Instance().Initialize();
 
     Application* app = new Application({
@@ -31,6 +34,8 @@ int Main(int argc, char** argv)
     //app->PushLayerApp<MainMenuBar>();
 
     app->PushLayer<SimpleRender>(app->m_executable_path);
+
+    LOG_INFO("App started");
 
     app->Run();
 

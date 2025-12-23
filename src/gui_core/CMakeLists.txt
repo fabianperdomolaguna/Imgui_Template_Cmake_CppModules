@@ -3,6 +3,7 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
   ${CMAKE_CURRENT_SOURCE_DIR}/core/*.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/config/*.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/logging/*.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/renderer/*.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/image/*.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/shaders/*.cpp
@@ -26,6 +27,7 @@ target_link_libraries(Core
   glfw
   glad_gl
   ImGui
+  spdlog::spdlog
   nlohmann_json::nlohmann_json
   stb
 )

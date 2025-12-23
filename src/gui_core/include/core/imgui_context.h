@@ -12,6 +12,7 @@ private:
 
 public:
     std::string color_style = "";
+    float font_size = 0.0f;
     bool change_font = false;
     float new_font_size = 0.0f;
     std::string m_executable_path;

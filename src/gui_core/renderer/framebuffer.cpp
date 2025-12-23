@@ -4,6 +4,8 @@
 
 #include "renderer/framebuffer.h"
 #include "renderer/texture.h"
+#include "renderer/gl_error_utils.h"
+#include "logging/logger.h"
 
 GlFramebuffer::GlFramebuffer(int width, int height)
 {
@@ -17,8 +19,17 @@ GlFramebuffer::GlFramebuffer(int width, int height)
 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture->get_texture(), 0);
 	glGenRenderbuffers(1, &RBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_texture->m_width, m_texture->m_height);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
+
+	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (status != GL_FRAMEBUFFER_COMPLETE)
+		LOG_ERROR(std::format("Framebuffer failed: {} - {}", GlFramebufferStatusToString(status), (unsigned)status));
+
+	GLenum error = glGetError();
+	if (error != GL_NO_ERROR)
+		LOG_ERROR(std::format("GL error during framebuffer creation: {} - {}", GlErrorToString(error), (unsigned)error));
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);

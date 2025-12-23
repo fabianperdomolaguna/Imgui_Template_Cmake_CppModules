@@ -44,7 +44,7 @@ ImguiContext::ImguiContext(GLFWwindow* window, std::string executable_path)
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-    float font_size = GetConfigVariable<float>(m_executable_path, "FontSize");
+    font_size = GetConfigVariable<float>(m_executable_path, "FontSize");
     LoadFonts(m_executable_path, font_size);
 
     ImGuiStyle& style = ImGui::GetStyle();

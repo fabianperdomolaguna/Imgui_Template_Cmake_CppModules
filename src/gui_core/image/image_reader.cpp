@@ -1,4 +1,4 @@
-#include <iostream>
+#include <format>
 #include <cstdint>
 #include <string>
 
@@ -7,6 +7,7 @@
 #include "stb_image.h"
 
 #include "image/image_reader.h"
+#include "logging/logger.h"
 
 ImageTexture::ImageTexture(std::string file_path, uint32_t image_format, bool texture)
 {
@@ -16,7 +17,7 @@ ImageTexture::ImageTexture(std::string file_path, uint32_t image_format, bool te
 
     if (!m_data) 
     {
-        std::cout << "Failed to load image: " << file_path << std::endl;
+        LOG_ERROR(std::format("Failed to load image: {}", file_path));
         return;
 	}
 
@@ -32,7 +33,7 @@ ImageTexture::ImageTexture(const uint8_t* image_data, uint32_t image_size, uint3
 
     if (!m_data)
     {
-        std::cout << "Failed to load image from memory" << std::endl;
+        LOG_ERROR("Failed to load image from memory");
         return;
     }
 
@@ -70,7 +71,7 @@ void ImageTexture::Reload(const std::string& file_path)
 
     if (!m_data)
     {
-        std::cout << "Failed to reload image from file: " << file_path << std::endl;
+        LOG_ERROR(std::format("Failed to reload image from file: {}", file_path));
         return;
     }
 
@@ -96,7 +97,7 @@ void ImageTexture::Reload(const uint8_t* image_data, uint32_t image_size)
 
     if (!m_data)
     {
-        std::cout << "Failed to reload image from memory: " << std::endl;
+        LOG_ERROR("Failed to reload image from memory");
         return;
     }
 

@@ -7,6 +7,8 @@
 #include "pybind11/embed.h"
 namespace py = pybind11;
 
+#include "logging/logger.h"
+
 class PythonManager
 {
 private:
@@ -29,15 +31,14 @@ public:
     py::object SafeCall(py::object callable, Args&&... args)
     {
         if (!IsInitialized()) {
-            std::cerr << "[PythonManager] SafeCall failed: interpreter not initialized" << std::endl;
-            return py::object();
+            LOG_ERROR("[PythonManager] SafeCall failed: interpreter not initialized");
         }
 
         try {
             return callable(std::forward<Args>(args)...);
         }
         catch (const py::error_already_set& e) {
-            std::cerr << "[PythonManager] Interpreter could not complete SafeCall: " << e.what() << std::endl;
+            LOG_ERROR(std::format("[PythonManager] Interpreter could not complete SafeCall: {}", e.what()));
             return py::object();
         }
     }

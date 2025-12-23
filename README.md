@@ -3,7 +3,7 @@
 <p align="center">
   <img src="https://img.shields.io/github/license/fabianperdomolaguna/Imgui_Template_Cmake_CppModules?style=for-the-badge" alt="alt text">
   <img src="https://img.shields.io/badge/OS-Linux%20%7C%20Windows-003366?style=for-the-badge&logo=Windows%20Terminal" alt="alt text">
-  <img src="https://img.shields.io/badge/Solution-C++17%20%7C%20C++20-00559C?style=for-the-badge&logo=C%2B%2B" alt="alt text">
+  <img src="https://img.shields.io/badge/Solution-C++20-00559C?style=for-the-badge&logo=C%2B%2B" alt="alt text">
   <img src="https://img.shields.io/badge/Python->_3.10-FFFF00?style=for-the-badge&logo=Python&logoColor=white" alt="alt text">
 </p>
 
@@ -31,7 +31,7 @@ This project is a simple template to create desktop GUI applications with ImGui 
 
 ## 2. Getting started
 
-Install LLVM/Clang in Linux Systems. If you want to use the C++17 standard, in the main `CMakeLists.txt`, you must change the CXX standard (project is set to C++20). Also, you can use the `gcc` compiler for the project for the C++17 standard.
+Install LLVM/Clang in Linux Systems.
 
 ```bash
 wget https://apt.llvm.org/llvm.sh
@@ -143,6 +143,15 @@ This project centralizes the embedded Python interpreter with a `PythonManager` 
 To remove Python support from the app not instantiate `PythonManager` class, remove the `pybind11::embed` target from `CMakeLists.txt`, and remove any Python-specific imports from your modules.
 
 ## 6. Additional characteristics
+
+## Logging
+
+This project uses spdlog for application logging. The repository provides a class in `src/gui_core/logging/logger.cpp` which employs a console sink and sets a default logger used across the codebase.
+
+Quick usage
+
+- Call the initializer `Logger::Init()`
+- Include `logger.h` and employes defined macros `LOG_TRACE`, `LOG_INFO`, `LOG_WARN`, `LOG_ERROR`, and `LOG_CRITICAL`. They receive a message and key/value pairs separated by commas
 
 ## Custom Title Bar Layer
 
