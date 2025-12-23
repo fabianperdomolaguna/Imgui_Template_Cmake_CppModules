@@ -8,7 +8,7 @@ module;
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-#include "logger_macros.h"
+#include "logger.h"
 
 export module Image;
 

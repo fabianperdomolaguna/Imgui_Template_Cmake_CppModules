@@ -40,6 +40,7 @@ private:
 
 public:
 	std::string color_style = "";
+    float font_size = 0.0f;
     bool change_font = false;
     float new_font_size = 0.0f;
     std::string m_executable_path;
@@ -59,7 +60,7 @@ public:
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-        float font_size = GetConfigVariable<float>(m_executable_path, "FontSize");
+        font_size = GetConfigVariable<float>(m_executable_path, "FontSize");
         LoadFonts(m_executable_path, font_size);
 
         ImGuiStyle& style = ImGui::GetStyle();

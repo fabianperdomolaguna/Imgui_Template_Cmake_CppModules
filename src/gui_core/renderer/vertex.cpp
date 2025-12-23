@@ -2,8 +2,12 @@ module;
 
 #include <cstdint>
 #include <string>
+#include <format>
 
 #include "glad/gl.h"
+
+#include "logger.h"
+#include "gl_error_utils.h"
 
 export module Vertex;
 
@@ -51,6 +55,10 @@ public:
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
 
+		GLenum error = glGetError();
+		if (error != GL_NO_ERROR)
+			LOG_ERROR(std::format("Vertex attributes configuring errors: {} - {}", GlErrorToString(error), (unsigned)error));
+		
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}

@@ -6,7 +6,7 @@ module;
 
 #include "nlohmann/json.hpp"
 
-#include "logger_macros.h"
+#include "logger.h"
 
 export module SettingsConfig;
 
@@ -42,6 +42,14 @@ template<>
 float GetConfigVariable<float>(std::string executable_path, std::string config_variable) 
 {
     nlohmann::json json_data = ReadConfigFile(executable_path);
+    if (!json_data.contains(config_variable) || json_data[config_variable].is_null()) {
+        LOG_WARN(std::format("Config '{}' is missing or null", config_variable));
+        return 0.0f;
+    }
+    if (!json_data[config_variable].is_number()) {
+        LOG_WARN(std::format("Config '{}' expected a number but has incorrect type", config_variable));
+        return 0.0f;
+    }
     return json_data[config_variable].get<float>();
 }
 
@@ -49,6 +57,14 @@ template<>
 std::string GetConfigVariable<std::string>(std::string executable_path, std::string config_variable) 
 {
     nlohmann::json json_data = ReadConfigFile(executable_path);
+    if (!json_data.contains(config_variable) || json_data[config_variable].is_null()) {
+        LOG_WARN(std::format("Config '{}' is missing or null", config_variable));
+        return "";
+    }
+    if (!json_data[config_variable].is_string()) {
+        LOG_WARN(std::format("Config '{}' expected a string but has incorrect type", config_variable));
+        return "";
+    }
     return json_data[config_variable].get<std::string>();
 }
 

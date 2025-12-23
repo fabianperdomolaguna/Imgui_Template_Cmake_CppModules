@@ -2,7 +2,7 @@
 
 #include "pybind11/embed.h"
 
-#include "logger_macros.h"
+#include "logger.h"
 #include "icon_app.embed"
 
 import Application;

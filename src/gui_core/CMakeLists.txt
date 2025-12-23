@@ -18,6 +18,7 @@ set(MODULE_Path
 file(GLOB_RECURSE HDR_FILES CONFIGURE_DEPENDS
   ${CMAKE_CURRENT_SOURCE_DIR}/path/include/*.h
   ${CMAKE_CURRENT_SOURCE_DIR}/logging/include/*.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/renderer/include/*.h
 )
 
 target_sources(Core
@@ -31,6 +32,7 @@ target_sources(Core
 target_include_directories(Core PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/path/include>"
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/logging/include>"
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/renderer/include>"
 )
 
 target_link_libraries(Core

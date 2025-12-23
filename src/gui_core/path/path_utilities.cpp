@@ -8,7 +8,7 @@
 #endif
 
 #include "path_utilities.h"
-#include "logger_macros.h"
+#include "logger.h"
 
 std::filesystem::path GetExecutablePath() {
 #ifdef _WIN32

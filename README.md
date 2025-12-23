@@ -152,6 +152,15 @@ To remove Python support from the app not instantiate `PythonManager` class, rem
 
 ## 6. Additional characteristics
 
+## Logging
+
+This project uses spdlog for application logging. The repository provides a class in `src/gui_core/logging/logger.cpp` which employs a console sink and sets a default logger used across the codebase.
+
+Quick usage
+
+- Call the initializer `Logger::Init()`
+- Include `logger.h` and employes defined macros `LOG_TRACE`, `LOG_INFO`, `LOG_WARN`, `LOG_ERROR`, and `LOG_CRITICAL`. They receive a message and key/value pairs separated by commas
+
 ## Custom Title Bar Layer
 
 This template supports a custom title bar, implemented as a separate ImGui Layer. This allows full control over its appearance, the addition of custom buttons, and manual window dragging. The custom title bar is managed just like any other Layer in the application.

@@ -1,8 +1,12 @@
 module;
 
 #include <cstdint>
+#include <format>
 
 #include "glad/gl.h"
+
+#include "logger.h"
+#include "gl_error_utils.h"
 
 export module Texture;
 
@@ -25,6 +29,10 @@ public:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, m_format, m_width, m_height, 0, m_format, GL_UNSIGNED_BYTE, data);
+    
+        GLenum error = glGetError();
+        if (error != GL_NO_ERROR)
+            LOG_ERROR(std::format("glTexImage2D failed: {} - {}", GlErrorToString(error), (unsigned)error));
     }
 
     ~Texture()

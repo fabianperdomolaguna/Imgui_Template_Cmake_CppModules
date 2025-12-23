@@ -5,6 +5,8 @@ module;
 
 #include "glad/gl.h"
 
+#include "logger.h"
+
 export module Shaders;
 
 export class Shader
@@ -34,9 +36,24 @@ public:
 		uint32_t vs = Compile(GL_VERTEX_SHADER, vertex_src);
 		uint32_t fs = Compile(GL_FRAGMENT_SHADER, fragment_src);
 
+		if (vs == 0 || fs == 0) {
+			LOG_ERROR("Shader program creation aborted due to compilation errors");
+			return;
+		}
+
 		glAttachShader(m_shader, vs);
 		glAttachShader(m_shader, fs);
 		glLinkProgram(m_shader);
+
+		int link_status;
+		glGetProgramiv(m_shader, GL_LINK_STATUS, &link_status);
+		if (link_status == GL_FALSE) {
+			std::string message(256, '\0');
+			glGetProgramInfoLog(m_shader, message.size(), nullptr, message.data());
+			while (!message.empty() && std::isspace(message.back()) || message.back() == '\0') message.pop_back();
+			LOG_ERROR(std::format("Shader Linking failed: {}", message));
+		}
+
 		glValidateProgram(m_shader);
 
 		glDeleteShader(vs);

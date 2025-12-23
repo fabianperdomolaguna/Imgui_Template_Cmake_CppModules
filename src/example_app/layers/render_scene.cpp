@@ -8,7 +8,7 @@ module;
 #include "imgui.h"
 #include "pybind11/embed.h"
 
-#include "logger_macros.h"
+#include "logger.h"
 
 export module RenderScene;
 
@@ -47,6 +47,7 @@ export class SimpleRender : public Layer
     std::unique_ptr<ImageTexture> image_texture;
     std::unique_ptr<Texture> mpl_texture;
     std::string m_executable_path;
+    std::string m_python_error = "";
 
     std::unique_ptr<GlVertex> m_vertex;
     std::unique_ptr<GlFramebuffer> m_framebuffer;
@@ -85,6 +86,7 @@ public:
 
             mpl_texture = std::make_unique<Texture>(data_ptr, width, height, GL_RGBA);
         } catch (py::error_already_set& e) {
+			m_python_error = e.what();
             LOG_ERROR(std::format("Failed to create matplotlib texture: {}", e.what()));
             mpl_texture.reset();
         }
@@ -127,7 +129,7 @@ public:
                 { (float)mpl_texture->m_width, (float)mpl_texture->m_height });
         }
         else {
-            ImGui::Text("Matplotlib texture not available. Ensure required Python packages are installed and the texture was created successfully.");
+            ImGui::Text("Matplotlib texture not available. Error: %s", m_python_error.c_str());
         }
         ImGui::End();
 

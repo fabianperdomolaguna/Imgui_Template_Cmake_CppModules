@@ -1,6 +1,5 @@
 module;
 
-#include <iostream>
 #include <string>
 #include <array>
 
@@ -8,7 +7,7 @@ module;
 #include "GLFW/glfw3.h"
 #include "imgui.h"
 
-#include "logger_macros.h"
+#include "logger.h"
 
 export module Window;
 

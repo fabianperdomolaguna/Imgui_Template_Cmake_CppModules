@@ -6,7 +6,7 @@ module;
 
 #include "pybind11/embed.h"
 
-#include "logger_macros.h"
+#include "logger.h"
 
 export module PythonManager;
 
