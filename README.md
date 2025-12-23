@@ -65,14 +65,13 @@ pip install -r requirements.txt
 conda env list
 ```
 
-## Alternative branch (C++17+ with headers)
+## Alternative branch (with headers)
 
 If your compiler or project does not yet support **C++20 Modules** or you prefer to use header files, this repository also provides an alternative branch based on traditional headers.
 
 - Branch: [`Imgui Template - Branch header_based`](https://github.com/fabianperdomolaguna/Imgui_Template_Cmake_CppModules/tree/header_based)
-- Requirements: compiler with **C++17** or newer
+- Requirements: compiler with **C++20** support or newer
 - Build and usage are the same as in the main branch. Review the branch to see additional information related to the build process.
--
 
 ## 3. Build
 
@@ -223,3 +222,4 @@ Additionally, the creation of a Linux application launcher with an assigned icon
   <img src="assets/app_template.png" />
 </h1>
 <center>Basic application in the template</center>
+
