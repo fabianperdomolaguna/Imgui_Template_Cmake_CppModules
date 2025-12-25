@@ -7,6 +7,7 @@
 
 #include "custom_main_menu_bar.h"
 #include "viewport_bar.h"
+#include "logging_console.h"
 #include "core/layer.h"
 #include "core/application.h"
 #include "core/imgui_context.h"
@@ -72,6 +73,13 @@ void CustomMenuBar::OnRender()
 			ImGui::EndMenu();
 		}
 
+		if (ImGui::BeginMenu("Tools"))
+		{
+			ImGui::MenuItem("Logging Console", NULL, &show_logging_console);
+
+			ImGui::EndMenu();
+		}
+
 		if (ImGui::BeginMenu("Settings"))
 		{
 			ImGui::MenuItem("Style Editor", NULL, &show_style_editor);
@@ -90,6 +98,9 @@ void CustomMenuBar::OnRender()
 		ShowStyleEditorCustom(m_app, m_gui_style, m_font_size);
 		ImGui::End();
 	}
+
+	if (show_logging_console)
+		LoggingConsole(&show_logging_console);
 }
 
 std::string CustomMenuBar::GetName() const

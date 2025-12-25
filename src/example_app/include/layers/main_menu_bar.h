@@ -10,6 +10,7 @@ void ShowStyleEditor(Application* app, std::string& style, float& size);
 class MainMenuBar : public Layer
 {
     bool show_style_editor = false;
+	bool show_logging_console = false;
 	std::string m_gui_style;
 	float m_font_size;
 

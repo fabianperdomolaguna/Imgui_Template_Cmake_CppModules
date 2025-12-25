@@ -146,11 +146,14 @@ To remove Python support from the app not instantiate `PythonManager` class, rem
 
 ## Logging
 
-This project uses spdlog for application logging. The repository provides a class in `src/gui_core/logging/logger.cpp` which employs a console sink and sets a default logger used across the codebase.
+This project uses spdlog for application logging, including a console sink and additional ImGui sink that forwards log messages to an in-app logging console. The sinks is implemented in `src/gui_core/logging/logger.cpp` and is registered `Logger::Init()`.
+
+You can open the logging console from the application menu: `Tools -> Logging Console`. The console shoes runtime logs inside the GUI and following defined configuration and log lgevels.
 
 Quick usage
 
 - Call the initializer `Logger::Init()`
+- Open the console with `Tools -> Logging Console` menu to view logs in the GUI
 - Include `logger.h` and employes defined macros `LOG_TRACE`, `LOG_INFO`, `LOG_WARN`, `LOG_ERROR`, and `LOG_CRITICAL`. They receive a message and key/value pairs separated by commas
 
 ## Custom Title Bar Layer
