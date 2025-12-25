@@ -11,6 +11,7 @@ export module MainMenuBar;
 import Application;
 import ImguiContext;
 import Layer;
+import LoggingConsole;
 import SettingsConfig;
 
 void ShowStyleEditor(Application* app, std::string& style, float& size)
@@ -42,6 +43,7 @@ void ShowStyleEditor(Application* app, std::string& style, float& size)
 export class MainMenuBar : public Layer
 {
     bool show_style_editor = false;
+	bool show_logging_console = false;
 	std::string m_gui_style;
 	float m_font_size;
 
@@ -68,6 +70,13 @@ public:
 			ImGui::EndMenu();
 		}
 
+		if (ImGui::BeginMenu("Tools"))
+		{
+			ImGui::MenuItem("Logging Console", NULL, &show_logging_console);
+
+			ImGui::EndMenu();
+		}
+
 		if (ImGui::BeginMenu("Settings"))
 		{
 			ImGui::MenuItem("Style Editor", NULL, &show_style_editor);
@@ -83,6 +92,9 @@ public:
 			ShowStyleEditor(m_app, m_gui_style, m_font_size);
 			ImGui::End();
 		}
+
+		if (show_logging_console)
+			LoggingConsole(&show_logging_console);
 	}
 
 	std::string GetName() const override
