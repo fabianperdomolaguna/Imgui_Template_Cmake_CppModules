@@ -153,9 +153,9 @@ To remove Python support from the app not instantiate `PythonManager` class, rem
 
 ## Logging
 
-This project uses spdlog for application logging, including a console sink and additional ImGui sink that forwards log messages to an in-app logging console. The sinks is implemented in `src/gui_core/logging/logger.cpp` and is registered `Logger::Init()`.
+This project uses spdlog for application logging, including an ImGui sink and additional JSON file sink that forwards log messages to an in-app logging console and a JSON line file. The sinks is implemented using asynchronous mode in `src/gui_core/logging/logger.cpp` and is registered `Logger::Init()`.
 
-You can open the logging console from the application menu: `Tools -> Logging Console`. The console shoes runtime logs inside the GUI and following defined configuration and log lgevels.
+You can open the logging console from the application menu: `Tools -> Logging Console`. The console shows runtime logs inside the GUI and following defined configuration and log lgevels. The `logs.json` file is stored in bin folder.
 
 Quick usage
 
