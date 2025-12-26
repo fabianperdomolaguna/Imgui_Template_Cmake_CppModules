@@ -62,6 +62,6 @@ void LoggingConsole(bool* open)
             ImGui::SetScrollHereY(1.0f);
     
         ImGui::EndChild();
-        ImGui::End();
     }
+    ImGui::End();
 }

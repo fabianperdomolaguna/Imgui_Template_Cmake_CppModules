@@ -1,12 +1,16 @@
 #pragma once
 
 #include <string>
-#include <format>
+#include <vector>
 #include <deque>
+#include <fstream>
 #include <mutex>
+#include <chrono>
 
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/base_sink.h"
+#include "spdlog/sinks/basic_file_sink.h"
+#include "nlohmann/json.hpp"
 
 struct LogEntry {
     std::string message;
@@ -43,7 +47,112 @@ protected:
     void flush_() override {};
 };
 
+template<typename mutex>
+class JsonFileLoggerSink : public spdlog::sinks::base_sink<mutex>
+{
+    std::ofstream file;
+    std::string filename;
+    size_t max_size;
+    size_t current_size;
+
+public:
+    JsonFileLoggerSink(const std::string& filename, size_t max_bytes) 
+        : filename(filename), max_size(max_bytes), current_size(0)
+    {
+        file.open(filename, std::ios::app);
+        if (file.is_open()) {
+            file.seekp(0, std::ios::end); 
+            current_size = static_cast<size_t>(file.tellp());
+        }
+    }
+
+protected:
+    void sink_it_(const spdlog::details::log_msg& message) override
+    {
+        nlohmann::ordered_json json;
+
+        std::time_t now_time = std::chrono::system_clock::to_time_t(message.time);
+        std::tm calendar_time;
+
+        #ifdef _WIN32
+            localtime_s(&calendar_time, &now_time);
+        #else
+            localtime_r(&now_time, &calendar_time);
+        #endif
+
+        auto duration = message.time.time_since_epoch();
+        auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() % 1000;
+        char time_buffer[64];
+        std::strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", &calendar_time);
+        std::string final_time = std::string(time_buffer) + "." + std::to_string(milliseconds);
+        json["time"] = std::string(final_time);
+
+        json["level"] = spdlog::level::to_string_view(message.level).data();
+        json["thread"] = message.thread_id;
+
+        std::string file_path = message.source.filename ? message.source.filename : "";
+        size_t src_pos = file_path.find("src/");
+        if (src_pos != std::string::npos) {
+            json["file"] = file_path.substr(src_pos);
+        } else {
+            size_t last_slash = file_path.find_last_of("/\\");
+            json["file"] = (last_slash != std::string::npos) ? file_path.substr(last_slash + 1) : file_path;
+        }
+
+        json["line"] = message.source.line;
+        json["function"] = message.source.funcname ? message.source.funcname : "";
+
+        std::string full_payload = std::string(message.payload.data(), message.payload.size());
+        size_t extras_variables_position = full_payload.find(" | ");
+        if (extras_variables_position != std::string::npos) {
+            json["message"] = full_payload.substr(0, extras_variables_position);
+            std::string extras_variables = full_payload.substr(extras_variables_position + 3);
+            process_extras_variables(json["details"], extras_variables);
+        } else {
+            json["message"] = full_payload;
+        }
+
+        std::string dumped_json = json.dump() + "\n";
+        if (current_size + dumped_json.size() > max_size) {
+            rotate_logs();
+        }
+        file << dumped_json;
+        current_size += dumped_json.size();
+    }
+
+    void rotate_logs() {
+        file.close();
+        size_t dot_position = filename.find_last_of(".");
+        std::string backup_name = filename.substr(0, dot_position) + ".old" + filename.substr(dot_position);
+        std::remove(backup_name.c_str());
+        std::rename(filename.c_str(), backup_name.c_str());
+        file.open(filename, std::ios::trunc);
+        current_size = 0;
+    }
+
+    void process_extras_variables(nlohmann::ordered_json& extras_json, const std::string& extras_string)
+    {
+        std::stringstream ss(extras_string);
+        std::string segment;
+        while (std::getline(ss, segment, '|'))
+        {
+            size_t equal_position = segment.find('=');
+            if (equal_position != std::string::npos)
+            {
+                std::string key = segment.substr(0, equal_position);
+                std::string value = segment.substr(equal_position + 1);
+                key.erase(0, key.find_first_not_of(" "));
+                key.erase(key.find_last_not_of(" ") + 1);
+                extras_json[key] = value;
+            }
+        }
+    }
+
+    void flush_() override { file.flush(); }
+};
+
 using imgui_sink_mt = ImguiLoggerSink<std::mutex>;
+using json_file_sink_mt = JsonFileLoggerSink<std::mutex>;
 
 class Logger
 {
