@@ -25,8 +25,7 @@ void Application::Run()
 		m_window->PreRender();
 		m_imgui_context->PreRender(m_window->m_window_specification.custom_title_bar);
 
-		if (m_window->m_close_popup)
-			m_window->CloseAppPopup();
+		m_window->CloseAppPopup();
          
 		for (auto& layer_render : m_layer_stack)
 			layer_render->OnRender();

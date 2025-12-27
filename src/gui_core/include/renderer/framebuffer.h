@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "renderer/texture.h"
 
 class GlFramebuffer
@@ -7,7 +9,7 @@ class GlFramebuffer
     uint32_t FBO = 0;
 	uint32_t RBO = 0;
 
-	Texture* m_texture = nullptr;
+	std::unique_ptr<Texture> m_texture;
 
 public:
     GlFramebuffer(int width, int height);

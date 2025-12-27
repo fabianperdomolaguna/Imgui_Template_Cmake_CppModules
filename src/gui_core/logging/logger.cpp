@@ -31,7 +31,7 @@ void Logger::Init()
     imgui_sink->set_pattern("[%T.%e] [%l] %v");
 
     //Define JSON file sink with max size 0.5 MB
-    auto file_sink = std::make_shared<json_file_sink_mt>("logs.json", 0.5*1024*1024);
+    auto file_sink = std::make_shared<json_file_sink_mt>("logs.json", static_cast<size_t>(0.5*1024*1024));
     file_sink->set_pattern("{\"time\":\"%Y-%m-%dT%H:%M:%S.%f\", \"level\":\"%l\", \"message\":\"%v\"}");
     file_sink->set_level(spdlog::level::warn);
 

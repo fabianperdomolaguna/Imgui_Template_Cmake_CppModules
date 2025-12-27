@@ -19,10 +19,15 @@ ImageTexture(std::string file_path, uint32_t image_format, bool texture = false)
 ImageTexture(const uint8_t* image_data, uint32_t image_size, uint32_t image_format, bool texture = false);
 
 void CreateTexture();
+void FreeCPUData();
+void DeleteGLResource();
 void Reload(const std::string& file_path);
 void Reload(const uint8_t* image_data, uint32_t image_size);
 
 ~ImageTexture();
+
+ImageTexture(const ImageTexture&) = delete;
+ImageTexture& operator=(const ImageTexture&) = delete;
 
 bool IsValid() const;
 

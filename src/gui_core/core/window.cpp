@@ -79,7 +79,7 @@ void Window::PreRender()
 {
     glViewport(0, 0, m_window_specification.width, m_window_specification.height);
 	glClearBufferfv(GL_COLOR, 0, clear_color.data());
-    glClear(GL_DEPTH_BUFFER_BIT);
+    glClearBufferfv(GL_DEPTH, 0, &depth_clear);
 }
 
 void Window::PostRender()
@@ -90,7 +90,11 @@ void Window::PostRender()
 
 void Window::CloseAppPopup()
 {
-    ImGui::OpenPopup("Close the application?");
+    if (m_close_popup)
+    {
+        ImGui::OpenPopup("Close the application?");
+        m_close_popup = false;
+    }
 
     ImVec2 center = ImGui::GetMainViewport()->GetCenter();
     ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));

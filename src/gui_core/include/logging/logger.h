@@ -1,9 +1,11 @@
 #pragma once
 
 #include <string>
+#include <format>
 #include <vector>
 #include <deque>
 #include <fstream>
+#include <sstream>
 #include <mutex>
 #include <chrono>
 
@@ -20,7 +22,7 @@ struct LogEntry {
 struct ImguiLogger {
     std::deque <LogEntry> items;
 	std::mutex mutex;
-    uint8_t max_size = 100;
+    size_t max_size = 100;
 
     void AddLog(std::string log, spdlog::level::level_enum level);
     void Clear();
@@ -52,12 +54,12 @@ class JsonFileLoggerSink : public spdlog::sinks::base_sink<mutex>
 {
     std::ofstream file;
     std::string filename;
-    size_t max_size;
+    size_t max_size_bytes;
     size_t current_size;
 
 public:
     JsonFileLoggerSink(const std::string& filename, size_t max_bytes) 
-        : filename(filename), max_size(max_bytes), current_size(0)
+        : filename(filename), max_size_bytes(max_bytes), current_size(0)
     {
         file.open(filename, std::ios::app);
         if (file.is_open()) {
@@ -80,12 +82,10 @@ protected:
             localtime_r(&now_time, &calendar_time);
         #endif
 
-        auto duration = message.time.time_since_epoch();
-        auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() % 1000;
+        auto miliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(message.time.time_since_epoch()) % 1000;
         char time_buffer[64];
         std::strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", &calendar_time);
-        std::string final_time = std::string(time_buffer) + "." + std::to_string(milliseconds);
-        json["time"] = std::string(final_time);
+        json["time"] = std::format("{}.{:03d}", time_buffer, miliseconds.count());
 
         json["level"] = spdlog::level::to_string_view(message.level).data();
         json["thread"] = message.thread_id;
@@ -113,7 +113,7 @@ protected:
         }
 
         std::string dumped_json = json.dump() + "\n";
-        if (current_size + dumped_json.size() > max_size) {
+        if (current_size + dumped_json.size() > max_size_bytes) {
             rotate_logs();
         }
         file << dumped_json;
@@ -181,40 +181,39 @@ public:
 
     template<typename... Args>
     static std::string format_extras(Args&&... args) {
-        constexpr size_t total_args = sizeof...(args);
-        if constexpr (total_args == 0) return "";
-        static_assert(total_args % 2 == 0, "Argument must be pairs: (Key, Value)");
+        try {
+            constexpr size_t total_args = sizeof...(args);
+            if constexpr (total_args == 0) return "";
+            static_assert(total_args % 2 == 0, "Argument must be pairs: (Key, Value)");
+        
+            std::string key_value_string = "";
+            auto tuple = std::forward_as_tuple(std::forward<Args>(args)...);
 
-        std::string key_value_string = "";
-        auto tuple = std::forward_as_tuple(std::forward<Args>(args)...);
-
-        [&]<std::size_t... pair_index>(std::index_sequence<pair_index...>) {
-            ((key_value_string += " | " + 
-                to_str(std::get<pair_index* 2>(tuple)) + "=" +
-                to_str(std::get<pair_index * 2 + 1>(tuple))
-            ), ...);
-        }(std::make_index_sequence<total_args / 2>{}); 
-    
-        return key_value_string;
+            [&]<std::size_t... pair_index>(std::index_sequence<pair_index...>) {
+                ((key_value_string += " | " + 
+                    to_str(std::get<pair_index* 2>(tuple)) + "=" +
+                    to_str(std::get<pair_index * 2 + 1>(tuple))
+                ), ...);
+            }(std::make_index_sequence<total_args / 2>{}); 
+        
+            return key_value_string;
+        }catch (...) {
+            return " | [Log Format Error]";
+        } 
     }
 };
 
-#define LOG_CRITICAL(msg, ...) \
-    spdlog::default_logger_raw()->log(spdlog::source_loc{__FILE__, __LINE__, __func__}, \
-    spdlog::level::critical, msg + Logger::format_extras(__VA_ARGS__))
+#define LOG_INTERNAL_CALL(level, message, ...) \
+    do { \
+        auto logger_ptr = spdlog::default_logger_raw(); \
+        if (logger_ptr->should_log(level)) { \
+            logger_ptr->log(spdlog::source_loc{__FILE__, __LINE__, __func__}, \
+            level, "{}{}", message, Logger::format_extras(__VA_ARGS__)); \
+        } \
+    } while (0)
 
-#define LOG_ERROR(msg, ...) \
-    spdlog::default_logger_raw()->log(spdlog::source_loc{__FILE__, __LINE__, __func__}, \
-    spdlog::level::err, msg + Logger::format_extras(__VA_ARGS__))
-
-#define LOG_WARN(msg, ...) \
-    spdlog::default_logger_raw()->log(spdlog::source_loc{__FILE__, __LINE__, __func__}, \
-    spdlog::level::warn, msg + Logger::format_extras(__VA_ARGS__))
-
-#define LOG_INFO(msg, ...) \
-    spdlog::default_logger_raw()->log(spdlog::source_loc{__FILE__, __LINE__, __func__}, \
-    spdlog::level::info, msg + Logger::format_extras(__VA_ARGS__))
-
-#define LOG_TRACE(msg, ...) \
-    spdlog::default_logger_raw()->log(spdlog::source_loc{__FILE__, __LINE__, __func__}, \
-    spdlog::level::trace, msg + Logger::format_extras(__VA_ARGS__))
+#define LOG_CRITICAL(message, ...) LOG_INTERNAL_CALL(spdlog::level::critical, message, ##__VA_ARGS__)
+#define LOG_ERROR(message, ...)    LOG_INTERNAL_CALL(spdlog::level::err,      message, ##__VA_ARGS__)
+#define LOG_WARN(message, ...)     LOG_INTERNAL_CALL(spdlog::level::warn,     message, ##__VA_ARGS__)
+#define LOG_INFO(message, ...)     LOG_INTERNAL_CALL(spdlog::level::info,     message, ##__VA_ARGS__)
+#define LOG_TRACE(message, ...)    LOG_INTERNAL_CALL(spdlog::level::trace,    message, ##__VA_ARGS__)

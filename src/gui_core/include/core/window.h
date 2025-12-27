@@ -16,6 +16,7 @@ struct WindowSpecification
 class Window
 {
     std::array<float, 4> clear_color;
+    float depth_clear = 1.0f;
 
 public:
     WindowSpecification m_window_specification;

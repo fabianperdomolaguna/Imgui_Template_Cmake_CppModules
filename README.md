@@ -23,15 +23,15 @@ This project is a simple template to create desktop GUI applications with ImGui 
 
 ## 1. Requirements
 
-- [CMake](https://cmake.org/) (minimum version 3.28)
-- Python interpreter (3.10+)
-- [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
-- Visual Studio 2022/2026 or LLVM/Clang 17 (or newer)
+- [CMake](https://cmake.org/): 3.28+
+- Python interpreter: 3.10+ (Intepreter binding & GLAD generation)
+- C++ compiler: Visual Studio 2022 (MSVC 19.34+) or LLVM/Clang 17+
+- Dependencies: [Miniconda](https://docs.conda.io/en/latest/miniconda.html) (Recommended for Python environment management)
 - The template uses the [Roboto](https://fonts.google.com/specimen/Roboto) font ([Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0))
 
 ## 2. Getting started
 
-Install LLVM/Clang in Linux Systems.
+Linux LLVM/Clang setup
 
 ```bash
 wget https://apt.llvm.org/llvm.sh

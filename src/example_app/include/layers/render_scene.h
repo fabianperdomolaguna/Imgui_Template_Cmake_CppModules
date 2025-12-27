@@ -34,7 +34,7 @@ class SimpleRender : public Layer
     std::unique_ptr<ImageTexture> image_texture;
     std::unique_ptr<Texture> mpl_texture;
     std::string m_executable_path;
-    std::string m_python_error = "";
+    std::string m_python_bind_error = "";
 
     std::unique_ptr<GlVertex> m_vertex;
     std::unique_ptr<GlFramebuffer> m_framebuffer;

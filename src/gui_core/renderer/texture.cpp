@@ -31,7 +31,10 @@ Texture::Texture(uint8_t* data, int width, int height, uint32_t format)
 
 void Texture::DeleteTexture()
 {
-    glDeleteTextures(1, &m_render_texture);
+    if (m_render_texture != 0) {
+        glDeleteTextures(1, &m_render_texture);
+        m_render_texture = 0;
+    }
 }
 
 uint32_t Texture::get_texture()

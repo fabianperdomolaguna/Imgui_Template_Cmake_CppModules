@@ -13,5 +13,6 @@ public:
 	~Shader();
 
     void Create(const std::string& vertex_src, const std::string& fragment_src);
+    void DeleteShader(uint32_t& vs, uint32_t& fs);
     void Use();
 };
