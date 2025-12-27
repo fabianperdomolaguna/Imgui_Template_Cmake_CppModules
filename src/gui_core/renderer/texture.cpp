@@ -42,7 +42,10 @@ public:
 
     void DeleteTexture()
     {
-        glDeleteTextures(1, &m_render_texture);
+        if (m_render_texture != 0) {
+            glDeleteTextures(1, &m_render_texture);
+            m_render_texture = 0;
+        }
 	}
 
     uint32_t get_texture()

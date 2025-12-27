@@ -47,7 +47,7 @@ export class SimpleRender : public Layer
     std::unique_ptr<ImageTexture> image_texture;
     std::unique_ptr<Texture> mpl_texture;
     std::string m_executable_path;
-    std::string m_python_error = "";
+    std::string m_python_bind_error = "";
 
     std::unique_ptr<GlVertex> m_vertex;
     std::unique_ptr<GlFramebuffer> m_framebuffer;
@@ -80,15 +80,20 @@ public:
             int width, height;
             pybind11::object canvas = agg.attr("FigureCanvasAgg")(fig);
             canvas.attr("draw")();
-            std::string data = py::cast<std::string>(canvas.attr("get_renderer")().attr("buffer_rgba")().attr("tobytes")());
-            uint8_t* data_ptr = reinterpret_cast<uint8_t*>(const_cast<char*>(data.data()));
+            py::object renderer = canvas.attr("get_renderer")();
+            py::buffer buffer = renderer.attr("buffer_rgba")();
+            py::buffer_info info = buffer.request();
             std::tie(width, height) = py::cast<std::tuple<int, int>>(canvas.attr("get_width_height")());
 
-            mpl_texture = std::make_unique<Texture>(data_ptr, width, height, GL_RGBA);
+            mpl_texture = std::make_unique<Texture>(static_cast<uint8_t*>(info.ptr), width, height, GL_RGBA);
         } catch (py::error_already_set& e) {
-			m_python_error = e.what();
-            LOG_ERROR(std::format("Failed to create matplotlib texture: {}", e.what()));
+			m_python_bind_error = e.what();
             mpl_texture.reset();
+            LOG_ERROR(std::format("Failed to create matplotlib texture (Python error): {}", m_python_bind_error));
+        } catch (const std::exception& e) {
+            m_python_bind_error = e.what();
+            mpl_texture.reset();
+            LOG_ERROR(std::format("Failed to create matplotlib texture (C++ error): {}", m_python_bind_error));
         }
 
         m_vertex = std::make_unique<GlVertex>(vertex_shader_src, fragment_shader_src);
@@ -119,17 +124,17 @@ public:
         ImGui::ShowDemoWindow();
 
         ImGui::Begin("Image Texture");
-        ImGui::Image(reinterpret_cast<void*>((uint64_t)image_texture->get_texture()), 
+        ImGui::Image((ImTextureID)(intptr_t)image_texture->get_texture(),
             { (float)image_texture->m_width, (float)image_texture->m_height});
         ImGui::End();
 
         ImGui::Begin("Matplotlib Texture");
         if (mpl_texture && mpl_texture->get_texture() != 0) {
-            ImGui::Image(reinterpret_cast<void*>((uint64_t)mpl_texture->get_texture()),
+            ImGui::Image((ImTextureID)(intptr_t)mpl_texture->get_texture(),
                 { (float)mpl_texture->m_width, (float)mpl_texture->m_height });
         }
         else {
-            ImGui::Text("Matplotlib texture not available. Error: %s", m_python_error.c_str());
+            ImGui::Text("Matplotlib texture not available. Error: %s", m_python_bind_error.c_str());
         }
         ImGui::End();
 
@@ -139,7 +144,7 @@ public:
 
         ImGui::Begin("Scene Shader");
         uint64_t textureID = m_framebuffer->get_texture();
-        ImGui::Image(reinterpret_cast<void*>(textureID), ImGui::GetContentRegionAvail(), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+        ImGui::Image((ImTextureID)(intptr_t)textureID, ImGui::GetContentRegionAvail(), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
         ImGui::End();
     }
 

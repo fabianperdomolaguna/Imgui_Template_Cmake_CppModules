@@ -59,15 +59,32 @@ public:
 
     void CreateTexture()
     {
+        if (!m_data) return;
+
+        DeleteGLResource();
+
         glGenTextures(1, &m_render_texture);
         glBindTexture(GL_TEXTURE_2D, m_render_texture);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, m_format, m_width, m_height, 0, m_format, GL_UNSIGNED_BYTE, m_data);
 
-        stbi_image_free(m_data);
-        m_data = nullptr;
+        FreeCPUData();
 	}
+
+    void FreeCPUData() {
+        if (m_data) {
+            stbi_image_free(m_data);
+            m_data = nullptr;
+        }
+    }
+
+    void DeleteGLResource() {
+        if (m_render_texture != 0) {
+            glDeleteTextures(1, &m_render_texture);
+            m_render_texture = 0;
+        }
+    }
 
     void Reload(const std::string& file_path)
     {
@@ -123,11 +140,12 @@ public:
 
     ~ImageTexture()
     {
-        if (m_render_texture) 
-            glDeleteTextures(1, &m_render_texture);
-        else 
-            stbi_image_free(m_data);
+        FreeCPUData();
+        DeleteGLResource();
     }
+
+    ImageTexture(const ImageTexture&) = delete;
+    ImageTexture& operator=(const ImageTexture&) = delete;
 
     bool IsValid() const { return m_render_texture != 0; }
 

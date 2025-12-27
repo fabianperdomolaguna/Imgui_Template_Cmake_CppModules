@@ -26,15 +26,12 @@ private:
         io.Fonts->Clear();
 
         ImFontConfig fontConfig;
-        fontConfig.FontDataOwnedByAtlas = false;
         io.FontDefault = io.Fonts->AddFontFromFileTTF((executable_path + "/fonts/Roboto_Regular.ttf").c_str(), font_size, &fontConfig);
 
         ImFontConfig fontConfigItalic;
-        fontConfigItalic.FontDataOwnedByAtlas = false;
         ImFont* italic = io.Fonts->AddFontFromFileTTF((executable_path + "/fonts/Roboto_Italic.ttf").c_str(), font_size, &fontConfigItalic);
 
         ImFontConfig fontConfigBold;
-        fontConfigBold.FontDataOwnedByAtlas = false;
         ImFont* bold = io.Fonts->AddFontFromFileTTF((executable_path + "/fonts/Roboto_Bold.ttf").c_str(), font_size, &fontConfigBold);
     }
 

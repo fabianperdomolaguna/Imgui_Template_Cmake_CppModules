@@ -65,14 +65,9 @@ public:
 
 	void Draw()
 	{
-		glBindVertexArray(VAO);
-
-		glClearColor(0.02f, 0.13f, 0.17f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
 		m_shader->Use();
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
-
 		glBindVertexArray(0);
 	}
 };

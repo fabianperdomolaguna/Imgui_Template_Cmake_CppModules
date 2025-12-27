@@ -4,6 +4,7 @@ module;
 #include <vector>
 #include <deque>
 #include <fstream>
+#include <sstream>
 #include <mutex>
 #include <chrono>
 
@@ -24,7 +25,7 @@ export struct LogEntry {
 export struct ImguiLogger {
     std::deque <LogEntry> items;
 	std::mutex mutex;
-    uint8_t max_size = 100;
+    size_t max_size = 100;
 
     void AddLog(std::string log, spdlog::level::level_enum level)
     {
@@ -67,12 +68,12 @@ class JsonFileLoggerSink : public spdlog::sinks::base_sink<mutex>
 {
     std::ofstream file;
     std::string filename;
-    size_t max_size;
+    size_t max_size_bytes;
     size_t current_size;
 
 public:
     JsonFileLoggerSink(const std::string& filename, size_t max_bytes) 
-        : filename(filename), max_size(max_bytes), current_size(0)
+        : filename(filename), max_size_bytes(max_bytes), current_size(0)
     {
         file.open(filename, std::ios::app);
         if (file.is_open()) {
@@ -95,12 +96,10 @@ protected:
             localtime_r(&now_time, &calendar_time);
         #endif
 
-        auto duration = message.time.time_since_epoch();
-        auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() % 1000;
+        auto miliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(message.time.time_since_epoch()) % 1000;
         char time_buffer[64];
         std::strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", &calendar_time);
-        std::string final_time = std::string(time_buffer) + "." + std::to_string(milliseconds);
-        json["time"] = std::string(final_time);
+        json["time"] = std::format("{}.{:03d}", time_buffer, miliseconds.count());
 
         json["level"] = spdlog::level::to_string_view(message.level).data();
         json["thread"] = message.thread_id;
@@ -128,7 +127,7 @@ protected:
         }
 
         std::string dumped_json = json.dump() + "\n";
-        if (current_size + dumped_json.size() > max_size) {
+        if (current_size + dumped_json.size() > max_size_bytes) {
             rotate_logs();
         }
         file << dumped_json;
@@ -183,7 +182,7 @@ public:
         imgui_sink->set_pattern("[%T.%e] [%l] %v");
 
         //Define JSON file sink with max size 0.5 MB
-        auto file_sink = std::make_shared<json_file_sink_mt>("logs.json", 0.5*1024*1024);
+        auto file_sink = std::make_shared<json_file_sink_mt>("logs.json", static_cast<size_t>(0.5*1024*1024));
         file_sink->set_pattern("{\"time\":\"%Y-%m-%dT%H:%M:%S.%f\", \"level\":\"%l\", \"message\":\"%v\"}");
         file_sink->set_level(spdlog::level::warn);
 
@@ -224,21 +223,27 @@ public:
     }
 
     template<typename... Args>
-    static std::string format_extras(Args&&... args) {
-        constexpr size_t total_args = sizeof...(args);
-        if constexpr (total_args == 0) return "";
-        static_assert(total_args % 2 == 0, "Argument must be pairs: (Key, Value)");
+    static std::string format_extras(Args&&... args) 
+    {
+        try {
+            constexpr size_t total_args = sizeof...(args);
+            if constexpr (total_args == 0) return "";
+            static_assert(total_args % 2 == 0, "Argument must be pairs: (Key, Value)");
 
-        std::string key_value_string = "";
-        auto tuple = std::forward_as_tuple(std::forward<Args>(args)...);
+            std::string key_value_string;
+            key_value_string.reserve(128);
+            auto tuple = std::forward_as_tuple(std::forward<Args>(args)...);
 
-        [&]<std::size_t... pair_index>(std::index_sequence<pair_index...>) {
-            ((key_value_string += " | " + 
-                to_str(std::get<pair_index* 2>(tuple)) + "=" +
-                to_str(std::get<pair_index * 2 + 1>(tuple))
-            ), ...);
-        }(std::make_index_sequence<total_args / 2>{}); 
-    
-        return key_value_string;
+            [&] <std::size_t... pair_index>(std::index_sequence<pair_index...>) {
+                ((key_value_string += " | " +
+                    to_str(std::get<pair_index * 2>(tuple)) + "=" +
+                    to_str(std::get<pair_index * 2 + 1>(tuple))
+                    ), ...);
+            }(std::make_index_sequence<total_args / 2>{});
+
+            return key_value_string;
+        } catch (...) {
+            return " | [Log Format Error]";
+        }
     }
 };

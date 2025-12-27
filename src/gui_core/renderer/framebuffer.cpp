@@ -2,6 +2,7 @@ module;
 
 #include <cstdint>
 #include <format>
+#include <memory>
 
 #include "glad/gl.h"
 
@@ -17,7 +18,7 @@ export class GlFramebuffer
 	uint32_t FBO = 0;
 	uint32_t RBO = 0;
 
-	Texture* m_texture = nullptr;
+	std::unique_ptr<Texture> m_texture;
 
 public:
 	GlFramebuffer(int width, int height)
@@ -28,7 +29,7 @@ public:
 		glGenFramebuffers(1, &FBO);
 		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
-		m_texture = new Texture(nullptr, width, height, GL_RGB);
+		m_texture = std::make_unique<Texture>(nullptr, width, height, GL_RGB);
 
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture->get_texture(), 0);
 		glGenRenderbuffers(1, &RBO);
@@ -52,14 +53,23 @@ public:
 	~GlFramebuffer() 
 	{ 
 		DeleteBuffers();
-		delete m_texture;
+		m_texture.reset();
 	}
 
 	void DeleteBuffers()
 	{
-		glDeleteFramebuffers(GL_FRAMEBUFFER, &FBO);
-		glDeleteRenderbuffers(1, &RBO);
-		m_texture->DeleteTexture();
+		if (FBO != 0) {
+			glDeleteFramebuffers(1, &FBO);
+			FBO = 0;
+		}
+
+		if (RBO != 0) {
+			glDeleteRenderbuffers(1, &RBO);
+			RBO = 0;
+		}
+		
+		if (m_texture)
+			m_texture->DeleteTexture();
 	}
 
 	void Bind()

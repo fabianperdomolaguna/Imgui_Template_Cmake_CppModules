@@ -213,7 +213,7 @@ public:
         ImGui::GetWindowDrawList()->PushClipRectFullScreen();
 
         ImGui::GetBackgroundDrawList()->AddRectFilled(
-            ImVec2(ImGui::GetMainViewport()->Pos.x, ImGui::GetMainViewport()->Pos.y + 42.0f),
+            ImVec2(ImGui::GetMainViewport()->Pos.x, ImGui::GetMainViewport()->Pos.y + title_bar_height),
             ImVec2(ImGui::GetMainViewport()->Pos.x + ImGui::GetMainViewport()->Size.x,
                 ImGui::GetMainViewport()->Pos.y + ImGui::GetMainViewport()->Size.y),
             IM_COL32(51, 51, 51, 255)
@@ -231,7 +231,7 @@ public:
         MenuBar();
 
         ImVec2 top_left = ImGui::GetMainViewport()->Pos;
-        ImVec2 bottom_right = ImVec2(top_left.x + ImGui::GetMainViewport()->Size.x, top_left.y + 42.0f);
+        ImVec2 bottom_right = ImVec2(top_left.x + ImGui::GetMainViewport()->Size.x, top_left.y + title_bar_height);
         ImRect titlebar_rect(top_left, bottom_right);
         DrawCenteredText(m_app->m_window->m_window_specification.title, titlebar_rect);
 
@@ -243,7 +243,7 @@ public:
             ImDrawFlags_RoundCornersTop
         );
 
-        ImGui::InvisibleButton("##TitleBarDragZone", ImVec2(ImGui::GetMainViewport()->Size.x, 42.0f));
+        ImGui::InvisibleButton("##TitleBarDragZone", ImVec2(ImGui::GetMainViewport()->Size.x, title_bar_height));
         if (ImGui::IsMouseHoveringRect(top_left, bottom_right) && ImGui::IsMouseDragging(0))
         {
             int wx, wy;
@@ -275,12 +275,14 @@ public:
             [&]() { glfwIconifyWindow(m_app->m_window->m_glfw_window); }
         );
 
+        uint32_t maximize_icon_texture = IsMaximized(m_app->m_window->m_glfw_window)
+                                         ? restore_button->get_texture()
+                                         : maximize_button->get_texture();
+
         DrawWindowButtons(
             button_start,
             button_end,
-            (ImTextureID)(intptr_t)(
-                IsMaximized(m_app->m_window->m_glfw_window) ? restore_button->get_texture()
-                : maximize_button->get_texture()),
+            (ImTextureID)(intptr_t)maximize_icon_texture,
             button_size,
             icon_size,
             IM_COL32(154, 140, 152, 128),
