@@ -7,15 +7,17 @@ module;
 #include <sstream>
 #include <mutex>
 #include <chrono>
+#include <source_location>
 
 #include "spdlog/spdlog.h"
 #include "spdlog/async.h"
 //#include "spdlog/sinks/stdout_color_sinks.h"
 #include "spdlog/sinks/base_sink.h"
 #include "spdlog/sinks/basic_file_sink.h"
-#include "nlohmann/json.hpp"
 
 export module Logger;
+
+import nlohmann.json;
 
 export struct LogEntry {
     std::string message;
@@ -204,23 +206,35 @@ public:
         return imgui_sink_mt::GetImguiLogger();
     }
 
-    template<typename T>
-    static std::string to_str(T&& value) {
-        using DT = std::decay_t<T>;
+    static void Critical(std::string_view msg, const std::source_location loc = std::source_location::current()) 
+    { LogInternal(spdlog::level::critical, loc, msg); }
+    template<typename... Args>
+    static void Critical(std::string_view msg, Args&&... args) 
+    { LogInternal(spdlog::level::critical, std::source_location::current(), msg, std::forward<Args>(args)...); }
 
-        if constexpr(std::is_same_v<DT, bool>) {
-            return value ? "true" : "false";
-        }
-        else if constexpr(std::is_convertible_v<DT, std::string_view>) {
-            return std::string(value);
-        }
-        else if constexpr(std::is_arithmetic_v<DT>) {
-            return std::to_string(value);
-        }
-        else {
-            return "???";
-        }
-    }
+    static void Error(std::string_view msg, const std::source_location loc = std::source_location::current()) 
+    { LogInternal(spdlog::level::err, loc, msg); }
+    template<typename... Args>
+    static void Error(std::string_view msg, Args&&... args) 
+    { LogInternal(spdlog::level::err, std::source_location::current(), msg, std::forward<Args>(args)...); }
+
+    static void Warn(std::string_view msg, const std::source_location loc = std::source_location::current()) 
+    { LogInternal(spdlog::level::warn, loc, msg); }
+    template<typename... Args>
+    static void Warn(std::string_view msg, Args&&... args) 
+    { LogInternal(spdlog::level::warn, std::source_location::current(), msg, std::forward<Args>(args)...); }
+
+    static void Info(std::string_view msg, const std::source_location loc = std::source_location::current()) 
+    { LogInternal(spdlog::level::info, loc, msg); }
+    template<typename... Args>
+    static void Info(std::string_view msg, Args&&... args) 
+    { LogInternal(spdlog::level::info, std::source_location::current(), msg, std::forward<Args>(args)...); }
+
+    static void Trace(std::string_view msg, const std::source_location loc = std::source_location::current()) 
+    { LogInternal(spdlog::level::trace, loc, msg); }
+    template<typename... Args>
+    static void Trace(std::string_view msg, Args&&... args) 
+    { LogInternal(spdlog::level::trace, std::source_location::current(), msg, std::forward<Args>(args)...); }
 
     template<typename... Args>
     static std::string format_extras(Args&&... args) 
@@ -244,6 +258,37 @@ public:
             return key_value_string;
         } catch (...) {
             return " | [Log Format Error]";
+        }
+    }
+
+private:
+    template<typename... Args>
+    static void LogInternal(spdlog::level::level_enum level, const std::source_location& location, std::string_view message, Args&&... args) 
+    {
+        auto logger = spdlog::default_logger_raw();
+        if (logger && logger->should_log(level)) 
+        {
+            spdlog::source_loc s_loc{location.file_name(), static_cast<int>(location.line()), location.function_name()};
+            logger->log(s_loc, level, "{}{}", message, format_extras(std::forward<Args>(args)...));
+        }
+    }
+
+    template<typename T>
+    static std::string to_str(T&& value) 
+    {
+        using DT = std::decay_t<T>;
+
+        if constexpr(std::is_same_v<DT, bool>) {
+            return value ? "true" : "false";
+        }
+        else if constexpr(std::is_convertible_v<DT, std::string_view>) {
+            return std::string(value);
+        }
+        else if constexpr(std::is_arithmetic_v<DT>) {
+            return std::to_string(value);
+        }
+        else {
+            return "???";
         }
     }
 };

@@ -4,24 +4,23 @@ module;
 #include <fstream>
 #include <string>
 
-#include "nlohmann/json.hpp"
-
-#include "logger.h"
-
 export module SettingsConfig;
+
+import nlohmann.json;
+import Logger;
 
 nlohmann::json ReadConfigFile(std::string executable_path)
 {
     std::ifstream json_config_file(executable_path + "/ConfigFile.json");
     if (!json_config_file.is_open()) {
-        LOG_ERROR("Config file not found or could not be opened");
+        Logger::Error("Config file not found or could not be opened");
         return nlohmann::json::object();
     }
 
     try {
         return nlohmann::json::parse(json_config_file);
     } catch (const nlohmann::json::parse_error& e) {
-        LOG_ERROR(std::format("Error parsing JSON config file: {}", e.what()));
+        Logger::Error(std::format("Error parsing JSON config file: {}", e.what()));
         return nlohmann::json::object();
     }
 }
@@ -30,7 +29,7 @@ void WriteConfigFile(std::string executable_path, nlohmann::json& json_data)
 {
     std::ofstream json_config_file(executable_path + "/ConfigFile.json");
     if (!json_config_file.is_open()) {
-        LOG_ERROR("Could not open config file for writing");
+        Logger::Error("Could not open config file for writing");
     }
     json_config_file << json_data.dump(4);
 }
@@ -43,11 +42,11 @@ float GetConfigVariable<float>(std::string executable_path, std::string config_v
 {
     nlohmann::json json_data = ReadConfigFile(executable_path);
     if (!json_data.contains(config_variable) || json_data[config_variable].is_null()) {
-        LOG_WARN(std::format("Config '{}' is missing or null", config_variable));
+        Logger::Warn(std::format("Config '{}' is missing or null", config_variable));
         return 0.0f;
     }
     if (!json_data[config_variable].is_number()) {
-        LOG_WARN(std::format("Config '{}' expected a number but has incorrect type", config_variable));
+        Logger::Warn(std::format("Config '{}' expected a number but has incorrect type", config_variable));
         return 0.0f;
     }
     return json_data[config_variable].get<float>();
@@ -58,11 +57,11 @@ std::string GetConfigVariable<std::string>(std::string executable_path, std::str
 {
     nlohmann::json json_data = ReadConfigFile(executable_path);
     if (!json_data.contains(config_variable) || json_data[config_variable].is_null()) {
-        LOG_WARN(std::format("Config '{}' is missing or null", config_variable));
+        Logger::Warn(std::format("Config '{}' is missing or null", config_variable));
         return "";
     }
     if (!json_data[config_variable].is_string()) {
-        LOG_WARN(std::format("Config '{}' expected a string but has incorrect type", config_variable));
+        Logger::Warn(std::format("Config '{}' expected a string but has incorrect type", config_variable));
         return "";
     }
     return json_data[config_variable].get<std::string>();

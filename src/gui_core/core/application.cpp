@@ -8,14 +8,13 @@ module;
 #include "GLFW/glfw3.h"
 #include "stb_image.h"
 
-#include "path_utilities.h"
-
 export module Application;
 
 import Window;
 import ImguiContext;
 import Layer;
 import Image;
+import PathUtilities;
 
 export class Application
 {

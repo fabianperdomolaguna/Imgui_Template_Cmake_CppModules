@@ -39,8 +39,8 @@ chmod +x llvm.sh
 sudo ./llvm.sh <version number> all
 
 # Set Clang version as the default compiler
-sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-17 100
-sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-17 100
+sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-19 100
+sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-19 100
 ```
 
 Once miniconda is installed, create a new environment and install the required Python packages:
@@ -161,7 +161,7 @@ Quick usage
 
 - Call the initializer `Logger::Init()`
 - Open the console with `Tools -> Logging Console` menu to view logs in the GUI
-- Include `logger.h` and employes defined macros `LOG_TRACE`, `LOG_INFO`, `LOG_WARN`, `LOG_ERROR`, and `LOG_CRITICAL`. They receive a message and key/value pairs separated by commas
+- Import Logger and employes defined static methods of the class `Logger::Trace`, `Logger::Info`, `Logger::Warn`, `Logger::Error`, and `Logger::Critical`. They receive a message and key/value pairs separated by commas
 
 ## Custom Title Bar Layer
 

@@ -1,8 +1,10 @@
-#pragma once
+module;
 
 #include "glad/gl.h"
 
-inline const char* GlErrorToString(GLenum error) {
+export module GlUtils;
+
+export inline const char* GlErrorToString(GLenum error) {
     switch (error) {
     case GL_INVALID_ENUM: return "GL_INVALID_ENUM";
     case GL_INVALID_VALUE: return "GL_INVALID_VALUE";
@@ -16,7 +18,7 @@ inline const char* GlErrorToString(GLenum error) {
     }
 }
 
-inline const char* GlFramebufferStatusToString(GLenum status) {
+export inline const char* GlFramebufferStatusToString(GLenum status) {
     switch (status) {
     case GL_FRAMEBUFFER_UNDEFINED: return "GL_FRAMEBUFFER_UNDEFINED";
     case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: return "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";

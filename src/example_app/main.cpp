@@ -2,7 +2,6 @@
 
 #include "pybind11/embed.h"
 
-#include "logger.h"
 #include "icon_app.embed"
 
 import Application;
@@ -39,7 +38,7 @@ int Main(int argc, char** argv)
 
     app->PushLayer<SimpleRender>(app->m_executable_path);
 
-    LOG_INFO("App started");
+    Logger::Info("App started");
 
     app->Run();
 

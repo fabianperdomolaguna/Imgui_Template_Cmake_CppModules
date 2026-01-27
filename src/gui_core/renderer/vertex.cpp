@@ -6,12 +6,11 @@ module;
 
 #include "glad/gl.h"
 
-#include "logger.h"
-#include "gl_error_utils.h"
-
 export module Vertex;
 
+import GlUtils;
 import Shaders;
+import Logger;
 
 float vertices[] = {
 	-0.5f, -0.5f, 0.0f, // left  
@@ -57,7 +56,7 @@ public:
 
 		GLenum error = glGetError();
 		if (error != GL_NO_ERROR)
-			LOG_ERROR(std::format("Vertex attributes configuring errors: {} - {}", GlErrorToString(error), (unsigned)error));
+			Logger::Error(std::format("Vertex attributes configuring errors: {} - {}", GlErrorToString(error), (unsigned)error));
 		
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);

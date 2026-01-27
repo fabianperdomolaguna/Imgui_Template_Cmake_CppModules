@@ -5,10 +5,10 @@ module;
 
 #include "glad/gl.h"
 
-#include "logger.h"
-#include "gl_error_utils.h"
-
 export module Texture;
+
+import GlUtils;
+import Logger;
 
 export class Texture 
 {
@@ -32,7 +32,7 @@ public:
     
         GLenum error = glGetError();
         if (error != GL_NO_ERROR)
-            LOG_ERROR(std::format("glTexImage2D failed: {} - {}", GlErrorToString(error), (unsigned)error));
+            Logger::Error(std::format("glTexImage2D failed: {} - {}", GlErrorToString(error), (unsigned)error));
     }
 
     ~Texture()

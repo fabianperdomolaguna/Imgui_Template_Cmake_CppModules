@@ -7,9 +7,9 @@ module;
 #include "GLFW/glfw3.h"
 #include "imgui.h"
 
-#include "logger.h"
-
 export module Window;
+
+import Logger;
 
 export struct WindowSpecification
 {
@@ -32,7 +32,7 @@ public:
 
     static void glfw_error_callback(int error, const char* description)
     {
-        LOG_ERROR("GLFW Error", "code", error, "description", description);
+        Logger::Error("GLFW Error", "code", error, "description", description);
     }
 
     Window(const WindowSpecification& spec) : m_window_specification(spec)
@@ -41,7 +41,7 @@ public:
 
         if (!glfwInit())
         {
-            LOG_CRITICAL("Failed to initialize GLFW");
+            Logger::Critical("Failed to initialize GLFW");
             m_running = false;
             return;
         }
@@ -61,7 +61,7 @@ public:
 
         if (!m_glfw_window)
         {
-            LOG_CRITICAL("Could not initialize a GLFW window");
+            Logger::Critical("Could not initialize a GLFW window");
             m_running = false;
             return;
         }
@@ -82,7 +82,7 @@ public:
         });
 
         if (!gladLoadGL((GLADloadfunc)glfwGetProcAddress)) {
-            LOG_CRITICAL("Failed to initialize GLAD");
+            Logger::Critical("Failed to initialize GLAD");
             glfwDestroyWindow(m_glfw_window);
             glfwTerminate();
             m_running = false;
