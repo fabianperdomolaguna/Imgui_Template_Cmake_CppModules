@@ -8,6 +8,8 @@ module;
 #include "imgui.h"
 #include "pybind11/embed.h"
 
+#include "logger.h"
+
 export module RenderScene;
 
 import Layer;
@@ -16,7 +18,6 @@ import Image;
 import Framebuffer;
 import Vertex;
 import PythonManager;
-import Logger;
 
 namespace py = pybind11;
 auto& PyMgr = PythonManager::PyMgr();
@@ -88,11 +89,11 @@ public:
         } catch (py::error_already_set& e) {
 			m_python_bind_error = e.what();
             mpl_texture.reset();
-            Logger::Error(std::format("Failed to create matplotlib texture (Python error): {}", m_python_bind_error));
+            LOG_ERROR(std::format("Failed to create matplotlib texture (Python error): {}", m_python_bind_error));
         } catch (const std::exception& e) {
             m_python_bind_error = e.what();
             mpl_texture.reset();
-            Logger::Error(std::format("Failed to create matplotlib texture (C++ error): {}", m_python_bind_error));
+            LOG_ERROR(std::format("Failed to create matplotlib texture (C++ error): {}", m_python_bind_error));
         }
 
         m_vertex = std::make_unique<GlVertex>(vertex_shader_src, fragment_shader_src);

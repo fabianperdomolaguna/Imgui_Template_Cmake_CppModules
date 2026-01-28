@@ -7,17 +7,15 @@ module;
 #include <sstream>
 #include <mutex>
 #include <chrono>
-#include <source_location>
 
 #include "spdlog/spdlog.h"
 #include "spdlog/async.h"
 //#include "spdlog/sinks/stdout_color_sinks.h"
 #include "spdlog/sinks/base_sink.h"
 #include "spdlog/sinks/basic_file_sink.h"
+#include "nlohmann/json.hpp"
 
 export module Logger;
-
-import nlohmann.json;
 
 export struct LogEntry {
     std::string message;
@@ -206,76 +204,8 @@ public:
         return imgui_sink_mt::GetImguiLogger();
     }
 
-    static void Critical(std::string_view msg, const std::source_location loc = std::source_location::current()) 
-    { LogInternal(spdlog::level::critical, loc, msg); }
-    template<typename... Args>
-    static void Critical(std::string_view msg, Args&&... args) 
-    { LogInternal(spdlog::level::critical, std::source_location::current(), msg, std::forward<Args>(args)...); }
-
-    static void Error(std::string_view msg, const std::source_location loc = std::source_location::current()) 
-    { LogInternal(spdlog::level::err, loc, msg); }
-    template<typename... Args>
-    static void Error(std::string_view msg, Args&&... args) 
-    { LogInternal(spdlog::level::err, std::source_location::current(), msg, std::forward<Args>(args)...); }
-
-    static void Warn(std::string_view msg, const std::source_location loc = std::source_location::current()) 
-    { LogInternal(spdlog::level::warn, loc, msg); }
-    template<typename... Args>
-    static void Warn(std::string_view msg, Args&&... args) 
-    { LogInternal(spdlog::level::warn, std::source_location::current(), msg, std::forward<Args>(args)...); }
-
-    static void Info(std::string_view msg, const std::source_location loc = std::source_location::current()) 
-    { LogInternal(spdlog::level::info, loc, msg); }
-    template<typename... Args>
-    static void Info(std::string_view msg, Args&&... args) 
-    { LogInternal(spdlog::level::info, std::source_location::current(), msg, std::forward<Args>(args)...); }
-
-    static void Trace(std::string_view msg, const std::source_location loc = std::source_location::current()) 
-    { LogInternal(spdlog::level::trace, loc, msg); }
-    template<typename... Args>
-    static void Trace(std::string_view msg, Args&&... args) 
-    { LogInternal(spdlog::level::trace, std::source_location::current(), msg, std::forward<Args>(args)...); }
-
-    template<typename... Args>
-    static std::string format_extras(Args&&... args) 
-    {
-        try {
-            constexpr size_t total_args = sizeof...(args);
-            if constexpr (total_args == 0) return "";
-            static_assert(total_args % 2 == 0, "Argument must be pairs: (Key, Value)");
-
-            std::string key_value_string;
-            key_value_string.reserve(128);
-            auto tuple = std::forward_as_tuple(std::forward<Args>(args)...);
-
-            [&] <std::size_t... pair_index>(std::index_sequence<pair_index...>) {
-                ((key_value_string += " | " +
-                    to_str(std::get<pair_index * 2>(tuple)) + "=" +
-                    to_str(std::get<pair_index * 2 + 1>(tuple))
-                    ), ...);
-            }(std::make_index_sequence<total_args / 2>{});
-
-            return key_value_string;
-        } catch (...) {
-            return " | [Log Format Error]";
-        }
-    }
-
-private:
-    template<typename... Args>
-    static void LogInternal(spdlog::level::level_enum level, const std::source_location& location, std::string_view message, Args&&... args) 
-    {
-        auto logger = spdlog::default_logger_raw();
-        if (logger && logger->should_log(level)) 
-        {
-            spdlog::source_loc s_loc{location.file_name(), static_cast<int>(location.line()), location.function_name()};
-            logger->log(s_loc, level, "{}{}", message, format_extras(std::forward<Args>(args)...));
-        }
-    }
-
     template<typename T>
-    static std::string to_str(T&& value) 
-    {
+    static std::string ToStr(T&& value) {
         using DT = std::decay_t<T>;
 
         if constexpr(std::is_same_v<DT, bool>) {
@@ -289,6 +219,31 @@ private:
         }
         else {
             return "???";
+        }
+    }
+
+    template<typename... Args>
+    static std::string FormatExtras(Args&&... args) 
+    {
+        try {
+            constexpr size_t total_args = sizeof...(args);
+            if constexpr (total_args == 0) return "";
+            static_assert(total_args % 2 == 0, "Argument must be pairs: (Key, Value)");
+
+            std::string key_value_string;
+            key_value_string.reserve(128);
+            auto tuple = std::forward_as_tuple(std::forward<Args>(args)...);
+
+            [&] <std::size_t... pair_index>(std::index_sequence<pair_index...>) {
+                ((key_value_string += " | " +
+                    ToStr(std::get<pair_index * 2>(tuple)) + "=" +
+                    ToStr(std::get<pair_index * 2 + 1>(tuple))
+                    ), ...);
+            }(std::make_index_sequence<total_args / 2>{});
+
+            return key_value_string;
+        } catch (...) {
+            return " | [Log Format Error]";
         }
     }
 };

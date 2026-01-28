@@ -3,9 +3,9 @@ module;
 #include "imgui.h"
 #include "spdlog/spdlog.h"
 
-export module LoggingConsole;
+#include "logger.h"
 
-import Logger;
+export module LoggingConsole;
 
 export void LoggingConsole(bool* open)
 {

@@ -8,9 +8,9 @@ module;
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-export module Image;
+#include "logger.h"
 
-import Logger;
+export module Image;
 
 export class ImageTexture
 {
@@ -33,7 +33,7 @@ public:
 
         if (!m_data) 
         {
-            Logger::Error(std::format("Failed to load image: {}", file_path));
+            LOG_ERROR(std::format("Failed to load image: {}", file_path));
             return;
 		}
 
@@ -49,7 +49,7 @@ public:
 
         if (!m_data)
         {
-            Logger::Error("Failed to load image from memory");
+            LOG_ERROR("Failed to load image from memory");
             return;
         }
 
@@ -104,7 +104,7 @@ public:
 
         if (!m_data)
         {
-            Logger::Error(std::format("Failed to reload image from file: {}", file_path));
+            LOG_ERROR(std::format("Failed to reload image from file: {}", file_path));
             return;
         }
 
@@ -130,7 +130,7 @@ public:
 
         if (!m_data)
         {
-            Logger::Error("Failed to reload image from memory");
+            LOG_ERROR("Failed to reload image from memory");
             return;
         }
 

@@ -6,9 +6,9 @@ module;
 
 #include "glad/gl.h"
 
-export module Shaders;
+#include "logger.h"
 
-import Logger;
+export module Shaders;
 
 export class Shader
 {
@@ -18,7 +18,7 @@ export class Shader
 	{
 		uint32_t shader_id = glCreateShader(shader_type);
 		if (shader_id == 0) {
-			Logger::Error("glCreateShader failed");
+			LOG_ERROR("glCreateShader failed");
 			return 0;
 		}
 
@@ -39,7 +39,7 @@ export class Shader
 					message.pop_back();
 				}
 			}
-			Logger::Error(std::format("Shader compilation failed (type {}): {}", shader_type, message));
+			LOG_ERROR(std::format("Shader compilation failed (type {}): {}", shader_type, message));
 			glDeleteShader(shader_id);
 			return 0;
 		}
@@ -56,7 +56,7 @@ public:
 	{
 		m_shader = glCreateProgram();
 		if (m_shader == 0) {
-			Logger::Error("glCreateProgram failed");
+			LOG_ERROR("glCreateProgram failed");
 			return;
 		}
 
@@ -64,7 +64,7 @@ public:
 		uint32_t fs = Compile(GL_FRAGMENT_SHADER, fragment_src);
 
 		if (vs == 0 || fs == 0) {
-			Logger::Error("Shader program creation aborted due to compilation errors");
+			LOG_ERROR("Shader program creation aborted due to compilation errors");
 			DeleteShader(vs, fs);
 			return;
 		}
@@ -79,7 +79,7 @@ public:
 			std::string message(256, '\0');
 			glGetProgramInfoLog(m_shader, message.size(), nullptr, message.data());
 			while (!message.empty() && std::isspace(message.back()) || message.back() == '\0') message.pop_back();
-			Logger::Error(std::format("Shader Linking failed: {}", message));
+			LOG_ERROR(std::format("Shader Linking failed: {}", message));
 			DeleteShader(vs, fs);
 			return;
 		}
