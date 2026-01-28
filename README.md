@@ -161,7 +161,7 @@ Quick usage
 
 - Call the initializer `Logger::Init()`
 - Open the console with `Tools -> Logging Console` menu to view logs in the GUI
-- Import Logger and employes defined static methods of the class `Logger::Trace`, `Logger::Info`, `Logger::Warn`, `Logger::Error`, and `Logger::Critical`. They receive a message and key/value pairs separated by commas
+- Include `logger.h` and employes defined macros `LOG_TRACE`, `LOG_INFO`, `LOG_WARN`, `LOG_ERROR`, and `LOG_CRITICAL`. They receive a message and key/value pairs separated by commas
 
 ## Custom Title Bar Layer
 
@@ -225,3 +225,4 @@ Additionally, the creation of a Linux application launcher with an assigned icon
   <img src="assets/app_template.png" />
 </h1>
 <center>Basic application in the template</center>
+
