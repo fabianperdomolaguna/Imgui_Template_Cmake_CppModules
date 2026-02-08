@@ -4,9 +4,10 @@ module;
 #include <fstream>
 #include <string>
 
+#include "nlohmann/json.hpp"
+
 export module SettingsConfig;
 
-import nlohmann.json;
 import Logger;
 
 nlohmann::json ReadConfigFile(std::string executable_path)

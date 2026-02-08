@@ -1,0 +1,20 @@
+@echo off
+set "VENV_ROOT=@VENV_DIR@"
+
+set "PYTHON_PATHS=@PYTHON_RUNTIME_PATHS@"
+
+set "PATH=%VENV_ROOT%\Scripts;%PYTHON_PATHS%;%PATH%"
+
+set "PYTHONPATH=%VENV_ROOT%\Lib\site-packages"
+
+set "PYTHONHOME=@PYTHON_BIN_DIR@"
+
+start "" "%~dp0App.exe"
+
+if %errorlevel% neq 0 (
+    echo.
+    echo ERROR: La aplicacion se cerro con codigo %errorlevel%
+    pause
+)
+
+exit

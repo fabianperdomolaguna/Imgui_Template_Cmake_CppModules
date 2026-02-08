@@ -21,12 +21,7 @@ target_link_libraries(Core
   glfw
   glad_gl
   ImGui
-  spdlog::spdlog
   stb
-  nlohmann_json_modules
+  spdlog::spdlog
+  nlohmann_json::nlohmann_json
 )
-
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${CPP_MODULES})
-
-file(COPY ConfigFile.json DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-file(COPY fonts DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

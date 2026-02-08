@@ -14,10 +14,9 @@ module;
 //#include "spdlog/sinks/stdout_color_sinks.h"
 #include "spdlog/sinks/base_sink.h"
 #include "spdlog/sinks/basic_file_sink.h"
+#include "nlohmann/json.hpp"
 
 export module Logger;
-
-import nlohmann.json;
 
 export struct LogEntry {
     std::string message;

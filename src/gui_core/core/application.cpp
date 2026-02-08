@@ -79,7 +79,7 @@ public:
 		glfwSetWindowIcon(m_window->m_glfw_window, 1, &icon);
 	}
 
-	void SetWindowIcon(uint8_t* image_data, uint32_t image_size)
+	void SetWindowIcon(const uint8_t* image_data, uint32_t image_size)
 	{
 		ImageTexture image = ImageTexture(image_data, image_size, GL_RGBA);
 

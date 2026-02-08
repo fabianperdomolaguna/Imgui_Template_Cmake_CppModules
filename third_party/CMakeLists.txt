@@ -1,0 +1,7 @@
+add_subdirectory(glfw)
+add_subdirectory(pybind)
+add_subdirectory(glad)
+add_subdirectory(imgui)
+add_subdirectory(spdlog)
+add_subdirectory(nlohmann_json)
+add_subdirectory(stb)
