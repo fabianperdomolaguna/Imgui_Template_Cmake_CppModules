@@ -24,14 +24,6 @@ target_link_libraries(App
 
 add_compile_definitions(PYTHON_VERSION="${DESIRED_PYTHON_VERSION}")
 
-if(WIN32)
-  configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/App_Launcher.bat.in"
-    "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/App_Launcher.bat"
-    @ONLY
-  )
-endif()
-
 if (WIN32)
   target_link_options(App PRIVATE
     $<$<CONFIG:Release>:-Wl,/SUBSYSTEM:WINDOWS>

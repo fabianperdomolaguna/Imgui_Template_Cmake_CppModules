@@ -19,7 +19,6 @@ import PythonManager;
 import Logger;
 
 namespace py = pybind11;
-auto& PyMgr = PythonManager::PyMgr();
 
 const std::string vertex_shader_src = R"(
 #version 330 core
@@ -50,6 +49,8 @@ export class SimpleRender : public Layer
 
     std::unique_ptr<GlVertex> m_vertex;
     std::unique_ptr<GlFramebuffer> m_framebuffer;
+
+    bool m_show_mpl_window = false;
     
 public:
     SimpleRender(std::string executable_path)
@@ -61,43 +62,56 @@ public:
     {
         image_texture = std::make_unique<ImageTexture>(m_executable_path + "/cpp_python_logos.jpg", GL_RGBA, true);
 
+        m_vertex = std::make_unique<GlVertex>(vertex_shader_src, fragment_shader_src);
+        m_framebuffer = std::make_unique<GlFramebuffer>(1600, 800);
+        m_vertex->CreateBuffers();
+    }
+
+    void GenerateMplTexture()
+    {
         try {
-            py::module::import("matplotlib").attr("use")("Agg");
-            auto np = PyMgr.ImportModule("numpy");
-            auto plt = PyMgr.ImportModule("matplotlib.pyplot");
-            auto agg = PyMgr.ImportModule("matplotlib.backends.backend_agg");
+            if (!PyMgr.BeginSession(m_executable_path + "/scripts")) 
+            {
+                Logger::Error("Python session could not be started");
+                return;
+            }
+            
+            {
+                py::module::import("matplotlib").attr("use")("Agg");
+                auto np = PyMgr.ImportModule("numpy");
+                auto plt = PyMgr.ImportModule("matplotlib.pyplot");
+                auto agg = PyMgr.ImportModule("matplotlib.backends.backend_agg");
 
-            PyMgr.AddSystemPath(m_executable_path + "/scripts");
-            auto add_module = PyMgr.ImportModule("add");
+                auto add_module = PyMgr.ImportModule("add");
+                auto add = add_module.attr("add");
 
-            auto add = add_module.attr("add");
+                pybind11::object fig = plt.attr("figure")();
+                plt.attr("plot")(np.attr("random").attr("randn")(100));
+                plt.attr("title")("Random numbers");
 
-            pybind11::object fig = plt.attr("figure")();
-            plt.attr("plot")(np.attr("random").attr("randn")(100));
-            plt.attr("title")("Random numbers");
+                pybind11::object canvas = agg.attr("FigureCanvasAgg")(fig);
+                canvas.attr("draw")();
+                py::object renderer = canvas.attr("get_renderer")();
+                py::buffer buffer = renderer.attr("buffer_rgba")();
+                py::buffer_info info = buffer.request();
 
-            int width, height;
-            pybind11::object canvas = agg.attr("FigureCanvasAgg")(fig);
-            canvas.attr("draw")();
-            py::object renderer = canvas.attr("get_renderer")();
-            py::buffer buffer = renderer.attr("buffer_rgba")();
-            py::buffer_info info = buffer.request();
-            std::tie(width, height) = py::cast<std::tuple<int, int>>(canvas.attr("get_width_height")());
+                int width, height;
+                std::tie(width, height) = py::cast<std::tuple<int, int>>(canvas.attr("get_width_height")());
 
-            mpl_texture = std::make_unique<Texture>(static_cast<uint8_t*>(info.ptr), width, height, GL_RGBA);
+                mpl_texture = std::make_unique<Texture>(static_cast<uint8_t*>(info.ptr), width, height, GL_RGBA);
+            }
+            PyMgr.EndSession();
         } catch (py::error_already_set& e) {
-			m_python_bind_error = e.what();
+            m_python_bind_error = e.what();
             mpl_texture.reset();
             Logger::Error(std::format("Failed to create matplotlib texture (Python error): {}", m_python_bind_error));
+            PyMgr.EndSession();
         } catch (const std::exception& e) {
             m_python_bind_error = e.what();
             mpl_texture.reset();
             Logger::Error(std::format("Failed to create matplotlib texture (C++ error): {}", m_python_bind_error));
+            PyMgr.EndSession();
         }
-
-        m_vertex = std::make_unique<GlVertex>(vertex_shader_src, fragment_shader_src);
-        m_framebuffer = std::make_unique<GlFramebuffer>(1600, 800);
-        m_vertex->CreateBuffers();
     }
 
     void OnRender() override
@@ -118,6 +132,17 @@ public:
         ImGui::Text("Application average - %.3f ms/frame - (%.1f FPS)", 
             1000.0f / ImGui::GetIO().Framerate, 
             ImGui::GetIO().Framerate);
+        
+        ImGui::Dummy(ImVec2(0.0f, 20.0f));
+
+        if (ImGui::Button(m_show_mpl_window ? "Close Matplotlib Plot" 
+            : "Show Matplotlib Plot")) 
+        {
+            m_show_mpl_window = !m_show_mpl_window;
+
+            if (m_show_mpl_window && !mpl_texture)
+                GenerateMplTexture();
+        }
         ImGui::End();
 
         ImGui::ShowDemoWindow();
@@ -127,15 +152,18 @@ public:
             { (float)image_texture->m_width, (float)image_texture->m_height});
         ImGui::End();
 
-        ImGui::Begin("Matplotlib Texture");
-        if (mpl_texture && mpl_texture->get_texture() != 0) {
-            ImGui::Image((ImTextureID)(intptr_t)mpl_texture->get_texture(),
-                { (float)mpl_texture->m_width, (float)mpl_texture->m_height });
+        if (m_show_mpl_window)
+        {
+            ImGui::Begin("Matplotlib Texture", &m_show_mpl_window);
+            if (mpl_texture && mpl_texture->get_texture() != 0) {
+                ImGui::Image((ImTextureID)(intptr_t)mpl_texture->get_texture(),
+                    { (float)mpl_texture->m_width, (float)mpl_texture->m_height });
+            }
+            else {
+                ImGui::Text("Matplotlib texture not available. Error: %s", m_python_bind_error.c_str());
+            }
+            ImGui::End();
         }
-        else {
-            ImGui::Text("Matplotlib texture not available. Error: %s", m_python_bind_error.c_str());
-        }
-        ImGui::End();
 
         m_framebuffer->Bind();
         m_vertex->Draw();

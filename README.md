@@ -60,14 +60,6 @@ If your compiler or project does not yet support **C++20 Modules** or you prefer
 > - GLAD sources are automatically generated during the CMake build
 > - .venv created by CMake install Jinja2 which is required at configure/build time. This environment is used in runtime for Pybind11
 
-> [!IMPORTANT]
-> To avoid runtime errors related to python libraries load:
->
-> - In Windows, the project configure a .bat file from a template. This file script activates the Python environment using during build process and then launch the `App.exe` (use the .bat to run the application).
-> - For debugging the project sets a property to guarantees the debugger runs with the appropiate Python environment
-> - On Linux, these steps are unnecessary because the build process defines an RPATH and a `filesystem` definition for site-packages in the environment to use the installed libraries (see `python_manager.cpp`), ensuring that the executable is linked to and loads the correct environment libraries automatically
-> - You can create a shortcut to the .bat file in the output directory and assign it a custom .ico icon if needed for fast access
-
 The repository employs CMakePresets workflows to standardize project configuration and build. Clone the repository, configure and build the app:
 
 ```bash
@@ -107,9 +99,10 @@ echo $XDG_SESSION_TYPE
 
 ## 5. Python integration — PythonManager
 
-This project centralizes the embedded Python interpreter with a `PythonManager` class located at the `src/app/python_interpreter/python_manager.cpp`. The class encapsulates the `py::scoped_interpreter` lifetime and exposes a simple methods for scripts integration.
+This project centralizes the embedded Python interpreter with a `PythonManager` class located at the `src/app/python_interpreter/python_manager.cpp`. The class encapsulates the interpreter call and exposes a simple methods for scripts integration.
 
-- Call `PythonManager::Instance().Initialize(executable_path, scripts_path);` before any Python code runs. The `scripts_path` parameter is optional and will be added to `sys.path`
+- Call `PythonManager::Instance();` and  `PyMgr.Configure(venv_path)` before any Python code runs.
+- Use `PyMgr.BeginSession(scripts_path)` and `PyMgr.EndSession()` to run and integrate Python code.
 - `AddSystemPath` method inserts the path at the front of `sys.path` to import local scripts
 - `ImportModule` load a module (from the environment or a local script). Returns an empty module on failure.
 - `SafeCall` returns an empty `py::object` on failure and logs the error so Python script faults do not crash the app, allowing callers to handle fallbacks or retry later.

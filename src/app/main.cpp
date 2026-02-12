@@ -5,10 +5,10 @@
 #endif
 
 #include <format>
-
-#include "pybind11/embed.h"
+#include <memory>
 
 import Application;
+import Window;
 import TitleBar;
 import CustomMainMenuBar;
 import MainMenuBar;
@@ -17,20 +17,20 @@ import PythonManager;
 import Logger;
 import Icons.App;
 
-namespace py = pybind11;
-
 int Main(int argc, char** argv)
 {	
     Logger::Init();
 
-    Application* app = new Application({
-        .title = "ImGui - OpenGL Context",
-        .width = 1600,
-        .height = 800,
-        .custom_title_bar = true
-    });
+    std::unique_ptr<Application> app = 
+        std::make_unique<Application>(WindowSpecification{
+            .title = "ImGui - OpenGL Context",
+            .width = 1600,
+            .height = 800,
+            .custom_title_bar = true
+        });
 
-    PythonManager::Instance().Initialize(app->m_executable_path);
+    PythonManager::Instance();
+    PyMgr.Configure(std::format("{}/.venv",app->m_executable_path));
 
     app->PushLayerApp<TitleBar>();
     app->PushLayerApp<CustomMenuBar>();
@@ -46,8 +46,6 @@ int Main(int argc, char** argv)
     Logger::Info("App started");
 
     app->Run();
-
-    delete app;
 
     return 0;
 }

@@ -34,25 +34,27 @@ function(setup_python_env)
 
   if(WIN32)
     execute_process(
-      COMMAND "${VENV_PYTHON}" -c "import sys, os; print(';'.join([sys.base_prefix, os.path.join(sys.base_prefix, 'Library', 'bin'), os.path.join(sys.base_prefix, 'Scripts')]))"
-      OUTPUT_VARIABLE PYTHON_PATHS
+      COMMAND "${VENV_PYTHON}" -c "import sys; print(sys.base_prefix)"
+      OUTPUT_VARIABLE PYTHON_DLL_DIR
       OUTPUT_STRIP_TRAILING_WHITESPACE
     )
+    file(TO_NATIVE_PATH "${PYTHON_DLL_DIR}" PYTHON_DLL_DIR_NATIVE)
+
+    set(PS_COMMAND "[Environment]::GetEnvironmentVariable('Path', 'User')")
+    set(PS_ADD_PATH "$currentPath = ${PS_COMMAND}; 
+      if ($currentPath -notlike '*${PYTHON_DLL_DIR_NATIVE}*') 
+        { [Environment]::SetEnvironmentVariable('Path', $currentPath + ';${PYTHON_DLL_DIR_NATIVE}', 'User') }")
 
     execute_process(
-      COMMAND "${VENV_PYTHON}" -c "import sys; print(sys.base_prefix)"
-      OUTPUT_VARIABLE PYTHON_BASE
-      OUTPUT_STRIP_TRAILING_WHITESPACE
+      COMMAND powershell -Command "${PS_ADD_PATH}"
+      RESULT_VARIABLE PS_RESULT
     )
-  
-    set(Python3_FIND_STRATEGY "LOCATION" CACHE STRING "" FORCE)
-    set(Python3_FIND_REGISTRY "NEVER" CACHE STRING "" FORCE)
 
-    set(PYTHON_BIN_DIR "${PYTHON_BASE}" PARENT_SCOPE)
-    set(PYTHON_RUNTIME_PATHS "${PYTHON_PATHS}" PARENT_SCOPE)
-    set(VENV_DIR "${VENV_DIR}" PARENT_SCOPE)
-  
-    message(STATUS "Rutas de runtime detectadas: ${REAL_PYTHON_PATHS}")
+    if(PS_RESULT EQUAL 0)
+      message(STATUS "Route added to PATH (User) Environment variable")
+    else()
+      message(WARNING "Failed to modify PATH (User) Environment variable")
+    endif()
   endif()
 
   if(UNIX)
