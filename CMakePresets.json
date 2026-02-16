@@ -1,0 +1,160 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 30,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "description": "Common settings for all presets",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "DESIRED_PYTHON_VERSION": "3.14t"
+      }
+    },
+    {
+      "name": "base-linux",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/build/${presetName}/lib/static",
+        "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/build/${presetName}/bin/lib",
+        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/${presetName}/bin",
+        "CMAKE_BUILD_RPATH": "$ORIGIN/lib",
+        "CMAKE_INSTALL_RPATH": "$ORIGIN/lib",
+        "CMAKE_BUILD_WITH_INSTALL_RPATH": "TRUE"
+      }
+    },
+    {
+      "name": "base-windows",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/build/${presetName}/lib",
+        "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/build/${presetName}/lib",
+        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/${presetName}/bin"
+      }
+    },
+    {
+      "name": "release",
+      "hidden": true,
+      "description": "Single config Release build for inheriting",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "debug",
+      "hidden": true,
+      "description": "Single config Debug build for inheriting",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "x64-linux-clang-release",
+      "inherits": [
+        "default",
+        "base-linux",
+        "release"
+      ],
+      "displayName": "App x64-Linux-Clang-Release",
+      "description": "App configuration for Linux using Clang (Release)",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+    {
+      "name": "x64-linux-clang-debug",
+      "inherits": [
+        "default",
+        "base-linux",
+        "debug"
+      ],
+      "displayName": "App x64-Linux-Clang-Debug",
+      "description": "App configuration for Linux using Clang (Debug)",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+    {
+      "name": "x64-windows-clang-release",
+      "inherits": [
+        "default",
+        "base-windows",
+        "release"
+      ],
+      "displayName": "App x64-Windows-Clang-Release",
+      "description": "App configuration for Windows using Clang (Release)",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+    {
+      "name": "x64-windows-clang-debug",
+      "inherits": [
+        "default",
+        "base-windows",
+        "debug"
+      ],
+      "displayName": "App x64-Windows-Clang-Debug",
+      "description": "App configuration for Windows using Clang (Debug)",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "x64-linux-clang-release",
+      "configurePreset": "x64-linux-clang-release"
+    },
+    {
+      "name": "x64-linux-clang-debug",
+      "configurePreset": "x64-linux-clang-debug"
+    },
+    {
+      "name": "x64-windows-clang-release",
+      "configurePreset": "x64-windows-clang-release"
+    },
+    {
+      "name": "x64-windows-clang-debug",
+      "configurePreset": "x64-windows-clang-debug"
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "linux-release",
+      "steps": [
+        { "type": "configure", "name": "x64-linux-clang-release" },
+        { "type": "build", "name": "x64-linux-clang-release" }
+      ]
+    },
+    {
+      "name": "linux-debug",
+      "steps": [
+        { "type": "configure", "name": "x64-linux-clang-debug" },
+        { "type": "build", "name": "x64-linux-clang-debug" }
+      ]
+    },
+    {
+      "name": "windows-release",
+      "steps": [
+        { "type": "configure", "name": "x64-windows-clang-release" },
+        { "type": "build", "name": "x64-windows-clang-release" }
+      ]
+    },
+    {
+      "name": "windows-debug",
+      "steps": [
+        { "type": "configure", "name": "x64-windows-clang-debug" },
+        { "type": "build", "name": "x64-windows-clang-debug" }
+      ]
+    }
+  ]
+}

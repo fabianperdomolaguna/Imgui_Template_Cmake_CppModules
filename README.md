@@ -25,13 +25,11 @@ This project is a simple template to create desktop GUI applications with ImGui 
 
 - [CMake](https://cmake.org/): 3.28+
 - Python interpreter: 3.10+ (Intepreter binding & GLAD generation)
-- C++ compiler: Visual Studio 2022 (MSVC 19.34+) or LLVM/Clang 17+
-- Dependencies: [Miniconda](https://docs.conda.io/en/latest/miniconda.html) (Recommended for Python environment management)
+- C++ compiler: Visual Studio 2022 (MSVC 19.34+) or LLVM/Clang 19+
+- Dependencies: [Python](https://www.python.org/) and [uv](https://github.com/astral-sh/uv) for manage dependencies and environments
 - The template uses the [Roboto](https://fonts.google.com/specimen/Roboto) font ([Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0))
 
 ## 2. Getting started
-
-Linux LLVM/Clang setup
 
 ```bash
 wget https://apt.llvm.org/llvm.sh
@@ -39,31 +37,11 @@ chmod +x llvm.sh
 sudo ./llvm.sh <version number> all
 
 # Set Clang version as the default compiler
-sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-17 100
-sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-17 100
+sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-19 100
+sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-19 100
 ```
 
-Once miniconda is installed, create a new environment and install the required Python packages:
-
-```bash
-# Python environment version must be equal to miniconda python version (conda activate base --> python --version)
-conda create --name env_name python=3.10
-conda activate env_name
-
-# Install required packages
-pip install numpy
-pip install matplotlib
-
-# You can also use a requirements.txt file to install specific packages version
-pip install -r requirements.txt
-
-# For build stage is required enter the path to the python environment.
-# Verify Miniconda installation folder and the python environment will as a folder in the folder envs. Here and example:
-/home/computer/miniconda3/envs/env_name/
-
-# You can verify environment folder with the following command
-conda env list
-```
+CMake automatically creates a Python virtual environment (`/bin/.venv`) using `uv` and installs all required Python dependencies from `requirements/python/requirements.txt`
 
 ## 3. Build
 
@@ -71,45 +49,26 @@ conda env list
 > This template now uses GLAD2. Key changes:
 >
 > - GLAD sources are automatically generated during the CMake build
-> - Python 3.10+ with Jinja2 is required at configure/build time
-> - A new CMake variable PYTHON_GLAD can be defined to specify the Python environment path (-DPYTHON_GLAD=/python/environment/path)
->   - If not provided, CMake will try to auto-detect one (on Windows, use the Python installation that is added to the user's PATH environment variable)
->   - If the environment does not have jinja2 installed, CMake will show a warning message and indicate the steps to fix it
->   - If a conda environment is active, CMake will automatically use its Python interpreter during configuration for Glad
+> - .venv created by CMake install Jinja2 which is required at configure/build time. This environment is used in runtime for Pybind11
 
-> [!IMPORTANT]
-> To avoid runtime errors related to python libraries load:
->
-> - In Windows, the project configure a .bat file from a template. This file script activates the Conda environment using during build process and then launch the `App.exe` (use the .bat to run the application).
-> - For debugging the project sets a property to guarantees the debugger in Visual Studio runs with the appropiate Python environmente.
-> - On Linux, these steps are unnecessary because the build process defines an RPATH, ensuring that the executable is linked to and loads the correct environment libraries automatically.
-> - We avoid adding the Conda environment directly to the user’s variables PATH, because this can conflict with Conda or Python installations causing runtime errors. Relying on the generated .bat file avoids these issues. You can create a shortcut to this .bat in the output directory and assign it a custom .ico icon if needed.
-
-Clone the repository, configure the project and build the app:
+The repository employs CMakePresets workflows to standardize project configuration and build. Clone the repository, configure and build the app:
 
 ```bash
-# Compile the app (Linux systems) -DPYTHON_GLAD(Optional)
-git clone --branch header_based https://github.com/fabianperdomolaguna/Imgui_Template_Cmake_CppModules.git
-cd Imgui_Template_Cmake_CppModules
-# You can omit -GNinja to use the make build. Also, you can omit clang instructions to use another compiler.
-CXX=clang++ CC=clang cmake -GNinja -B build -DPYTHON_PATH=/path/to/python_environment -DPYTHON_GLAD=/path/glad/build/env
-cmake --build build
+git clone https://github.com/fabianperdomolaguna/Imgui_Template_Cmake_CppModules.git
 
-# In Windows systems, configure the project with the following command.
-# -DPYTHON_GLAD(Optional)
-cmake -B build -DPYTHON_PATH=/path/to/python_environment -DPYTHON_GLAD=/path/glad/build/env
+git switch header_based
+
+cd Imgui_Template_Cmake_CppModules
+
+# Select required preset (OS-build_type)
+cmake --workflow --preset linux-release
+
+# In Windows systems for example
+cmake --workflow --preset windows-debug
 
 # Run the app
-cd build/bin
-./example
-```
-
-In Linux, if you get a similar error to `libGL error: MESA-LOADER: failed to open crocus`, this is a Conda issue related to the pyinstaller and old libstdc++ library. To solve this remove libstdc++ from python environment folder:
-
-```bash
-# Go to Python environment folder
-cd lib
-rm libstdc++.so*
+cd build/x64-linux-clang-release/bin
+./App
 ```
 
 ## 4. Use Wayland for window creation (Linux)
@@ -133,10 +92,11 @@ echo $XDG_SESSION_TYPE
 
 ## 5. Python integration — PythonManager
 
-This project centralizes the embedded Python interpreter with a `PythonManager` class located at the `src/example_app/python_interpreter/python_manager.cpp`. The class encapsulates the `py::scoped_interpreter` lifetime and exposes a simple methods for scripts integration.
+This project centralizes the embedded Python interpreter with a `PythonManager` class located at the `src/app/python_interpreter/python_manager.cpp`. The class encapsulates the interpreter call and exposes a simple methods for scripts integration.
 
-- Call `PythonManager::Instance().Initialize(path);` before any Python code runs. The `path` parameter is optional and will be added to `sys.path`.
-- `AddSystemPath` method inserts the path at the front of `sys.path` to import local scripts.
+- Call `PythonManager::Instance();` and  `PyMgr.Configure(venv_path)` before any Python code runs.
+- Use `PyMgr.BeginSession(scripts_path)` and `PyMgr.EndSession()` to run and integrate Python code.
+- `AddSystemPath` method inserts the path at the front of `sys.path` to import local scripts
 - `ImportModule` load a module (from the environment or a local script). Returns an empty module on failure.
 - `SafeCall` returns an empty `py::object` on failure and logs the error so Python script faults do not crash the app, allowing callers to handle fallbacks or retry later.
 
@@ -154,7 +114,7 @@ Quick usage
 
 - Call the initializer `Logger::Init()`
 - Open the console with `Tools -> Logging Console` menu to view logs in the GUI
-- Include `logger.h` and employes defined macros `LOG_TRACE`, `LOG_INFO`, `LOG_WARN`, `LOG_ERROR`, and `LOG_CRITICAL`. They receive a message and key/value pairs separated by commas
+- Import Logger and employes defined static methods of the class `Logger::Trace`, `Logger::Info`, `Logger::Warn`, `Logger::Error`, and `Logger::Critical`. They receive a message and key/value pairs separated by commas
 
 ## Custom Title Bar Layer
 
@@ -215,6 +175,6 @@ Additionally, the creation of a Linux application launcher with an assigned icon
 \- Python script for embedding images into memory headers (.h) and restoring them.
 
 <h1 align="center">
-  <img src="assets/app_template.png" />
+  <img src=".github/images/app_template.png" />
 </h1>
 <center>Basic application in the template</center>

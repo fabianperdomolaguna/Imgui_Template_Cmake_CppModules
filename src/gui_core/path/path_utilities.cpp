@@ -15,7 +15,7 @@ std::filesystem::path GetExecutablePath() {
     char buffer[MAX_PATH];
     DWORD len = GetModuleFileNameA(NULL, buffer, MAX_PATH);
     if (len == 0 || len == MAX_PATH) {
-        LOG_CRITICAL("Failed to get executable path on Windows");
+        Logger::Critical("Failed to get executable path on Windows");
         throw std::runtime_error("Failed to get executable path on Windows");
     }
     return std::filesystem::path(std::string(buffer, len)).parent_path();
@@ -23,7 +23,7 @@ std::filesystem::path GetExecutablePath() {
     char buffer[4096];
     ssize_t len = readlink("/proc/self/exe", buffer, sizeof(buffer));
     if (len == -1) {
-        LOG_CRITICAL("Failed to get executable path on Linux");
+        Logger::Critical("Failed to get executable path on Linux");
         throw std::runtime_error("Failed to get executable path on Linux");
     }
     return std::filesystem::path(std::string(buffer, len)).parent_path();

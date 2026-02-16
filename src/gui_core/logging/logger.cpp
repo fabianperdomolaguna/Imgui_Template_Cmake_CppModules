@@ -1,4 +1,5 @@
 #include <mutex>
+#include <source_location>
 
 #include "spdlog/spdlog.h"
 #include "spdlog/async.h"
@@ -51,4 +52,29 @@ void Logger::Init()
 ImguiLogger& Logger::GetGUILogger()
 {
     return imgui_sink_mt::GetImguiLogger();
+}
+
+void Logger::Critical(std::string_view msg, const std::source_location loc)
+{
+    LogInternal(spdlog::level::critical, loc, msg);
+}
+
+void Logger::Error(std::string_view msg, const std::source_location loc)
+{
+    LogInternal(spdlog::level::err, loc, msg);
+}
+
+void Logger::Warn(std::string_view msg, const std::source_location loc)
+{
+    LogInternal(spdlog::level::warn, loc, msg);
+}
+
+void Logger::Info(std::string_view msg, const std::source_location loc)
+{
+    LogInternal(spdlog::level::info, loc, msg);
+}
+
+void Logger::Trace(std::string_view msg, const std::source_location loc)
+{
+    LogInternal(spdlog::level::trace, loc, msg);
 }

@@ -27,11 +27,11 @@ GlFramebuffer::GlFramebuffer(int width, int height)
 
 	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status != GL_FRAMEBUFFER_COMPLETE)
-		LOG_ERROR(std::format("Framebuffer failed: {} - {}", GlFramebufferStatusToString(status), (unsigned)status));
+		Logger::Error(std::format("Framebuffer failed: {} - {}", GlFramebufferStatusToString(status), (unsigned)status));
 
 	GLenum error = glGetError();
 	if (error != GL_NO_ERROR)
-		LOG_ERROR(std::format("GL error during framebuffer creation: {} - {}", GlErrorToString(error), (unsigned)error));
+		Logger::Error(std::format("GL error during framebuffer creation: {} - {}", GlErrorToString(error), (unsigned)error));
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);

@@ -21,7 +21,7 @@ Texture::Texture(uint8_t* data, int width, int height, uint32_t format)
 
     GLenum error = glGetError();
     if (error != GL_NO_ERROR)
-        LOG_ERROR(std::format("glTexImage2D failed: {} - {}", GlErrorToString(error), (unsigned)error));
+        Logger::Error(std::format("glTexImage2D failed: {} - {}", GlErrorToString(error), (unsigned)error));
 }
 
  Texture::~Texture()

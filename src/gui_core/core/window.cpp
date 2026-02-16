@@ -10,7 +10,7 @@
 
 void Window::glfw_error_callback(int error, const char* description)
 {
-    LOG_ERROR("GLFW Error", "code", error, "description", description);
+    Logger::Error("GLFW Error", "code", error, "description", description);
 }
 
 Window::Window(const WindowSpecification& spec) : m_window_specification(spec)
@@ -19,7 +19,7 @@ Window::Window(const WindowSpecification& spec) : m_window_specification(spec)
 
     if (!glfwInit())
     {
-        LOG_CRITICAL("Failed to initialize GLFW");
+        Logger::Critical("Failed to initialize GLFW");
         m_running = false;
         return;
     }
@@ -38,7 +38,7 @@ Window::Window(const WindowSpecification& spec) : m_window_specification(spec)
 
     if (!m_glfw_window)
     {
-        LOG_CRITICAL("Could not initialize a GLFW window");
+        Logger::Critical("Could not initialize a GLFW window");
         m_running = false;
         return;
     }
@@ -59,7 +59,7 @@ Window::Window(const WindowSpecification& spec) : m_window_specification(spec)
     });
 
     if (!gladLoadGL((GLADloadfunc)glfwGetProcAddress)) {
-        LOG_CRITICAL("Failed to initialize GLAD");
+        Logger::Critical("Failed to initialize GLAD");
         glfwDestroyWindow(m_glfw_window);
         glfwTerminate();
         m_running = false;

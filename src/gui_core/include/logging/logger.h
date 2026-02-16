@@ -8,6 +8,7 @@
 #include <sstream>
 #include <mutex>
 #include <chrono>
+#include <source_location>
 
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/base_sink.h"
@@ -159,8 +160,78 @@ class Logger
 public:
     static void Init();
 
+    static ImguiLogger& GetGUILogger();
+
+    static void Critical(std::string_view msg, 
+        const std::source_location loc = std::source_location::current());
+    template<typename... Args>
+    static void Critical(std::string_view msg, Args&&... args) 
+    { LogInternal(spdlog::level::critical, std::source_location::current(), msg, std::forward<Args>(args)...); }
+
+    static void Error(std::string_view msg, 
+        const std::source_location loc = std::source_location::current());
+    template<typename... Args>
+    static void Error(std::string_view msg, Args&&... args) 
+    { LogInternal(spdlog::level::err, std::source_location::current(), msg, std::forward<Args>(args)...); }
+
+    static void Warn(std::string_view msg, 
+        const std::source_location loc = std::source_location::current());
+    template<typename... Args>
+    static void Warn(std::string_view msg, Args&&... args) 
+    { LogInternal(spdlog::level::warn, std::source_location::current(), msg, std::forward<Args>(args)...); }
+
+    static void Info(std::string_view msg, 
+        const std::source_location loc = std::source_location::current());
+    template<typename... Args>
+    static void Info(std::string_view msg, Args&&... args) 
+    { LogInternal(spdlog::level::info, std::source_location::current(), msg, std::forward<Args>(args)...); }
+
+    static void Trace(std::string_view msg, 
+        const std::source_location loc = std::source_location::current());
+    template<typename... Args>
+    static void Trace(std::string_view msg, Args&&... args) 
+    { LogInternal(spdlog::level::trace, std::source_location::current(), msg, std::forward<Args>(args)...); }
+
+    template<typename... Args>
+    static std::string format_extras(Args&&... args) 
+    {
+        try {
+            constexpr size_t total_args = sizeof...(args);
+            if constexpr (total_args == 0) return "";
+            static_assert(total_args % 2 == 0, "Argument must be pairs: (Key, Value)");
+
+            std::string key_value_string;
+            key_value_string.reserve(128);
+            auto tuple = std::forward_as_tuple(std::forward<Args>(args)...);
+
+            [&] <std::size_t... pair_index>(std::index_sequence<pair_index...>) {
+                ((key_value_string += " | " +
+                    to_str(std::get<pair_index * 2>(tuple)) + "=" +
+                    to_str(std::get<pair_index * 2 + 1>(tuple))
+                    ), ...);
+            }(std::make_index_sequence<total_args / 2>{});
+
+            return key_value_string;
+        } catch (...) {
+            return " | [Log Format Error]";
+        }
+    }
+
+private:
+    template<typename... Args>
+    static void LogInternal(spdlog::level::level_enum level, const std::source_location& location, std::string_view message, Args&&... args) 
+    {
+        auto logger = spdlog::default_logger_raw();
+        if (logger && logger->should_log(level)) 
+        {
+            spdlog::source_loc s_loc{location.file_name(), static_cast<int>(location.line()), location.function_name()};
+            logger->log(s_loc, level, "{}{}", message, format_extras(std::forward<Args>(args)...));
+        }
+    }
+
     template<typename T>
-    static std::string to_str(T&& value) {
+    static std::string to_str(T&& value) 
+    {
         using DT = std::decay_t<T>;
 
         if constexpr(std::is_same_v<DT, bool>) {
@@ -176,44 +247,4 @@ public:
             return "???";
         }
     }
-
-    static ImguiLogger& GetGUILogger();
-
-    template<typename... Args>
-    static std::string format_extras(Args&&... args) {
-        try {
-            constexpr size_t total_args = sizeof...(args);
-            if constexpr (total_args == 0) return "";
-            static_assert(total_args % 2 == 0, "Argument must be pairs: (Key, Value)");
-        
-            std::string key_value_string = "";
-            auto tuple = std::forward_as_tuple(std::forward<Args>(args)...);
-
-            [&]<std::size_t... pair_index>(std::index_sequence<pair_index...>) {
-                ((key_value_string += " | " + 
-                    to_str(std::get<pair_index* 2>(tuple)) + "=" +
-                    to_str(std::get<pair_index * 2 + 1>(tuple))
-                ), ...);
-            }(std::make_index_sequence<total_args / 2>{}); 
-        
-            return key_value_string;
-        }catch (...) {
-            return " | [Log Format Error]";
-        } 
-    }
 };
-
-#define LOG_INTERNAL_CALL(level, message, ...) \
-    do { \
-        auto logger_ptr = spdlog::default_logger_raw(); \
-        if (logger_ptr->should_log(level)) { \
-            logger_ptr->log(spdlog::source_loc{__FILE__, __LINE__, __func__}, \
-            level, "{}{}", message, Logger::format_extras(__VA_ARGS__)); \
-        } \
-    } while (0)
-
-#define LOG_CRITICAL(message, ...) LOG_INTERNAL_CALL(spdlog::level::critical, message, ##__VA_ARGS__)
-#define LOG_ERROR(message, ...)    LOG_INTERNAL_CALL(spdlog::level::err,      message, ##__VA_ARGS__)
-#define LOG_WARN(message, ...)     LOG_INTERNAL_CALL(spdlog::level::warn,     message, ##__VA_ARGS__)
-#define LOG_INFO(message, ...)     LOG_INTERNAL_CALL(spdlog::level::info,     message, ##__VA_ARGS__)
-#define LOG_TRACE(message, ...)    LOG_INTERNAL_CALL(spdlog::level::trace,    message, ##__VA_ARGS__)

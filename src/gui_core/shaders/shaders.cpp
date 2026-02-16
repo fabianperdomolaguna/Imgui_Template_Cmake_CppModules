@@ -11,7 +11,7 @@ uint32_t Shader::Compile(unsigned int shader_type, const std::string& shader_sou
 {
 	uint32_t shader_id = glCreateShader(shader_type);
 	if (shader_id == 0) {
-		LOG_ERROR("glCreateShader failed");
+		Logger::Error("glCreateShader failed");
 		return 0;
 	}
 
@@ -32,7 +32,7 @@ uint32_t Shader::Compile(unsigned int shader_type, const std::string& shader_sou
 				message.pop_back();
 			}
 		}
-		LOG_ERROR(std::format("Shader compilation failed (type {}): {}", shader_type, message));
+		Logger::Error(std::format("Shader compilation failed (type {}): {}", shader_type, message));
 		glDeleteShader(shader_id);
 		return 0;
 	}
@@ -48,7 +48,7 @@ void Shader::Create(const std::string& vertex_src, const std::string& fragment_s
 {
 	m_shader = glCreateProgram();
 	if (m_shader == 0) {
-		LOG_ERROR("glCreateProgram failed");
+		Logger::Error("glCreateProgram failed");
 		return;
 	}
 
@@ -56,7 +56,7 @@ void Shader::Create(const std::string& vertex_src, const std::string& fragment_s
 	uint32_t fs = Compile(GL_FRAGMENT_SHADER, fragment_src);
 
 	if (vs == 0 || fs == 0) {
-		LOG_ERROR("Shader program creation aborted due to compilation errors");
+		Logger::Error("Shader program creation aborted due to compilation errors");
 		DeleteShader(vs, fs);
 		return;
 	}
@@ -71,7 +71,7 @@ void Shader::Create(const std::string& vertex_src, const std::string& fragment_s
 		std::string message(256, '\0');
 		glGetProgramInfoLog(m_shader, message.size(), nullptr, message.data());
 		while (!message.empty() && std::isspace(message.back()) || message.back() == '\0') message.pop_back();
-		LOG_ERROR(std::format("Shader Linking failed: {}", message));
+		Logger::Error(std::format("Shader Linking failed: {}", message));
 		DeleteShader(vs, fs);
 		return;
 	}
