@@ -7,22 +7,21 @@
 #include <format>
 #include <memory>
 
-import Application;
-import Window;
+import beryl.core;
+import beryl.logger;
 import TitleBar;
 import CustomMainMenuBar;
 import MainMenuBar;
 import RenderScene;
 import PythonManager;
-import Logger;
 import Icons.App;
 
 int Main(int argc, char** argv)
 {	
-    Logger::Init();
+    beryl::logger::Init();
 
-    std::unique_ptr<Application> app = 
-        std::make_unique<Application>(WindowSpecification{
+    std::unique_ptr<beryl::core::Application> app = 
+        std::make_unique<beryl::core::Application>(beryl::core::WindowSpecification{
             .title = "ImGui - OpenGL Context",
             .width = 1600,
             .height = 800,
@@ -30,7 +29,7 @@ int Main(int argc, char** argv)
         });
 
     PythonManager::Instance();
-    PyMgr.Configure(std::format("{}/.venv",app->m_executable_path));
+    PyMgr.Configure(app->m_executable_path / ".venv");
 
     app->PushLayerApp<TitleBar>();
     app->PushLayerApp<CustomMenuBar>();
@@ -43,9 +42,11 @@ int Main(int argc, char** argv)
 
     app->PushLayer<SimpleRender>(app->m_executable_path);
 
-    Logger::Info("App started");
+    beryl::logger::Info("App started");
 
     app->Run();
+
+    beryl::logger::Shutdown();
 
     return 0;
 }

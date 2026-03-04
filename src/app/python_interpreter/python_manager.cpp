@@ -9,7 +9,7 @@ module;
 
 export module PythonManager;
 
-import Logger;
+import beryl.logger;
 
 namespace py = pybind11;
 
@@ -37,7 +37,7 @@ public:
     {
         if (m_active) 
         {
-            Logger::Error("Cannot configure PythonManager after activation");
+            beryl::logger::Error("Cannot configure PythonManager after activation");
             return;
         }
         m_venv_root = venv_root;
@@ -49,7 +49,7 @@ public:
             return true;
 
         if (m_venv_root.empty()) {
-            Logger::Error("[PythonManager] VENV Root not configured!");
+            beryl::logger::Error("[PythonManager] VENV Root not configured!");
             return false;
         }
 
@@ -61,14 +61,14 @@ public:
         #endif
 
         if (!std::filesystem::exists(site_packages)) {
-            Logger::Error(std::format("[PythonManager] Invalid venv: site-packages not found at {}", site_packages.string()));
+            beryl::logger::Error(std::format("[PythonManager] Invalid venv: site-packages not found at {}", site_packages.string()));
             return false;
         }
 
         Py_Initialize();
         if (!Py_IsInitialized())
         {
-            Logger::Error("[PythonManager] Py_Initialize failed");
+            beryl::logger::Error("[PythonManager] Py_Initialize failed");
             return false;
         }
         m_active = true;
@@ -83,10 +83,10 @@ public:
             }
         } catch (const py::error_already_set& e) 
         {
-            Logger::Error(std::format("[PythonManager] Failed to setup sys.path: {}", e.what()));
+            beryl::logger::Error(std::format("[PythonManager] Failed to setup sys.path: {}", e.what()));
         }
 
-        Logger::Info("[PythonManager] Python session started");
+        beryl::logger::Info("[PythonManager] Python session started");
         return true;
     }
 
@@ -98,13 +98,13 @@ public:
         Py_Finalize();
 
         m_active = false;
-        Logger::Info("[PythonManager] Python session ended");
+        beryl::logger::Info("[PythonManager] Python session ended");
     }
 
     py::module ImportModule(const std::string& name)
     {
         if (!m_active) {
-            Logger::Error("[PythonManager] ImportModule failed: interpreter not initialized");
+            beryl::logger::Error("[PythonManager] ImportModule failed: interpreter not initialized");
             return py::module();
         }
 
@@ -112,7 +112,7 @@ public:
             return py::module::import(name.c_str());
         }
         catch (const py::error_already_set& e) {
-            Logger::Error(std::format("[PythonManager] could not complete ImportModule('{}'): {}", name, e.what()));
+            beryl::logger::Error(std::format("[PythonManager] could not complete ImportModule('{}'): {}", name, e.what()));
             return py::module();
         }
     }
@@ -120,7 +120,7 @@ public:
     void AddSystemPath(const std::string& path)
     {
         if (!m_active) {
-            Logger::Error("[PythonManager] AddSystemPath failed: interpreter not initialized");
+            beryl::logger::Error("[PythonManager] AddSystemPath failed: interpreter not initialized");
             return;
         }
 
@@ -129,7 +129,7 @@ public:
             sys.attr("path").attr("insert")(0, path);
         }
         catch (const py::error_already_set& e) {
-            Logger::Error(std::format("[PythonManager] could not complete AddSystemPath('{}'): {}", path, e.what()));
+            beryl::logger::Error(std::format("[PythonManager] could not complete AddSystemPath('{}'): {}", path, e.what()));
             return;
         }
     }
@@ -138,7 +138,7 @@ public:
     py::object SafeCall(py::object callable, Args&&... args)
     {
         if (!m_active) {
-            Logger::Error("[PythonManager] SafeCall failed: interpreter not initialized");
+            beryl::logger::Error("[PythonManager] SafeCall failed: interpreter not initialized");
             return py::object();
         }
 
@@ -146,7 +146,7 @@ public:
             return callable(std::forward<Args>(args)...);
         }
         catch (const py::error_already_set& e) {
-            Logger::Error(std::format("[PythonManager] Interpreter could not complete SafeCall: {}", e.what()));
+            beryl::logger::Error(std::format("[PythonManager] Interpreter could not complete SafeCall: {}", e.what()));
             return py::object();
         }
     }

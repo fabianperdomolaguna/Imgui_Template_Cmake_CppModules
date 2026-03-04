@@ -18,8 +18,9 @@ This project is a simple template to make desktop GUI apps with ImGui to be used
 - [3. Build](#3-build)
 - [4. Use Wayland for window creation](#4-use-wayland-for-window-creation-linux)
 - [5. Python integration — PythonManager](#5-python-integration--pythonmanager)
-- [6. Additional characteristics](#6-additional-characteristics)
-- [7. Utils](#7-utils)
+- [6. Core framework - beryl library](#6-core-framework---beryl-library)
+- [7. Additional Characteristics](#7-additional-characteristics)
+- [8. Utils](#8-utils)
 
 ## 1. Requirements
 
@@ -27,7 +28,7 @@ This project is a simple template to make desktop GUI apps with ImGui to be used
 - Python interpreter: 3.10+ (Intepreter binding & GLAD generation)
 - C++ compiler: LLVM/Clang 19+
 - Dependencies: [Python](https://www.python.org/) and [uv](https://github.com/astral-sh/uv) for manage dependencies and environments
-- The template uses the [Roboto](https://fonts.google.com/specimen/Roboto) font ([Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0))
+- The template uses the [Roboto](https://fonts.google.com/specimen/Roboto) and [PublicSans](https://fonts.google.com/specimen/Public+Sans) font
 
 ## 2. Getting started
 
@@ -109,7 +110,29 @@ This project centralizes the embedded Python interpreter with a `PythonManager` 
 
 To remove Python support from the app not instantiate `PythonManager` class, remove the `pybind11::embed` target from `CMakeLists.txt`, and remove any Python-specific imports from your modules.
 
-## 6. Additional characteristics
+## 6. Core framework - beryl library
+
+The project is built upon the beryl internal library, which organizes the core logic and rendering systems into distinct namespaces using C++20 Modules. This ensures a clean separation of concerns and high-performance compilation.
+
+To extend the application, you typically inherit from `beryl::core::Layer`.
+
+```cpp
+import beryl.core;
+import beryl.renderer;
+
+class MyLayer : public beryl::core::Layer {
+  std::unique_ptr<beryl::renderer::Shader> m_Shader;
+  
+  MyLayer() : Layer("MyLayerName") {}
+
+  void OnAttach() override {
+    m_Shader = std::make_unique<beryl::renderer::Shader>();
+        // ...
+  }
+};
+```
+
+## 7. Additional Characteristics
 
 ## Logging
 
@@ -177,7 +200,7 @@ Additionally, the creation of a Linux application launcher with an assigned icon
 \- If the application icon doesn't appear correctly in the taskbar when launched, you need to add `StartupWMClass=WM_Class` to the .desktop file located in `/home/.local/share/applications/menulibre-launchername.desktop`  
 \- To get the WM Class of an application, first open the app, then run the command `xprop | grep WM_CLASS` in a terminal. When prompted, click inside the application's window. The terminal will output something like WM_CLASS(STRING) = "example-class", "example-class", which you can use as the value for StartupWMClass in the `.desktop` file.
 
-## 7. Utils
+## 8. Utils
 
 \- Python script for embedding images into memory headers (.h) and restoring them.
 

@@ -18,7 +18,7 @@ target_sources(App
 )
 
 target_link_libraries(App
-  Core
+  beryl
   pybind11::embed
 )
 

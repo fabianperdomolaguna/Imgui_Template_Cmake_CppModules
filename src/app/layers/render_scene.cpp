@@ -10,13 +10,10 @@ module;
 
 export module RenderScene;
 
-import Layer;
-import Texture;
-import Image;
-import Framebuffer;
-import Vertex;
+import beryl.core;
+import beryl.renderer;
+import beryl.logger;
 import PythonManager;
-import Logger;
 
 namespace py = pybind11;
 
@@ -40,31 +37,37 @@ void main()
 }
 )";
 
-export class SimpleRender : public Layer
+const float vertices[] = 
 {
-    std::unique_ptr<ImageTexture> image_texture;
-    std::unique_ptr<Texture> mpl_texture;
+	-0.5f, -0.5f, 0.0f, 
+	0.5f, -0.5f, 0.0f, 
+	0.0f,  0.5f, 0.0f  
+};
+
+export class SimpleRender : public beryl::core::Layer
+{
+    std::unique_ptr<beryl::renderer::Texture2D> image_texture;
+    std::unique_ptr<beryl::renderer::Texture2D> mpl_texture;
     std::string m_executable_path;
     std::string m_python_bind_error = "";
 
-    std::unique_ptr<GlVertex> m_vertex;
-    std::unique_ptr<GlFramebuffer> m_framebuffer;
+    std::unique_ptr<beryl::renderer::Vertex> m_vertex;
+    std::unique_ptr<beryl::renderer::Framebuffer> m_framebuffer;
 
     bool m_show_mpl_window = false;
     
 public:
-    SimpleRender(std::string executable_path)
+    SimpleRender(std::string executable_path) : Layer("SimpleRender")
     {
         m_executable_path = executable_path;
     }
 
     void OnAttach() override
     {
-        image_texture = std::make_unique<ImageTexture>(m_executable_path + "/cpp_python_logos.jpg", GL_RGBA, true);
+        image_texture = std::make_unique<beryl::renderer::Texture2D>(m_executable_path + "/cpp_python_logos.jpg", GL_RGBA, true);
 
-        m_vertex = std::make_unique<GlVertex>(vertex_shader_src, fragment_shader_src);
-        m_framebuffer = std::make_unique<GlFramebuffer>(1600, 800);
-        m_vertex->CreateBuffers();
+        m_vertex = std::make_unique<beryl::renderer::Vertex>(vertex_shader_src, fragment_shader_src, vertices);
+        m_framebuffer = std::make_unique<beryl::renderer::Framebuffer>(1600, 800);
     }
 
     void GenerateMplTexture()
@@ -72,7 +75,7 @@ public:
         try {
             if (!PyMgr.BeginSession(m_executable_path + "/scripts")) 
             {
-                Logger::Error("Python session could not be started");
+                beryl::logger::Error("Python session could not be started");
                 return;
             }
             
@@ -98,18 +101,18 @@ public:
                 int width, height;
                 std::tie(width, height) = py::cast<std::tuple<int, int>>(canvas.attr("get_width_height")());
 
-                mpl_texture = std::make_unique<Texture>(static_cast<uint8_t*>(info.ptr), width, height, GL_RGBA);
+                mpl_texture = std::make_unique<beryl::renderer::Texture2D>(width, height, static_cast<uint8_t*>(info.ptr), GL_RGBA);
             }
             PyMgr.EndSession();
         } catch (py::error_already_set& e) {
             m_python_bind_error = e.what();
             mpl_texture.reset();
-            Logger::Error(std::format("Failed to create matplotlib texture (Python error): {}", m_python_bind_error));
+            beryl::logger::Error(std::format("Failed to create matplotlib texture (Python error): {}", m_python_bind_error));
             PyMgr.EndSession();
         } catch (const std::exception& e) {
             m_python_bind_error = e.what();
             mpl_texture.reset();
-            Logger::Error(std::format("Failed to create matplotlib texture (C++ error): {}", m_python_bind_error));
+            beryl::logger::Error(std::format("Failed to create matplotlib texture (C++ error): {}", m_python_bind_error));
             PyMgr.EndSession();
         }
     }
@@ -148,15 +151,15 @@ public:
         ImGui::ShowDemoWindow();
 
         ImGui::Begin("Image Texture");
-        ImGui::Image((ImTextureID)(intptr_t)image_texture->get_texture(),
+        ImGui::Image((ImTextureID)(intptr_t)image_texture->GetTextureId(),
             { (float)image_texture->m_width, (float)image_texture->m_height});
         ImGui::End();
 
         if (m_show_mpl_window)
         {
             ImGui::Begin("Matplotlib Texture", &m_show_mpl_window);
-            if (mpl_texture && mpl_texture->get_texture() != 0) {
-                ImGui::Image((ImTextureID)(intptr_t)mpl_texture->get_texture(),
+            if (mpl_texture && mpl_texture->GetTextureId() != 0) {
+                ImGui::Image((ImTextureID)(intptr_t)mpl_texture->GetTextureId(),
                     { (float)mpl_texture->m_width, (float)mpl_texture->m_height });
             }
             else {
@@ -166,17 +169,13 @@ public:
         }
 
         m_framebuffer->Bind();
+        m_framebuffer->Clear();
         m_vertex->Draw();
         m_framebuffer->Unbind();
 
         ImGui::Begin("Scene Shader");
-        uint64_t textureID = m_framebuffer->get_texture();
+        uint64_t textureID = m_framebuffer->GetTextureId();
         ImGui::Image((ImTextureID)(intptr_t)textureID, ImGui::GetContentRegionAvail(), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
         ImGui::End();
-    }
-
-    std::string GetName() const override 
-    {
-        return "Simple_Render";
     }
 };

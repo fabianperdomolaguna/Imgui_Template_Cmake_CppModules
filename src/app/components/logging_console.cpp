@@ -5,7 +5,7 @@ module;
 
 export module LoggingConsole;
 
-import Logger;
+import beryl.logger;
 
 export void LoggingConsole(bool* open)
 {
@@ -19,12 +19,12 @@ export void LoggingConsole(bool* open)
     }
 
     if (ImGui::Button("Clear"))
-        Logger::GetGUILogger().Clear();
+        beryl::logger::GetGUILogger().Clear();
     ImGui::Separator();
 
     if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar))
     {
-        auto& logging_data = Logger::GetGUILogger();
+        auto& logging_data = beryl::logger::GetGUILogger();
         std::lock_guard<std::mutex> lock(logging_data.mutex);
 
         bool is_at_bottom = (ImGui::GetScrollY() >= ImGui::GetScrollMaxY() - 5.0f);

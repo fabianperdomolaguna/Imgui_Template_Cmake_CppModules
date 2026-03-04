@@ -11,9 +11,9 @@ module;
 
 export module TitleBar;
 
-import Layer;
-import Application;
-import Image;
+import beryl.core;
+import beryl.renderer;
+import beryl.config.gui;
 import ViewportBar;
 import Icons;
 
@@ -69,9 +69,9 @@ bool IsMaximized(GLFWwindow* window)
     return (bool)glfwGetWindowAttrib(window, GLFW_MAXIMIZED);
 }
 
-export class TitleBar : public Layer
+export class TitleBar : public beryl::core::Layer
 {
-    Application* m_app;
+    beryl::core::Application* m_app;
     std::string color_style;
 	ImU32 titlebar_background_color;
 	float title_bar_height = 42.0f;
@@ -80,11 +80,11 @@ export class TitleBar : public Layer
     float icon_size = 14.0f;
     int border_size = 8;
 
-    std::unique_ptr<ImageTexture> icon_titlebar;
-    std::unique_ptr<ImageTexture> minimize_button;
-    std::unique_ptr<ImageTexture> maximize_button;
-    std::unique_ptr<ImageTexture> close_button;
-	std::unique_ptr<ImageTexture> restore_button;
+    std::unique_ptr<beryl::renderer::Texture2D> icon_titlebar;
+    std::unique_ptr<beryl::renderer::Texture2D> minimize_button;
+    std::unique_ptr<beryl::renderer::Texture2D> maximize_button;
+    std::unique_ptr<beryl::renderer::Texture2D> close_button;
+	std::unique_ptr<beryl::renderer::Texture2D> restore_button;
 
     std::map<std::string, IconData> button_map = {
         {"minimize_Light",{ icons::minimize_button_light,  icons::minimize_button_light_len }},
@@ -98,13 +98,15 @@ export class TitleBar : public Layer
     };
 
 public:
-    TitleBar(Application* app) : m_app(app) 
+    TitleBar(beryl::core::Application* app) 
+        : Layer("TitleBar"),
+        m_app(app) 
     {
-        m_app->m_imgui_context->header_height.push_back(title_bar_height);
-		color_style = m_app->m_imgui_context->color_style;
+        m_app->m_gui_context->AddHeaderHeight(title_bar_height);
+		color_style = m_app->m_gui_context->m_theme;
         UpdateTitleBarColor();
 
-        icon_titlebar = std::make_unique<ImageTexture>(icons::titlebar, icons::titlebar_len, GL_RGBA, true);
+        icon_titlebar = std::make_unique<beryl::renderer::Texture2D>(icons::titlebar, icons::titlebar_len, GL_RGBA, true);
         LoadButtonTextures(color_style, false);
     }
 
@@ -217,9 +219,9 @@ public:
             IM_COL32(51, 51, 51, 255)
         );
 
-        if (color_style != m_app->m_imgui_context->color_style)
+        if (color_style != m_app->m_gui_context->m_theme)
         {
-            color_style = m_app->m_imgui_context->color_style;
+            color_style = m_app->m_gui_context->m_theme;
             UpdateTitleBarColor();
             LoadButtonTextures(color_style, true);
 		}
@@ -254,7 +256,7 @@ public:
 		float logo_size = title_bar_height * 0.8;
         const ImVec2 logo_offset(title_bar_height * 0.3, title_bar_height * 0.1);
         ImGui::GetBackgroundDrawList()->AddImage(
-            (ImTextureID)(intptr_t)icon_titlebar->get_texture(),
+            (ImTextureID)(intptr_t)icon_titlebar->GetTextureId(),
             ImVec2(top_left.x + logo_offset.x, top_left.y + logo_offset.y),
             ImVec2(top_left.x + logo_offset.x + logo_size, top_left.y + logo_offset.y + logo_size)
 		);
@@ -266,7 +268,7 @@ public:
         DrawWindowButtons(
             button_start,
             button_end,
-            (ImTextureID)(intptr_t)minimize_button->get_texture(),
+            (ImTextureID)(intptr_t)minimize_button->GetTextureId(),
             button_size,
             icon_size,
             IM_COL32(154, 140, 152, 128),
@@ -274,8 +276,8 @@ public:
         );
 
         uint32_t maximize_icon_texture = IsMaximized(m_app->m_window->m_glfw_window)
-                                         ? restore_button->get_texture()
-                                         : maximize_button->get_texture();
+                                         ? restore_button->GetTextureId()
+                                         : maximize_button->GetTextureId();
 
         DrawWindowButtons(
             button_start,
@@ -295,7 +297,7 @@ public:
         DrawWindowButtons(
             button_start,
             button_end,
-            (ImTextureID)(intptr_t)close_button->get_texture(),
+            (ImTextureID)(intptr_t)close_button->GetTextureId(),
             button_size,
             icon_size,
             IM_COL32(255, 0, 0, 128),
@@ -308,7 +310,7 @@ public:
     void UpdateTitleBarColor()
     {
         titlebar_background_color =
-            (m_app->m_imgui_context->color_style == "Light")
+            (m_app->m_gui_context->m_theme == "Light")
             ? IM_COL32(222, 220, 215, 255)
             : IM_COL32(40, 40, 40, 255);
     }
@@ -317,12 +319,12 @@ public:
     {
         auto suffix = "_" + style;
 
-        auto load_or_reload = [&](std::unique_ptr<ImageTexture>& texture, const std::string& key) {
+        auto load_or_reload = [&](std::unique_ptr<beryl::renderer::Texture2D>& texture, const std::string& key) {
             const auto& icon = button_map[key + suffix];
             if (reload)
                 texture->Reload(icon.data, icon.len);
             else
-                texture = std::make_unique<ImageTexture>(icon.data, icon.len, GL_RGBA, true);
+                texture = std::make_unique<beryl::renderer::Texture2D>(icon.data, icon.len, GL_RGBA, true);
         };
 
         load_or_reload(minimize_button, "minimize");
@@ -349,10 +351,5 @@ public:
 		ImGui::GetWindowDrawList()->AddText(text_pos, text_color, text_cstr);
         
         ImGui::PopFont();
-    }
-
-    std::string GetName() const override
-    {
-        return "Title_Bar";
     }
 };

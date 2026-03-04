@@ -1,2 +1,2 @@
-add_subdirectory(gui_core)
+add_subdirectory(beryl)
 add_subdirectory(app)
