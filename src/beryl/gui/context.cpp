@@ -174,7 +174,7 @@ export namespace beryl::gui
 
         void UpdateTheme() const
         {
-            const auto* it = std::ranges::find_if(m_themes_map,
+            const auto it = std::ranges::find_if(m_themes_map,
                 [this](const auto& p) { return p.first == m_theme; });
 
             if (it != m_themes_map.end())

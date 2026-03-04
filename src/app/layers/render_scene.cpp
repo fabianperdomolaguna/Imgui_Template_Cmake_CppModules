@@ -3,6 +3,7 @@ module;
 #include <format>
 #include <string>
 #include <memory>
+#include <filesystem>
 
 #include "glad/gl.h"
 #include "imgui.h"
@@ -57,9 +58,9 @@ export class SimpleRender : public beryl::core::Layer
     bool m_show_mpl_window = false;
     
 public:
-    SimpleRender(std::string executable_path) : Layer("SimpleRender")
+    SimpleRender(std::filesystem::path executable_path) : Layer("SimpleRender")
     {
-        m_executable_path = executable_path;
+        m_executable_path = executable_path.string();
     }
 
     void OnAttach() override
