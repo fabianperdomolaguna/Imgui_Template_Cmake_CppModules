@@ -14,8 +14,8 @@ export module TitleBar;
 import beryl.core;
 import beryl.renderer;
 import beryl.config.gui;
-import ViewportBar;
-import Icons;
+import app.widget.viewportbar;
+import app.icons;
 
 void DrawWindowButtons(
     ImVec2& button_start, 
@@ -87,14 +87,14 @@ export class TitleBar : public beryl::core::Layer
 	std::unique_ptr<beryl::renderer::Texture2D> restore_button;
 
     std::map<std::string, IconData> button_map = {
-        {"minimize_Light",{ icons::minimize_button_light,  icons::minimize_button_light_len }},
-        {"minimize_Dark", { icons::minimize_button_dark,   icons::minimize_button_dark_len }},
-        {"maximize_Light",{ icons::maximize_button_light,  icons::maximize_button_light_len }},
-        {"maximize_Dark", { icons::maximize_button_dark,   icons::maximize_button_dark_len }},
-        {"close_Light",   { icons::close_button_light,     icons::close_button_light_len }},
-        {"close_Dark",    { icons::close_button_dark,      icons::close_button_dark_len }},
-        {"restore_Light", { icons::restore_button_light,   icons::restore_button_light_len }},
-        {"restore_Dark",  { icons::restore_button_dark,    icons::restore_button_dark_len }},
+        {"minimize_Light",{ app::icons::minimize_button_light,  app::icons::minimize_button_light_len }},
+        {"minimize_Dark", { app::icons::minimize_button_dark,   app::icons::minimize_button_dark_len }},
+        {"maximize_Light",{ app::icons::maximize_button_light,  app::icons::maximize_button_light_len }},
+        {"maximize_Dark", { app::icons::maximize_button_dark,   app::icons::maximize_button_dark_len }},
+        {"close_Light",   { app::icons::close_button_light,     app::icons::close_button_light_len }},
+        {"close_Dark",    { app::icons::close_button_dark,      app::icons::close_button_dark_len }},
+        {"restore_Light", { app::icons::restore_button_light,   app::icons::restore_button_light_len }},
+        {"restore_Dark",  { app::icons::restore_button_dark,    app::icons::restore_button_dark_len }},
     };
 
 public:
@@ -106,7 +106,7 @@ public:
 		color_style = m_app->m_gui_context->m_theme;
         UpdateTitleBarColor();
 
-        icon_titlebar = std::make_unique<beryl::renderer::Texture2D>(icons::titlebar, icons::titlebar_len, GL_RGBA, true);
+        icon_titlebar = std::make_unique<beryl::renderer::Texture2D>(app::icons::titlebar_logo, app::icons::titlebar_logo_len, GL_RGBA, true);
         LoadButtonTextures(color_style, false);
     }
 
@@ -116,9 +116,9 @@ public:
 
         ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(0, 0, 0, 0));
         ImGui::PushStyleColor(ImGuiCol_MenuBarBg, IM_COL32(0, 0, 0, 0));
-        if (BeginViewportBar("##TitleBarMenuBar", ImGui::GetMainViewport(),
-			title_bar_height + 15.0f, title_bar_height * 0.5f - ImGui::GetFrameHeight() * 0.5f, 
-			menu_bar_size, ImGui::GetFrameHeight(),
+        if (app::widget::BeginViewportBar("##TitleBarMenuBar", ImGui::GetMainViewport(),
+			ImVec2{ title_bar_height + 15.0f, title_bar_height * 0.5f - ImGui::GetFrameHeight() * 0.5f }, 
+			ImVec2{ menu_bar_size, ImGui::GetFrameHeight() },
 			ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_MenuBar))
         {
             ImVec2 menu_start = ImGui::GetCursorScreenPos();

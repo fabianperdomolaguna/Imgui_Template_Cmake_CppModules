@@ -9,12 +9,12 @@
 
 import beryl.core;
 import beryl.logger;
+import app.python.manager;
+import app.icons.window_icon;
 import TitleBar;
 import CustomMainMenuBar;
 import MainMenuBar;
 import RenderScene;
-import PythonManager;
-import Icons.App;
 
 int Main(int argc, char** argv)
 {	
@@ -28,8 +28,8 @@ int Main(int argc, char** argv)
             .custom_title_bar = true
         });
 
-    PythonManager::Instance();
-    PyMgr.Configure(app->m_executable_path / ".venv");
+    app::python::Manager::Instance();
+    app::python::PyMgr().Configure(app->m_executable_path / ".venv");
 
     app->PushLayerApp<TitleBar>();
     app->PushLayerApp<CustomMenuBar>();
@@ -37,7 +37,7 @@ int Main(int argc, char** argv)
     /*BeginMainMenuBar cannot be used with a Custom Titlebar, 
     because it is always anchored to the main viewport at (0,0)*/
     //If dont use the custom titlebar you can activate the SetWindowIcon
-    // app->SetWindowIcon(icons::app, icons::app_len);
+    // app->SetWindowIcon(app::icons::window_icon, app::icons::window_icon_len);
     // app->PushLayerApp<MainMenuBar>();
 
     app->PushLayer<SimpleRender>(app->m_executable_path);

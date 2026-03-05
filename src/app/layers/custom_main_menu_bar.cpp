@@ -12,7 +12,7 @@ export module CustomMainMenuBar;
 import beryl.core;
 import beryl.gui;
 import beryl.config.gui;
-import ViewportBar;
+import app.widget.viewportbar;
 import LoggingConsole;
 
 void ShowStyleEditor(beryl::core::Application* app)
@@ -68,9 +68,9 @@ public:
 			last_frame_height = ImGui::GetFrameHeight();
 		}
 
-		if (BeginViewportBar("##MainMenuBarCustom", ImGui::GetMainViewport(),
-			0.0f, m_app->m_gui_context->m_header_height[0], 
-			ImGui::GetMainViewport()->Size.x, ImGui::GetFrameHeight(),
+		if (app::widget::BeginViewportBar("##MainMenuBarCustom", ImGui::GetMainViewport(),
+			ImVec2{ 0.0f, m_app->m_gui_context->m_header_height[0] }, 
+			ImVec2{ ImGui::GetMainViewport()->Size.x, ImGui::GetFrameHeight() },
 			ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_MenuBar))
 		{
 			ImGui::BeginMenuBar();

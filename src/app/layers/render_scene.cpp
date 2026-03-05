@@ -7,16 +7,13 @@ module;
 
 #include "glad/gl.h"
 #include "imgui.h"
-#include "pybind11/embed.h"
 
 export module RenderScene;
 
 import beryl.core;
 import beryl.renderer;
 import beryl.logger;
-import PythonManager;
-
-namespace py = pybind11;
+import app.visualization.random_plot;
 
 const std::string vertex_shader_src = R"(
 #version 330 core
@@ -71,53 +68,6 @@ public:
         m_framebuffer = std::make_unique<beryl::renderer::Framebuffer>(1600, 800);
     }
 
-    void GenerateMplTexture()
-    {
-        try {
-            if (!PyMgr.BeginSession(m_executable_path + "/scripts")) 
-            {
-                beryl::logger::Error("Python session could not be started");
-                return;
-            }
-            
-            {
-                py::module::import("matplotlib").attr("use")("Agg");
-                auto np = PyMgr.ImportModule("numpy");
-                auto plt = PyMgr.ImportModule("matplotlib.pyplot");
-                auto agg = PyMgr.ImportModule("matplotlib.backends.backend_agg");
-
-                auto add_module = PyMgr.ImportModule("add");
-                auto add = add_module.attr("add");
-
-                pybind11::object fig = plt.attr("figure")();
-                plt.attr("plot")(np.attr("random").attr("randn")(100));
-                plt.attr("title")("Random numbers");
-
-                pybind11::object canvas = agg.attr("FigureCanvasAgg")(fig);
-                canvas.attr("draw")();
-                py::object renderer = canvas.attr("get_renderer")();
-                py::buffer buffer = renderer.attr("buffer_rgba")();
-                py::buffer_info info = buffer.request();
-
-                int width, height;
-                std::tie(width, height) = py::cast<std::tuple<int, int>>(canvas.attr("get_width_height")());
-
-                mpl_texture = std::make_unique<beryl::renderer::Texture2D>(width, height, static_cast<uint8_t*>(info.ptr), GL_RGBA);
-            }
-            PyMgr.EndSession();
-        } catch (py::error_already_set& e) {
-            m_python_bind_error = e.what();
-            mpl_texture.reset();
-            beryl::logger::Error(std::format("Failed to create matplotlib texture (Python error): {}", m_python_bind_error));
-            PyMgr.EndSession();
-        } catch (const std::exception& e) {
-            m_python_bind_error = e.what();
-            mpl_texture.reset();
-            beryl::logger::Error(std::format("Failed to create matplotlib texture (C++ error): {}", m_python_bind_error));
-            PyMgr.EndSession();
-        }
-    }
-
     void OnRender() override
     {
         static float clear_color[4] = { 0.45f, 0.55f, 0.60f, 1.00f };
@@ -144,8 +94,16 @@ public:
         {
             m_show_mpl_window = !m_show_mpl_window;
 
-            if (m_show_mpl_window && !mpl_texture)
-                GenerateMplTexture();
+            if (!m_show_mpl_window)
+                mpl_texture.reset();
+
+            if (m_show_mpl_window)
+            {
+                auto [pixels, width, height, success] = app::visualization::MplRandomPlot();
+
+                if (success)
+                    mpl_texture = std::make_unique<beryl::renderer::Texture2D>(width, height, pixels.data(), GL_RGBA);
+            }
         }
         ImGui::End();
 
