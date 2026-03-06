@@ -35,7 +35,7 @@ export namespace beryl::core
 
 		Application(const beryl::core::WindowSpecification& spec)
 		{
-			m_executable_path = beryl::utils::GetExecutablePath();
+			m_executable_path = beryl::utils::path::GetExecutablePath();
 
 			m_window = std::make_unique<beryl::core::Window>(spec);
 			m_gui_context = std::make_unique<beryl::gui::Context>(m_window->m_glfw_window);

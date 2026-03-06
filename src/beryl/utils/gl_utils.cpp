@@ -60,12 +60,15 @@ void OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
     }
 }
 
-export void EnableOpenGLDebug() 
+export namespace beryl::utils::gl
 {
-    glEnable(GL_DEBUG_OUTPUT);
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallback(OpenGLDebugCallback, nullptr);
-    
-    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-    beryl::logger::Info("OpenGL Debug Output System Initialized");
+    void EnableOpenGLDebug() 
+    {
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(OpenGLDebugCallback, nullptr);
+        
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+        beryl::logger::Info("OpenGL Debug Output System Initialized");
+    }
 }

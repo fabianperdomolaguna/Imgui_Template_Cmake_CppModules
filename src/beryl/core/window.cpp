@@ -100,7 +100,7 @@ export namespace beryl::core
 
             if (m_running) 
             {
-                EnableOpenGLDebug();
+                beryl::utils::gl::EnableOpenGLDebug();
                 glEnable(GL_DEPTH_TEST);
             }
         }

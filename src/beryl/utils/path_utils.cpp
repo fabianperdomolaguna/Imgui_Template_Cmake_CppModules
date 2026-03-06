@@ -16,7 +16,7 @@ export module beryl.utils.path;
 
 import beryl.logger;
 
-export namespace beryl::utils
+export namespace beryl::utils::path
 {
     std::filesystem::path GetExecutablePath()
     {

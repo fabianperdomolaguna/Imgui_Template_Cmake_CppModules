@@ -113,7 +113,8 @@ void ApplyPalette(const ThemePalette& palette)
     colors[ImGuiCol_ModalWindowDimBg] = palette.modal_dimmed_background;
     colors[ImGuiCol_DockingPreview] = palette.docking_preview;
 
-    style.WindowPadding = ImVec2(4, 4);
+    style.WindowPadding = ImVec2(1, 1);
+    style.WindowBorderSize = 0.0f;
     style.FramePadding  = ImVec2(6, 4);
     style.ItemSpacing   = ImVec2(6, 4);
     style.WindowRounding = 4.0f;

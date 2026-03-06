@@ -97,7 +97,7 @@ export namespace beryl::gui
 
         Context(GLFWwindow* window)
         {
-            std::filesystem::path executable_path = beryl::utils::GetExecutablePath();
+            std::filesystem::path executable_path = beryl::utils::path::GetExecutablePath();
             m_ini_file_path = (executable_path / "imgui.ini").string();
 
             IMGUI_CHECKVERSION();
@@ -109,12 +109,6 @@ export namespace beryl::gui
 
             m_font_size = beryl::config::gui::Get<float>(executable_path, "FontSize").value_or(18.0f);
             LoadFonts(executable_path, m_font_size);
-
-            ImGuiStyle& style = ImGui::GetStyle();
-            style.WindowRounding = 0.0f;
-            style.WindowBorderSize = 0.0f;
-            style.WindowPadding = ImVec2(0.0f, 0.0f);
-            style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 
             m_theme = beryl::config::gui::Get<std::string>(executable_path, "GuiStyle").value_or("Light");
             UpdateTheme();
