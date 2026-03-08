@@ -2,6 +2,7 @@ module;
 
 #include <cstdint>
 #include <format>
+#include <span>
 #include <tuple>
 #include <vector>
 
