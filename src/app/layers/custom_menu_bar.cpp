@@ -9,8 +9,9 @@ export module app.layer.custom_menu_bar;
 import beryl.core;
 import beryl.gui;
 import beryl.config.gui;
+import app.layer.title_bar;
 import app.widget.viewportbar;
-import LoggingConsole;
+import app.component.logging_console;
 
 void ShowStyleEditor(beryl::core::Application* app)
 {
@@ -25,6 +26,10 @@ void ShowStyleEditor(beryl::core::Application* app)
 				app->m_gui_context->m_theme = theme.first;
 				app->m_gui_context->UpdateTheme();
 				beryl::config::gui::Set<std::string>(app->m_executable_path, "GuiStyle", theme.first);
+
+				auto* title_bar = app->GetLayer<app::layer::TitleBar>("TitleBar");
+				if (title_bar)
+					title_bar->RefreshTheme();
 			}
 		}
 		ImGui::EndCombo();
@@ -105,7 +110,7 @@ export namespace app::layer
 			}
 
 			if (m_show_logging_console)
-				LoggingConsole(&m_show_logging_console);
+				app::component::LoggingConsole(&m_show_logging_console);
 		}
 	};
 }

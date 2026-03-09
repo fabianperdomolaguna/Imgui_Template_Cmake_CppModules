@@ -4,7 +4,6 @@
     #include <Windows.h>
 #endif
 
-#include <format>
 #include <memory>
 
 import beryl.core;

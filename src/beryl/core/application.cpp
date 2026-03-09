@@ -82,6 +82,16 @@ export namespace beryl::core
 			m_layer_stack.emplace_back(std::move(layer));
 		}
 
+		template<typename T>
+		T* GetLayer(std::string_view name)
+		{
+			for (auto& layer : m_layer_stack)
+			{
+				if (layer->GetName() == name)
+					return static_cast<T*>(layer.get());
+			}
+			return nullptr;
+		}
 		
 		void SetWindowIcon(const std::string& icon_path) const
 		{

@@ -9,7 +9,7 @@ export module app.layer.menu_bar;
 import beryl.core;
 import beryl.gui;
 import beryl.config.gui;
-import LoggingConsole;
+import app.component.logging_console;
 
 void ShowStyleEditorMain(beryl::core::Application* app)
 {
@@ -89,7 +89,7 @@ export namespace app::layer
 			}
 
 			if (m_show_logging_console)
-				LoggingConsole(&m_show_logging_console);
+				app::component::LoggingConsole(&m_show_logging_console);
 		}
 	};
 }

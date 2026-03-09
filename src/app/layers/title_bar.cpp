@@ -19,59 +19,43 @@ import beryl.utils.imgui;
 import app.widget.viewportbar;
 import app.icons;
 
-void DrawWindowButton(
-    ImVec2& cursor_pos, 
-    ImTextureID icon_texture,
-    float button_width,
-    float button_height,
-    float icon_size,
-    ImU32 hover_color,
-    const std::function<void()>& on_click,
-    ImDrawFlags rounding_flags = ImDrawFlags_None,
-    float radius = 0.0f)
-{
-    ImVec2 button_end = { cursor_pos.x + button_width, cursor_pos.y + button_height };
-    ImRect button_rect(cursor_pos, button_end);
-    bool hovered = ImGui::IsMouseHoveringRect(button_rect.Min, button_rect.Max);
-
-    auto* draw_list = ImGui::GetBackgroundDrawList();
-
-    if (hovered)
-    {
-        draw_list->AddRectFilled(
-            button_rect.Min, button_rect.Max, hover_color, radius, rounding_flags);
-        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && on_click)
-            on_click();
-    }
-
-    ImVec2 center = button_rect.GetCenter();
-    ImVec2 offset = { icon_size * 0.5f, icon_size * 0.5f };
-    ImVec2 icon_pos_min = { std::floor(center.x - offset.x), std::floor(center.y - offset.y) };
-    ImVec2 icon_pos_max = { icon_pos_min.x + icon_size, icon_pos_min.y + icon_size };
-
-    draw_list->AddImage(icon_texture, icon_pos_min, icon_pos_max);
-
-    cursor_pos.x += button_width;
-}
-
 struct IconData 
 {
     const unsigned char* data;
     unsigned int len;
 };
 
-bool IsMaximized(GLFWwindow* window)
+struct TitleBarIcons 
 {
-    return glfwGetWindowAttrib(window, GLFW_MAXIMIZED) != 0;
-}
+    IconData minimize;
+    IconData maximize;
+    IconData close;
+    IconData restore;
+};
+
+static const TitleBarIcons light_theme = 
+{
+    .minimize = { app::icons::minimize_button_light, app::icons::minimize_button_light_len },
+    .maximize = { app::icons::maximize_button_light, app::icons::maximize_button_light_len },
+    .close    = { app::icons::close_button_light,    app::icons::close_button_light_len    },
+    .restore  = { app::icons::restore_button_light,  app::icons::restore_button_light_len  }
+};
+
+static const TitleBarIcons dark_theme = 
+{
+    .minimize = { app::icons::minimize_button_dark,  app::icons::minimize_button_dark_len  },
+    .maximize = { app::icons::maximize_button_dark,  app::icons::maximize_button_dark_len  },
+    .close    = { app::icons::close_button_dark,     app::icons::close_button_dark_len     },
+    .restore  = { app::icons::restore_button_dark,   app::icons::restore_button_dark_len   }
+};
 
 export namespace app::layer
 {
     class TitleBar : public beryl::core::Layer
     {
         beryl::core::Application* m_app = nullptr;
-        std::string m_color_style;
         ImU32 m_titlebar_background_color = IM_COL32(220, 220, 215, 255);
+        bool m_is_light_theme = true;
         bool m_is_resizing = false;
 
         const float k_title_bar_height = 42.0f;
@@ -96,43 +80,71 @@ export namespace app::layer
         };
         ResizeDirection m_resize_dir = ResizeDirection::None;
 
-        std::map<std::string, IconData> button_map = 
+        void DrawWindowButton(
+        ImVec2& cursor_pos, 
+        ImTextureID icon_texture,
+        float button_width,
+        float button_height,
+        float icon_size,
+        ImU32 hover_color,
+        const std::function<void()>& on_click,
+        ImDrawFlags rounding_flags = ImDrawFlags_None,
+        float radius = 0.0f)
         {
-            {"minimize_Light",{ app::icons::minimize_button_light,  app::icons::minimize_button_light_len }},
-            {"minimize_Dark", { app::icons::minimize_button_dark,   app::icons::minimize_button_dark_len }},
-            {"maximize_Light",{ app::icons::maximize_button_light,  app::icons::maximize_button_light_len }},
-            {"maximize_Dark", { app::icons::maximize_button_dark,   app::icons::maximize_button_dark_len }},
-            {"close_Light",   { app::icons::close_button_light,     app::icons::close_button_light_len }},
-            {"close_Dark",    { app::icons::close_button_dark,      app::icons::close_button_dark_len }},
-            {"restore_Light", { app::icons::restore_button_light,   app::icons::restore_button_light_len }},
-            {"restore_Dark",  { app::icons::restore_button_dark,    app::icons::restore_button_dark_len }},
-        };
+            ImVec2 button_end = { cursor_pos.x + button_width, cursor_pos.y + button_height };
+            ImRect button_rect(cursor_pos, button_end);
+            bool hovered = ImGui::IsMouseHoveringRect(button_rect.Min, button_rect.Max);
+
+            auto* draw_list = ImGui::GetBackgroundDrawList();
+
+            if (hovered)
+            {
+                draw_list->AddRectFilled(
+                    button_rect.Min, button_rect.Max, hover_color, radius, rounding_flags);
+                if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && on_click)
+                    on_click();
+            }
+
+            ImVec2 center = button_rect.GetCenter();
+            ImVec2 offset = { icon_size * 0.5f, icon_size * 0.5f };
+            ImVec2 icon_pos_min = { std::floor(center.x - offset.x), std::floor(center.y - offset.y) };
+            ImVec2 icon_pos_max = { icon_pos_min.x + icon_size, icon_pos_min.y + icon_size };
+
+            draw_list->AddImage(icon_texture, icon_pos_min, icon_pos_max);
+
+            cursor_pos.x += button_width;
+        }
+
+        bool IsMaximized(GLFWwindow* window)
+        {
+            return glfwGetWindowAttrib(window, GLFW_MAXIMIZED) != 0;
+        }
 
     public:
         TitleBar(beryl::core::Application* app) 
             : Layer("TitleBar"), m_app(app) 
         {
             m_app->m_gui_context->AddHeaderHeight(k_title_bar_height);
-            m_color_style = m_app->m_gui_context->m_theme;
+            m_is_light_theme = (m_app->m_gui_context->m_theme == "Light");
             UpdateTitleBarColor();
 
             m_icon_titlebar = std::make_unique<beryl::renderer::Texture2D>(
                 app::icons::titlebar_logo, app::icons::titlebar_logo_len, GL_RGBA, true);
             
-            LoadButtonTextures(m_color_style, false);
+            LoadButtonTextures(true);
+        }
+
+        void RefreshTheme()
+        {
+            m_is_light_theme = (m_app->m_gui_context->m_theme == "Light");
+            UpdateTitleBarColor();
+            LoadButtonTextures(true);
         }
 
         void OnRender() override
         {
             auto* viewport = ImGui::GetMainViewport();
             auto* background_draw_list = ImGui::GetBackgroundDrawList();
-
-            if (m_color_style != m_app->m_gui_context->m_theme)
-            {
-                m_color_style = m_app->m_gui_context->m_theme;
-                UpdateTitleBarColor();
-                LoadButtonTextures(m_color_style, true);
-            }
 
             HandleBorderResize();
 
@@ -167,7 +179,7 @@ export namespace app::layer
                     wy + static_cast<int>(delta.y));
             }
 
-            float logo_size = k_title_bar_height * 0.8;
+            float logo_size = k_title_bar_height * 0.8f;
             const ImVec2 logo_pos(top_left.x + k_title_bar_height * 0.3, top_left.y + k_title_bar_height * 0.1);
             background_draw_list->AddImage(
                 beryl::utils::imgui::GetImID(m_icon_titlebar->GetTextureId()),
@@ -278,7 +290,7 @@ export namespace app::layer
                 const bool left =
                     (mouse_x < k_border_size) && (mouse_y > static_cast<int>(k_title_bar_height));
                 const bool right = (mouse_x > width - k_border_size) &&
-                                   (mouse_y > static_cast<int>(k_title_bar_height));
+                    (mouse_y > static_cast<int>(k_title_bar_height));
                 const bool bottom = (mouse_y > height - k_border_size);
 
                 if (right && bottom) 
@@ -372,19 +384,18 @@ export namespace app::layer
         void UpdateTitleBarColor()
         {
             m_titlebar_background_color =
-                (m_app->m_gui_context->m_theme == "Light")
+                m_titlebar_background_color = m_is_light_theme
                 ? IM_COL32(222, 220, 215, 255)
                 : IM_COL32(40, 40, 40, 255);
         }
 
-        void LoadButtonTextures(const std::string& style, bool reload = false)
+        void LoadButtonTextures(bool reload)
         {
-            auto suffix = "_" + style;
+            const TitleBarIcons& icons = m_is_light_theme ? light_theme : dark_theme;
 
             auto load_helper = [&](std::unique_ptr<beryl::renderer::Texture2D>& texture,
-                const std::string& name) -> void
+                const IconData& icon) -> void
             {
-                const auto& icon = button_map[name + suffix];
                 if (reload && texture)
                     texture->Reload(icon.data, icon.len);
                 else
@@ -392,10 +403,10 @@ export namespace app::layer
                         icon.data, icon.len, GL_RGBA, true);
             };
 
-            load_helper(m_minimize_button, "minimize");
-            load_helper(m_maximize_button, "maximize");
-            load_helper(m_close_button, "close");
-            load_helper(m_restore_button, "restore");
+            load_helper(m_minimize_button, icons.minimize);
+            load_helper(m_maximize_button, icons.maximize);
+            load_helper(m_close_button, icons.close);
+            load_helper(m_restore_button, icons.restore);
         }
 
         void DrawCenteredText(std::string& text, const ImRect& rect)
