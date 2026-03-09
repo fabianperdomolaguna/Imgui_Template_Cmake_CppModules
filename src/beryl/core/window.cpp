@@ -73,6 +73,19 @@ export namespace beryl::core
                 return;
             }
 
+            if (m_window_specification.custom_title_bar)
+            {
+                GLFWmonitor* primary_monitor = glfwGetPrimaryMonitor();
+                const GLFWvidmode* video_mode = glfwGetVideoMode(primary_monitor);
+                int monitor_x, monitor_y;
+                glfwGetMonitorPos(primary_monitor, &monitor_x, &monitor_y);
+
+                int pos_x = monitor_x + (video_mode->width - m_window_specification.width) / 2;
+                int pos_y = monitor_y + (video_mode->height - m_window_specification.height) / 2;
+
+                glfwSetWindowPos(m_glfw_window, pos_x, pos_y);
+            }
+
             glfwMakeContextCurrent(m_glfw_window);
             glfwSwapInterval(0);
             glfwSetWindowUserPointer(m_glfw_window, this);
