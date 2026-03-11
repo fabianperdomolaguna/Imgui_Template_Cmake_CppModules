@@ -105,7 +105,7 @@ To remove Python support from the app not instantiate `Manager` class, remove th
 
 ## 6. Core framework - beryl library
 
-The project is built upon the beryl internal library, which organizes the core logic and rendering systems into distinct namespaces using C++20 Modules. This ensures a clean separation of concerns and high-performance compilation.
+The project is built upon the beryl internal library, which organizes the core logic and rendering systems into distinct namespaces. This ensures a clean separation of concerns and high-performance compilation.
 
 To extend the application, you typically inherit from `beryl::core::Layer`.
 
