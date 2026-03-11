@@ -11,7 +11,6 @@ export module app.layer.simple_render;
 
 import beryl.core;
 import beryl.renderer;
-import beryl.logger;
 import beryl.utils.path;
 import beryl.utils.imgui;
 import app.visualization.random_plot;

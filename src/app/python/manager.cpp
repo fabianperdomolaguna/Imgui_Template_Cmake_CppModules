@@ -38,8 +38,6 @@ export namespace app::python
             return instance;
         }
 
-        static Manager& PyMgr() { return Instance(); }
-
         ~Manager()
         {
             if (m_active)

@@ -19,7 +19,7 @@ target_sources(beryl
 target_link_libraries(beryl
   glfw
   glad_gl
-  ImGui
+  imgui
   stb
   spdlog::spdlog
   nlohmann_json::nlohmann_json

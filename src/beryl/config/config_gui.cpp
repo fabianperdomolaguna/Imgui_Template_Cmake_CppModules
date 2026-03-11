@@ -16,7 +16,8 @@ import beryl.logger;
 
 namespace 
 {
-    struct ConfigState {
+    struct ConfigState 
+    {
         nlohmann::json cache;
         bool loaded = false;
         std::shared_mutex mutex;

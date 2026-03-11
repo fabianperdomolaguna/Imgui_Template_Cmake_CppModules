@@ -100,15 +100,15 @@ echo $XDG_SESSION_TYPE
 
 ## 5. Python integration — PythonManager
 
-This project centralizes the embedded Python interpreter with a `PythonManager` class located at the `src/app/python_interpreter/python_manager.cpp`. The class encapsulates the interpreter call and exposes a simple methods for scripts integration.
+This project centralizes the embedded Python interpreter with a `Manager` class located at the `src/app/python/manager.cpp`. The class encapsulates the interpreter call and exposes a simple methods for scripts integration.
 
-- Call `PythonManager::Instance();` and  `PyMgr.Configure(venv_path)` before any Python code runs.
-- Use `PyMgr.BeginSession(scripts_path)` and `PyMgr.EndSession()` to run and integrate Python code.
-- `AddSystemPath` method inserts the path at the front of `sys.path` to import local scripts
-- `ImportModule` load a module (from the environment or a local script). Returns an empty module on failure.
-- `SafeCall` returns an empty `py::object` on failure and logs the error so Python script faults do not crash the app, allowing callers to handle fallbacks or retry later.
+- Call `app::python::Manager::Instance();` and  `app::python::PyMgr.Configure(venv_path)` before any Python code runs.
+- Use `app::python::PyMgr.BeginSession()` to active Python intepreter.
+- `app::python::PyMgrAddSystemPath` method inserts the path at the front of `sys.path` to import local scripts
+- `app::python::PyMgr.ImportModule` load a module (from the environment or a local script). Returns an empty module on failure.
+- `app::python::PyMgr.SafeCall` returns an empty `py::object` on failure and logs the error so Python script faults do not crash the app, allowing callers to handle fallbacks or retry later.
 
-To remove Python support from the app not instantiate `PythonManager` class, remove the `pybind11::embed` target from `CMakeLists.txt`, and remove any Python-specific imports from your modules.
+To remove Python support from the app not instantiate `Manager` class, remove the `pybind11::embed` target from `CMakeLists.txt`, and remove any Python-specific imports from your modules.
 
 ## 6. Core framework - beryl library
 
@@ -136,15 +136,16 @@ class MyLayer : public beryl::core::Layer {
 
 ## Logging
 
-This project uses spdlog for application logging, including an ImGui sink and additional JSON file sink that forwards log messages to an in-app logging console and a JSON line file. The sinks is implemented using asynchronous mode in `src/gui_core/logging/logger.cpp` and is registered `Logger::Init()`.
+
+This project uses spdlog for application logging, including an ImGui sink and additional JSON file sink that forwards log messages to an in-app logging console and a JSON line file. The sinks is implemented using asynchronous mode in `src/beryl/logging/logger.cpp` and is registered `beryl::logger::Init()`.
 
 You can open the logging console from the application menu: `Tools -> Logging Console`. The console shows runtime logs inside the GUI and following defined configuration and log lgevels. The `logs.json` file is stored in bin folder.
 
 Quick usage
 
-- Call the initializer `Logger::Init()`
+- Call the initializer `beryl::logger::Init()`
 - Open the console with `Tools -> Logging Console` menu to view logs in the GUI
-- Import Logger and employes defined static methods of the class `Logger::Trace`, `Logger::Info`, `Logger::Warn`, `Logger::Error`, and `Logger::Critical`. They receive a message and key/value pairs separated by commas
+- Import Logger and employes defined static methods of the class `beryl::logger::Trace`, `beryl::logger::Info`, `beryl::logger::Warn`, `beryl::logger::Error`, and `beryl::;ogger::Critical`. They receive a message and key/value pairs separated by commas
 
 ## Custom Title Bar Layer
 

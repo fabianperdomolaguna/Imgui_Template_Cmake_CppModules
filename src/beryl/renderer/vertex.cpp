@@ -11,7 +11,6 @@ export module beryl.renderer:vertex;
 
 import :shader;
 import beryl.utils.gl;
-import beryl.logger;
 
 export namespace beryl::renderer
 {
