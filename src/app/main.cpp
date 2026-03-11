@@ -4,49 +4,49 @@
     #include <Windows.h>
 #endif
 
-#include <format>
 #include <memory>
 
-#include "core/application.h"
-#include "logging/logger.h"
-#include "python_interpreter/python_manager.h"
-#include "layers/title_bar.h"
-#include "layers/custom_main_menu_bar.h"
-#include "layers/main_menu_bar.h"
-#include "layers/render_scene.h"
-#include "icons/icon_app.h"
-
-namespace py = pybind11;
+#include "beryl/core/application.h"
+#include "beryl/core/window.h"
+#include "beryl/logging/logger.h"
+#include "app/python/manager.h"
+#include "app/icons/window_icon.h"
+#include "app/layers/menu_bar.h"
+#include "app/layers/simple_render.h"
+#include "app/layers/title_bar.h"
+#include "app/layers/custom_menu_bar.h"
 
 int Main(int argc, char** argv)
-{
-    Logger::Init();
+{	
+    beryl::logger::Init();
 
-    std::unique_ptr<Application> app = 
-        std::make_unique<Application>(WindowSpecification{
+    std::unique_ptr<beryl::core::Application> app = 
+        std::make_unique<beryl::core::Application>(beryl::core::WindowSpecification{
             .title = "ImGui - OpenGL Context",
             .width = 1600,
             .height = 800,
             .custom_title_bar = true
         });
-    
-    PythonManager::Instance();
-    PyMgr.Configure(std::format("{}/.venv",app->m_executable_path));
 
-    app->PushLayerApp<TitleBar>();
-    app->PushLayerApp<CustomMenuBar>();
+    app::python::Manager::Instance();
+    app::python::PyMgr().Configure(app->m_executable_path / ".venv");
+
+    app->PushLayerApp<app::layer::TitleBar>();
+    app->PushLayerApp<app::layer::CustomMenuBar>();
 
     /*BeginMainMenuBar cannot be used with a Custom Titlebar, 
     because it is always anchored to the main viewport at (0,0)*/
     //If dont use the custom titlebar you can activate the SetWindowIcon
-    // app->SetWindowIcon(icons::app, icons::app_len);
-    // app->PushLayerApp<MainMenuBar>();
+    // app->SetWindowIcon(app::icons::window_icon, app::icons::window_icon_len);
+    // app->PushLayerApp<app::layer::MenuBar>();
 
-    app->PushLayer<SimpleRender>(app->m_executable_path);
+    app->PushLayer<app::layer::SimpleRender>();
 
-    Logger::Info("App started");
+    beryl::logger::Info("App started");
 
     app->Run();
+
+    beryl::logger::Shutdown();
 
     return 0;
 }

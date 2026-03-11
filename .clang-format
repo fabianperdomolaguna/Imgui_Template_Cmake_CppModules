@@ -1,0 +1,12 @@
+Language: Cpp
+BasedOnStyle: LLVM
+IndentWidth: 4
+BreakBeforeBraces: Allman
+PointerAlignment: Left
+AccessModifierOffset: -4
+Cpp11BracedListStyle: false
+SpacesInContainerLiterals: true
+ColumnLimit: 100
+AlignAfterOpenBracket: DontAlign
+ContinuationIndentWidth: 4
+AllowAllParametersOfDeclarationOnNextLine: false

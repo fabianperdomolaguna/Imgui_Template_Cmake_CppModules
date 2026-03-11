@@ -18,8 +18,9 @@ This project is a simple template to create desktop GUI applications with ImGui 
 - [3. Build](#3-build)
 - [4. Use Wayland for window creation](#4-use-wayland-for-window-creation-linux)
 - [5. Python integration — PythonManager](#5-python-integration--pythonmanager)
-- [6. Additional characteristics](#6-additional-characteristics)
-- [7. Utils](#7-utils)
+- [6. Core framework - beryl library](#6-core-framework---beryl-library)
+- [7. Additional Characteristics](#7-additional-characteristics)
+- [8. Utils](#8-utils)
 
 ## 1. Requirements
 
@@ -27,7 +28,7 @@ This project is a simple template to create desktop GUI applications with ImGui 
 - Python interpreter: 3.10+ (Intepreter binding & GLAD generation)
 - C++ compiler: Visual Studio 2022 (MSVC 19.34+) or LLVM/Clang 19+
 - Dependencies: [Python](https://www.python.org/) and [uv](https://github.com/astral-sh/uv) for manage dependencies and environments
-- The template uses the [Roboto](https://fonts.google.com/specimen/Roboto) font ([Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0))
+- The template uses the [Roboto](https://fonts.google.com/specimen/Roboto) and [PublicSans](https://fonts.google.com/specimen/Public+Sans) font
 
 ## 2. Getting started
 
@@ -92,29 +93,51 @@ echo $XDG_SESSION_TYPE
 
 ## 5. Python integration — PythonManager
 
-This project centralizes the embedded Python interpreter with a `PythonManager` class located at the `src/app/python_interpreter/python_manager.cpp`. The class encapsulates the interpreter call and exposes a simple methods for scripts integration.
+This project centralizes the embedded Python interpreter with a `Manager` class located at the `src/app/python/manager.cpp`. The class encapsulates the interpreter call and exposes a simple methods for scripts integration.
 
-- Call `PythonManager::Instance();` and  `PyMgr.Configure(venv_path)` before any Python code runs.
-- Use `PyMgr.BeginSession(scripts_path)` and `PyMgr.EndSession()` to run and integrate Python code.
-- `AddSystemPath` method inserts the path at the front of `sys.path` to import local scripts
-- `ImportModule` load a module (from the environment or a local script). Returns an empty module on failure.
-- `SafeCall` returns an empty `py::object` on failure and logs the error so Python script faults do not crash the app, allowing callers to handle fallbacks or retry later.
+- Call `app::python::Manager::Instance();` and  `app::python::PyMgr.Configure(venv_path)` before any Python code runs.
+- Use `app::python::PyMgr.BeginSession()` to active Python intepreter.
+- `app::python::PyMgrAddSystemPath` method inserts the path at the front of `sys.path` to import local scripts
+- `app::python::PyMgr.ImportModule` load a module (from the environment or a local script). Returns an empty module on failure.
+- `app::python::PyMgr.SafeCall` returns an empty `py::object` on failure and logs the error so Python script faults do not crash the app, allowing callers to handle fallbacks or retry later.
 
-To remove Python support from the app not instantiate `PythonManager` class, remove the `pybind11::embed` target from `CMakeLists.txt`, and remove any Python-specific imports from your modules.
+To remove Python support from the app not instantiate `Manager` class, remove the `pybind11::embed` target from `CMakeLists.txt`, and remove any Python-specific imports from your modules.
 
-## 6. Additional characteristics
+## 6. Core framework - beryl library
+
+The project is built upon the beryl internal library, which organizes the core logic and rendering systems into distinct namespaces using C++20 Modules. This ensures a clean separation of concerns and high-performance compilation.
+
+To extend the application, you typically inherit from `beryl::core::Layer`.
+
+```cpp
+import beryl.core;
+import beryl.renderer;
+
+class MyLayer : public beryl::core::Layer {
+  std::unique_ptr<beryl::renderer::Shader> m_Shader;
+  
+  MyLayer() : Layer("MyLayerName") {}
+
+  void OnAttach() override {
+    m_Shader = std::make_unique<beryl::renderer::Shader>();
+        // ...
+  }
+};
+```
+
+## 7. Additional characteristics
 
 ## Logging
 
-This project uses spdlog for application logging, including an ImGui sink and additional JSON file sink that forwards log messages to an in-app logging console and a JSON line file. The sinks is implemented using asynchronous mode in `src/gui_core/logging/logger.cpp` and is registered `Logger::Init()`.
+This project uses spdlog for application logging, including an ImGui sink and additional JSON file sink that forwards log messages to an in-app logging console and a JSON line file. The sinks is implemented using asynchronous mode in `src/beryl/logging/logger.cpp` and is registered `beryl::logger::Init()`.
 
 You can open the logging console from the application menu: `Tools -> Logging Console`. The console shows runtime logs inside the GUI and following defined configuration and log lgevels. The `logs.json` file is stored in bin folder.
 
 Quick usage
 
-- Call the initializer `Logger::Init()`
+- Call the initializer `beryl::logger::Init()`
 - Open the console with `Tools -> Logging Console` menu to view logs in the GUI
-- Import Logger and employes defined static methods of the class `Logger::Trace`, `Logger::Info`, `Logger::Warn`, `Logger::Error`, and `Logger::Critical`. They receive a message and key/value pairs separated by commas
+- Import Logger and employes defined static methods of the class `beryl::logger::Trace`, `beryl::logger::Info`, `beryl::logger::Warn`, `beryl::logger::Error`, and `beryl::;ogger::Critical`. They receive a message and key/value pairs separated by commas
 
 ## Custom Title Bar Layer
 
@@ -170,7 +193,7 @@ Additionally, the creation of a Linux application launcher with an assigned icon
 \- If the application icon doesn't appear correctly in the taskbar when launched, you need to add `StartupWMClass=WM_Class` to the .desktop file located in `/home/.local/share/applications/menulibre-launchername.desktop`  
 \- To get the WM Class of an application, first open the app, then run the command `xprop | grep WM_CLASS` in a terminal. When prompted, click inside the application's window. The terminal will output something like WM_CLASS(STRING) = "example-class", "example-class", which you can use as the value for StartupWMClass in the `.desktop` file.
 
-## 7. Utils
+## 8. Utils
 
 \- Python script for embedding images into memory headers (.h) and restoring them.
 

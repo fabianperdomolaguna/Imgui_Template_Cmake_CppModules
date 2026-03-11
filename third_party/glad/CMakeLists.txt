@@ -8,4 +8,4 @@ FetchContent_Declare(glad
 FetchContent_MakeAvailable(glad)
 
 add_subdirectory("${glad_SOURCE_DIR}/cmake" glad_cmake)
-glad_add_library(glad_gl SHARED API gl:core=4.0)
+glad_add_library(glad_gl SHARED API gl:core=4.3)
