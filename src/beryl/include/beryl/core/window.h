@@ -19,7 +19,7 @@ namespace beryl::core
 
     class Window
     {
-        std::array<float, 4> clear_color = { 0.2f, 0.2f, 0.2f, 1.0f };
+        std::array<float, 4> clear_color = { 0.3f, 0.3f, 0.3f, 1.0f };
         float depth_clear = 1.0f;
 
     public:

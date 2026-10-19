@@ -77,6 +77,24 @@ void app::layer::TitleBar::OnRender()
 
     HandleBorderResize();
 
+    ImVec2 viewport_min(
+        viewport->Pos.x,
+        viewport->Pos.y + k_title_bar_height
+    );
+
+    ImVec2 viewport_max(
+        viewport->Pos.x + viewport->Size.x,
+        viewport->Pos.y + viewport->Size.y
+    );
+
+    background_draw_list->AddRectFilled(
+        viewport_min,
+        viewport_max,
+        ImGui::ColorConvertFloat4ToU32(
+            ImVec4(0.3f, 0.3f, 0.3f, 1.0f)
+        )
+    ); 
+
     ImGui::SetNextWindowPos(viewport->Pos);
     ImGui::SetNextWindowSize(viewport->Size);
     ImGui::Begin("##Overlay", nullptr,
