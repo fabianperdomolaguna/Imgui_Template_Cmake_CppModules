@@ -1,7 +1,7 @@
 include(FetchContent)
 
 FetchContent_Declare(imgui
-  URL https://github.com/ocornut/imgui/archive/refs/tags/v1.92.1-docking.tar.gz
+  URL https://github.com/ocornut/imgui/archive/refs/tags/v1.93.0-docking.tar.gz
   DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 
