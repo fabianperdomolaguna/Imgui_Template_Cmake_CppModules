@@ -26,7 +26,7 @@ This project is a simple template to create desktop GUI applications with ImGui 
 
 - [CMake](https://cmake.org/): 3.28+
 - Python interpreter: 3.10+ (Intepreter binding & GLAD generation)
-- C++ compiler: Visual Studio 2022 (MSVC 19.34+) or LLVM/Clang 19+
+- C++ compiler: Visual Studio 2022 (MSVC 19.34+) or LLVM/Clang 21+
 - Dependencies: [Python](https://www.python.org/) and [uv](https://github.com/astral-sh/uv) for manage dependencies and environments
 - The template uses the [Roboto](https://fonts.google.com/specimen/Roboto) and [PublicSans](https://fonts.google.com/specimen/Public+Sans) font
 
@@ -38,8 +38,12 @@ chmod +x llvm.sh
 sudo ./llvm.sh <version number> all
 
 # Set Clang version as the default compiler
-sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-19 100
-sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-19 100
+sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-23 100
+sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-23 100
+
+# You can install llvm and clang using a package manager (e.g. apt or dnf)
+sudo apt install llvm
+sudo apt install clang
 ```
 
 CMake automatically creates a Python virtual environment (`/bin/.venv`) using `uv` and installs all required Python dependencies from `requirements/python/requirements.txt`

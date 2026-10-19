@@ -2,8 +2,6 @@
 
 #include <format>
 
-#include "Python.h"
-
 app::python::Manager& app::python::Manager::Instance()
 {
     static Manager instance;

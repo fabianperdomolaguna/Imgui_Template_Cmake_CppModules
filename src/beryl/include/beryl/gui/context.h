@@ -2,6 +2,7 @@
 
 #include <array>
 #include <filesystem>
+#include <string_view>
 #include <vector>
 
 #include "GLFW/glfw3.h"
@@ -19,7 +20,7 @@ namespace beryl::gui
         void LoadFonts(std::filesystem::path& executable_path, float font_size);
 
     public:
-        static constexpr std::array<std::pair<std::string, void(*)()>, 2> m_themes_map
+        inline static constexpr std::array<std::pair<std::string_view, void(*)()>, 2> m_themes_map
         {
             std::pair{ "Dark",  beryl::themes::SetDarkTheme },
             std::pair{ "Light", beryl::themes::SetLightTheme }
