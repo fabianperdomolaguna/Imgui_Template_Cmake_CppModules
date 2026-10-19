@@ -12,17 +12,61 @@ function(setup_python_env)
     message(STATUS "UV: Creating python virtual environment at ${VENV_DIR}...")
     execute_process(
       COMMAND ${UV_EXECUTABLE} venv "${VENV_DIR}" --python ${DESIRED_PYTHON_VERSION}
+      RESULT_VARIABLE UV_VENV_RESULT
     )
+
+    if(NOT UV_VENV_RESULT EQUAL 0)
+      message(FATAL_ERROR
+        "Failed to create Python virtual environment with uv."
+      )
+      endif()
   endif()
   
   execute_process(
     COMMAND ${UV_EXECUTABLE} pip install
             -r "${CMAKE_SOURCE_DIR}/requirements/python/requirements.txt"
             --python "${VENV_PYTHON}"
+    RESULT_VARIABLE UV_PIP_RESULT
   )
+
+  if(NOT UV_PIP_RESULT EQUAL 0)
+    message(FATAL_ERROR
+      "Failed to install Python dependencies."
+    )
+  endif()
 
   set(GLAD_PYTHON "${VENV_PYTHON}" CACHE FILEPATH "" FORCE)
   set(PYTHON_EXECUTABLE "${VENV_PYTHON}" CACHE FILEPATH "" FORCE)
+
+  execute_process(
+    COMMAND "${VENV_PYTHON}" -c
+            "import sys; print(sys.base_prefix)"
+    OUTPUT_VARIABLE PYTHON_BASE_PREFIX
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    RESULT_VARIABLE PYTHON_BASE_RESULT
+  )
+
+  if(NOT PYTHON_BASE_RESULT EQUAL 0)
+    message(FATAL_ERROR
+      "Could not determine the base Python installation."
+    )
+  endif()
+
+  set(Python_EXECUTABLE "${VENV_PYTHON}"
+    CACHE FILEPATH "Python interpreter" FORCE
+  )
+
+  set(Python_ROOT_DIR "${PYTHON_BASE_PREFIX}"
+    CACHE PATH "Python installation root" FORCE
+  )
+
+  set(Python_FIND_ABI "OFF;OFF;OFF;ON"
+    CACHE STRING "Python ABI configuration" FORCE
+  )
+
+  set(PYBIND11_FINDPYTHON ON
+    CACHE BOOL "Use CMake FindPython" FORCE
+  )
 
   if(WIN32)
     set(ENV{PATH} "${VENV_DIR}/Scripts;$ENV{PATH}")

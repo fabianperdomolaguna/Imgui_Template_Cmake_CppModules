@@ -6,7 +6,6 @@ module;
 #include <mutex>
 #include <string>
 
-#include "Python.h"
 #include "pybind11/embed.h"
 
 export module app.python.manager;

@@ -14,7 +14,7 @@ export module beryl.config.gui;
 
 import beryl.logger;
 
-namespace 
+namespace config::detail
 {
     struct ConfigState 
     {
@@ -68,10 +68,10 @@ export namespace beryl::config::gui
     template <typename T>
     std::optional<T> Get(const std::filesystem::path& executable_path, const std::string& key)
     {
-        if (!LoadIfNeeded(executable_path))
+        if (!::config::detail::LoadIfNeeded(executable_path))
             return std::nullopt;
 
-        auto& state = GetState();
+        auto& state = ::config::detail::GetState();
 
         std::shared_lock lock(state.mutex);
 
@@ -95,14 +95,14 @@ export namespace beryl::config::gui
     template <typename T>
     void Set(const std::filesystem::path& executable_path, const std::string& key, const T& value)
     {
-        if (!LoadIfNeeded(executable_path))
+        if (!::config::detail::LoadIfNeeded(executable_path))
         {
             beryl::logger::Error(std::format(
                 "Aborting save for Key '{}' - GUI config file could not be validated", key));
             return;
         }
 
-        auto& state = GetState();
+        auto& state = ::config::detail::GetState();
 
         std::unique_lock lock(state.mutex);
 

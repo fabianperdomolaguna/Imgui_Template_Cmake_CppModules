@@ -7,6 +7,7 @@ module;
 #include <optional>
 #include <ranges>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "GLFW/glfw3.h"
@@ -68,7 +69,7 @@ export namespace beryl::gui
         }
 
     public:
-        static constexpr std::array<std::pair<std::string, void(*)()>, 2> m_themes_map
+        inline static constexpr std::array<std::pair<std::string_view, void(*)()>, 2> m_themes_map
         {
             std::pair{ "Dark",  beryl::themes::SetDarkTheme },
             std::pair{ "Light", beryl::themes::SetLightTheme }

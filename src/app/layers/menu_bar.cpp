@@ -19,11 +19,11 @@ void ShowStyleEditorMain(beryl::core::Application* app)
 	{
 		for (auto theme : app->m_gui_context->m_themes_map)
 		{
-			if (ImGui::Selectable(theme.first.c_str(), app->m_gui_context->m_theme == theme.first))
+			if (ImGui::Selectable(theme.first.data(), app->m_gui_context->m_theme == theme.first))
 			{
 				app->m_gui_context->m_theme = theme.first;
 				app->m_gui_context->UpdateTheme();
-				beryl::config::gui::Set<std::string>(app->m_executable_path, "GuiStyle", theme.first);
+				beryl::config::gui::Set<std::string>(app->m_executable_path, "GuiStyle", std::string(theme.first));
 			}
 		}
 		ImGui::EndCombo();
